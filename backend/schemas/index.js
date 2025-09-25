@@ -1,5 +1,6 @@
 import { GraphQLObjectType, GraphQLSchema } from 'graphql';
 import { helloQuery } from './features/hello.js';
+import { protectedQuery } from './features/protected.js';
 
 // Root Query - combines all feature queries
 const RootQuery = new GraphQLObjectType({
@@ -7,6 +8,7 @@ const RootQuery = new GraphQLObjectType({
   description: 'Root query for the application',
   fields: () => ({
     ...helloQuery,
+    ...protectedQuery,
     // Todo queries
     // ...todoQueries,
     // User queries
