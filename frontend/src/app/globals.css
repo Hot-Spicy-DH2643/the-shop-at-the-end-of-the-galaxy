@@ -1,8 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Modak&display=swap');
 @import 'tailwindcss';
 
-
-
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -27,6 +25,11 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  height: 100%;
+}
+
+html {
+  height: 100%;
 }
 
 .galaxy-bg-space {
@@ -81,10 +84,3 @@ body {
 .animate-moveUp {
   animation: moveUp 18s linear infinite;
 }
-
-
-
-
-
-
-
