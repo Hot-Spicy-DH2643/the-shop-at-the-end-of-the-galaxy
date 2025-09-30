@@ -1,4 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Modak&display=swap');
 @import 'tailwindcss';
+
+
 
 :root {
   --background: #ffffff;
@@ -10,6 +13,7 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-modak: 'Modak', cursive;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -77,3 +81,10 @@ body {
 .animate-moveUp {
   animation: moveUp 18s linear infinite;
 }
+
+
+
+
+
+
+
