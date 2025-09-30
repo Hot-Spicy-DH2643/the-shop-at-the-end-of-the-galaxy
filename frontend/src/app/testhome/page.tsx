@@ -1,3 +1,5 @@
+import Navbar from '@/components/navbar';
+
 const testAsteroids = [
   {
     id: 1,
@@ -70,9 +72,11 @@ const repeatedAsteroids = Array(10).fill(testAsteroids).flat();
 
 export default function Testhome() {
   return (
-    <div className="font-sans">
-      <main className="galaxy-homepage flex flex-col lg:flex-row text-black min-h-screen">
-        <div className="galaxy-heroarea order-1 lg:order-2 w-full lg:w-2/5 bg-white p-8 flex flex-col items-center justify-center h-[40vh] lg:h-screen">
+    <div className="flex flex-col min-h-screen font-sans">
+      <Navbar />
+
+      <main className="flex-1 galaxy-homepage flex flex-col lg:flex-row text-black h-[calc(100vh-56px)]">
+        <div className="galaxy-heroarea order-1 lg:order-2 w-full lg:w-2/5 bg-white p-8 flex flex-col items-center justify-center flex-[0_0_40%]">
           <h2 className="text-3xl md:text-5xl lg:text-4xl xl:text-5xl font-extrabold mb-2 text-blue-900 p-8 py-2">
             Own a piece of the cosmos, because why should Earth have it all?
           </h2>
@@ -90,7 +94,7 @@ export default function Testhome() {
           </div>
         </div>
 
-        <div className="galaxy-storefront galaxy-bg-space order-2 lg:order-1 w-full lg:w-3/5 p-4 h-[60vh] lg:h-screen overflow-hidden relative">
+        <div className="galaxy-storefront galaxy-bg-space order-2 lg:order-1 w-full lg:w-3/5 p-4 overflow-hidden relative flex-1 flex-[0_0_60%]">
           {repeatedAsteroids.map((asteroid, idx) => (
             <div
               key={`${asteroid.id}-${idx}`}
@@ -102,7 +106,7 @@ export default function Testhome() {
             >
               <div className="rounded bg-[rgba(23,23,23,0.7)] shadow flex flex-col items-center p-8 m-4 overflow-hidden">
                 <img
-                  className="w-[100px]"
+                  className="w-[100px] hover:scale-[1.08] transition duration-300"
                   src={asteroid.imageUrl}
                   alt={asteroid.name}
                 />
