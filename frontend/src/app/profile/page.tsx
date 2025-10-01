@@ -46,7 +46,7 @@ export default function Profile() {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-6 py-3 font-bold text-sm rounded shadow ${
+                className={`px-4 py-3 text-sm sm:px-6 sm:py-2 sm:text-base font-bold rounded shadow ${
                   activeTab === tab
                     ? 'bg-gray-300'
                     : 'bg-gray-200 hover:bg-gray-300'
