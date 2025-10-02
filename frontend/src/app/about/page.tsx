@@ -47,7 +47,7 @@ export default function About() {
               <h2 className="text-2xl font-extrabold m-6 mt-8 mb-4 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-300 bg-clip-text text-transparent drop-shadow-lg">
                 Our Mission
               </h2>
-              <p className="m-6">
+              <p className="m-6 mt-0 lg:text-lg lg:mt-8">
                 To provide the finest goods and services to beings from across
                 the universe, while maintaining the highest standards of quality
                 and customer satisfaction. No matter which dimension you&apos;re
