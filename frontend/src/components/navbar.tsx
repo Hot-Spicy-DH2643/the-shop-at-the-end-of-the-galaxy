@@ -1,12 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 
 const navLinks = [
-  { label: 'Home', href: '#' },
-  { label: 'Page 1', href: '#' },
-  { label: 'Page 2', href: '#' },
-  { label: 'Page 3', href: '#' },
+  { label: 'Home', href: '/testhome' },
+  { label: 'About', href: '/about' },
   { label: 'Login', href: '#' },
 ];
 
@@ -16,9 +15,12 @@ export default function Navbar() {
   return (
     <nav className="w-full bg-blue-900 text-white">
       <div className="flex items-center justify-between h-14 px-4">
-        <span className="text-l sm:text-xl md:text-2xl pt-1 font-modak">
+        <Link
+          href="/testhome"
+          className="text-l sm:text-xl md:text-2xl pt-1 font-modak"
+        >
           THE SHOP AT THE END OF THE GALAXY
-        </span>
+        </Link>
         <button
           onClick={() => setOpen(v => !v)}
           aria-label="Toggle navigation"
