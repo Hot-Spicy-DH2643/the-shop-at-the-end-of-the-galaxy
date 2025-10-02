@@ -89,13 +89,13 @@ export default function Testhome() {
           <div className="py-4 flex flex-col sm:flex-row lg:flex-col xl:flex-row justify-start gap-4 p-8 w-full">
             <Link
               href="/about"
-              className="border border-blue-600 text-blue-900 bg-transparent px-6 py-2 rounded hover:bg-blue-50 transition cursor-pointer"
+              className="border border-blue-600 text-blue-900 bg-transparent px-6 py-2 rounded hover:bg-blue-50 transition cursor-pointer text-center"
             >
               🔍 More Info
             </Link>
             <Link
               href="/shop"
-              className="bg-blue-900 text-white px-6 py-2 rounded shadow hover:bg-blue-700 transition cursor-pointer"
+              className="bg-blue-900 text-white px-6 py-2 rounded shadow hover:bg-blue-700 transition cursor-pointer text-center"
             >
               🪐 Open Shop
             </Link>
