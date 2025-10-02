@@ -56,6 +56,10 @@ html {
   animation: move-stars 120s linear infinite; /* slowed a little */
 }
 
+.animate-moveUp {
+  animation: moveUp 18s linear infinite;
+}
+
 @keyframes move-stars {
   from {
     background-position:
@@ -81,6 +85,31 @@ html {
     transform: translateY(-1500px);
   } /* Move up by enough space for all cards */
 }
-.animate-moveUp {
-  animation: moveUp 18s linear infinite;
+
+@keyframes flythrough {
+  0% {
+    transform: translate3d(-8vw, -4vh, -360px) rotateZ(-6deg) scale(0.7);
+  }
+  60% {
+    transform: translate3d(6vw, 3vh, 260px) rotateZ(3deg) scale(1.05);
+  }
+  100% {
+    transform: translate3d(14vw, 6vh, 420px) rotateZ(8deg) scale(1.25);
+  }
+}
+@keyframes wobble {
+  0%,
+  100% {
+    transform: rotateX(6deg) rotateY(-4deg);
+  }
+  50% {
+    transform: rotateX(-5deg) rotateY(5deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  [style*='flythrough'],
+  [style*='wobble'] {
+    animation: none !important;
+    transform: none !important;
+  }
 }

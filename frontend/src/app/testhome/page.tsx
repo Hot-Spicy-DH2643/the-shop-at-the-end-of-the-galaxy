@@ -79,7 +79,7 @@ export default function Testhome() {
 
       <main className="flex-1 galaxy-homepage flex flex-col lg:flex-row text-black h-[calc(100vh-56px)]">
         <div className="galaxy-heroarea order-1 lg:order-2 w-full lg:w-2/5 lg:h-full bg-white p-8 flex flex-col items-center justify-center">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-4xl xl:text-5xl font-modak mb-2 text-blue-900 p-8 py-2 uppercase leading-7 sm:leading-10 lg:leading-8 xl:leading-10">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-4xl xl:text-5xl font-modak mb-2 bg-gradient-to-r from-blue-900 via-purple-800 to-pink-700 bg-clip-text text-transparent drop-shadow-lg p-8 py-2 uppercase leading-7 sm:leading-10 lg:leading-8 xl:leading-10">
             Own a piece of the cosmos, because why should Earth have it all?
           </h2>
           <p className="p-8 py-2 text-l md:text-xl">
@@ -89,13 +89,13 @@ export default function Testhome() {
           <div className="py-4 flex flex-col sm:flex-row lg:flex-col xl:flex-row justify-start gap-4 p-8 w-full">
             <Link
               href="/about"
-              className="border border-blue-600 text-blue-900 bg-transparent px-6 py-2 rounded hover:bg-blue-50 transition cursor-pointer text-center"
+              className="border border-blue-600 text-blue-900 bg-transparent px-6 py-2 rounded hover:bg-blue-50 hover:scale-105 hover:shadow-xl transition cursor-pointer text-center"
             >
               🔍 More Info
             </Link>
             <Link
               href="/shop"
-              className="bg-blue-900 text-white px-6 py-2 rounded shadow hover:bg-blue-700 transition cursor-pointer text-center"
+              className="bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700 text-white px-6 py-2 rounded shadow hover:scale-105 hover:shadow-xl transition cursor-pointer text-center"
             >
               🪐 Open Shop
             </Link>

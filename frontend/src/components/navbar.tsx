@@ -13,7 +13,7 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
 
   return (
-    <nav className="w-full bg-blue-900 text-white">
+    <nav className="w-full text-white bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700">
       <div className="flex items-center justify-between h-14 px-4">
         <Link
           href="/testhome"
@@ -50,7 +50,7 @@ export default function Navbar() {
       <div
         className={`${open ? 'block' : 'hidden'} lg:hidden w-full text-white font-bold galaxy-bg-space`}
       >
-        <ul className="flex flex-col">
+        <ul className="flex flex-col space-y-3 py-4">
           {navLinks.map(link => (
             <li key={link.label}>
               <a href={link.href} className="block px-6 py-2">
