@@ -8,7 +8,9 @@ export interface UserType {
 
 export async function getUser(): Promise<UserType> {
   try {
-    const response = await fetch('https://jsonplaceholder.typicode.com/users');
+    const response = await fetch('https://jsonplaceholder.typicode.com/users', {
+      cache: 'no-store',
+    });
     if (!response.ok) throw new Error('Failed to fetch');
 
     const users: UserType[] = await response.json();
