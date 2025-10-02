@@ -1,16 +1,10 @@
-'use client';
-
+import Image from 'next/image';
 import Navbar from '@/components/navbar';
-import Galaxy from '@/components/galaxy';
-import User from '@/components/user';
-import Purchases from '@/components/purchases';
-import Friends from '@/components/friends';
-import { useState } from 'react';
+import ProfileTab from './ProfileTabs';
+import { getUser, UserType } from './users';
 
-type Tab = 'user' | 'purchases' | 'galaxy' | 'friends';
-
-export default function Profile() {
-  const [activeTab, setActiveTab] = useState<Tab>('user');
+export default async function Profile() {
+  const user: UserType = await getUser();
 
   return (
     <div className="galaxy-bg-space min-h-screen">
@@ -33,38 +27,14 @@ export default function Profile() {
           <div className="text-white text-center leading-8">
             {/* user information */}
             <h4 className="text-2xl md:text-4xl lg:text-3xl xl:text-4xl font-semibold">
-              show_user_ID
+              Hello👋
             </h4>
-            <p>Hello👋, show_user_name</p>
+            <h4 className="text-2xl font-semibold">{user.username}</h4>
           </div>
         </div>
 
         {/* Buttons beside image */}
-        <div className="flex flex-col mt-10 md:mt-0">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-            {(['user', 'purchases', 'galaxy', 'friends'] as Tab[]).map(tab => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`px-4 py-3 text-sm sm:px-6 sm:py-2 sm:text-base font-bold rounded shadow ${
-                  activeTab === tab
-                    ? 'bg-gray-300'
-                    : 'bg-gray-200 hover:bg-gray-300'
-                }`}
-              >
-                {tab.toUpperCase().replace('_', ' ')}
-              </button>
-            ))}
-          </div>
-
-          {/* Content Panel */}
-          <div className="bg-black/20 p-6 rounded shadow-md min-h-[150px] w-full transition-all duration-300">
-            {activeTab === 'user' && <User />}
-            {activeTab === 'purchases' && <Purchases />}
-            {activeTab === 'galaxy' && <Galaxy />}
-            {activeTab === 'friends' && <Friends />}
-          </div>
-        </div>
+        <ProfileTab user={user} />
       </div>
     </div>
   );
