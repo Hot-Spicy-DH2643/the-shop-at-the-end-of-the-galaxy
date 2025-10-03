@@ -10,10 +10,10 @@ import {
 
 export default function About() {
   return (
-    <div className="flex flex-col min-h-screen h-full font-sans bg-black">
+    <div className="flex flex-col min-h-screen h-full font-sans bg-black text-white">
       <Navbar />
       <main>
-        <div className="font-sans min-h-screen p-8 pb-20 gap-16 sm:p-20">
+        <div className="font-sans min-h-screen h-full p-8 pb-20 gap-16 sm:p-20 bg-black">
           <section className="max-w-4xl mx-auto">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-modak mb-8 text-center bg-gradient-to-r from-blue-400 via-purple-400 to-pink-300 bg-clip-text text-transparent drop-shadow-lg">
               ABOUT THE SHOP

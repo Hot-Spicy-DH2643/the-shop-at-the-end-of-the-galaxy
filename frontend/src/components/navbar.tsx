@@ -38,7 +38,12 @@ export default function Navbar() {
           <ul className="flex flex-row items-center">
             {navLinks.map(link => (
               <li key={link.label}>
-                <a href={link.href} className="block px-6 py-2">
+                <a
+                  href={link.href}
+                  className="block px-6 py-2 relative transition-all duration-500
+    before:content-[''] before:absolute before:left-0 before:bottom-1 before:w-0 before:h-0.5 before:bg-white before:transition-all before:duration-500
+    hover:before:w-full"
+                >
                   {link.label}
                 </a>
               </li>
