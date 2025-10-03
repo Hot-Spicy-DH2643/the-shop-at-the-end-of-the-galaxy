@@ -59,3 +59,71 @@ export const verifyFirebaseToken = async req => {
     return { user: null, error: 'Invalid token' };
   }
 };
+
+/**
+ * Verify session from cookie
+ * Used for GraphQL requests after initial login
+ */
+export const verifySession = async req => {
+  // Check if session exists and has user data
+  if (req.session && req.session.user) {
+    return { user: req.session.user, error: null };
+  }
+
+  return { user: null, error: 'No valid session' };
+};
+
+/**
+ * Login endpoint handler - verifies Firebase token and creates session
+ */
+export const loginHandler = async (req, res) => {
+  try {
+    const { user, error } = await verifyFirebaseToken(req);
+
+    if (error || !user) {
+      return res.status(401).json({ error: error || 'Authentication failed' });
+    }
+
+    // Store user data in session
+    req.session.user = {
+      uid: user.uid,
+      email: user.email,
+      name: user.name,
+      picture: user.picture,
+      email_verified: user.email_verified,
+    };
+
+    // Save session explicitly
+    req.session.save(err => {
+      if (err) {
+        console.error('Session save error:', err);
+        return res.status(500).json({ error: 'Failed to create session' });
+      }
+
+      console.log('✅ Session created for user:', user.uid);
+      res.json({
+        success: true,
+        user: req.session.user,
+      });
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+/**
+ * Logout endpoint handler - destroys session
+ */
+export const logoutHandler = (req, res) => {
+  req.session.destroy(err => {
+    if (err) {
+      console.error('Session destroy error:', err);
+      return res.status(500).json({ error: 'Failed to logout' });
+    }
+
+    res.clearCookie('galaxy.shop.sid'); // Clear session cookie with custom name
+    console.log('✅ Session destroyed');
+    res.json({ success: true, message: 'Logged out successfully' });
+  });
+};
