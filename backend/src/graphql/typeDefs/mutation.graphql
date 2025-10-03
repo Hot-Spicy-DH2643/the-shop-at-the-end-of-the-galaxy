@@ -1,0 +1,4 @@
+type Mutation {
+  # Add mutations here as needed
+  placeholder: String
+}
