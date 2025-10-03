@@ -19,12 +19,12 @@ export default function TestAuth() {
   const { data, loading, error } = useQuery<ProtectedDataResult>(
     GET_PROTECTED_DATA,
     {
-      skip: !user, // Skip query if not authenticated
+      skip: authLoading, // Skip query if not authenticated
     }
   );
 
   if (authLoading) return <div>Checking authentication...</div>;
-  if (!user) return <div>Please log in to access this page.</div>;
+  // if (!user) return <div>Please log in to access this page.</div>;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -38,8 +38,8 @@ export default function TestAuth() {
         <div className="space-y-4">
           <div>
             <h3 className="text-lg font-medium text-gray-700">User Info:</h3>
-            <p className="text-sm text-gray-600">Email: {user.email}</p>
-            <p className="text-sm text-gray-600">UID: {user.uid}</p>
+            <p className="text-sm text-gray-600">Email: {user?.email}</p>
+            <p className="text-sm text-gray-600">UID: {user?.uid}</p>
           </div>
 
           <div>

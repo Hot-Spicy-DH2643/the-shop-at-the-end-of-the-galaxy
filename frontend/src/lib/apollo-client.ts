@@ -1,5 +1,5 @@
 import { HttpLink } from '@apollo/client';
-import { ApolloClient, InMemoryCache, from } from '@apollo/client';
+import { ApolloClient, InMemoryCache } from '@apollo/client';
 import { SetContextLink } from '@apollo/client/link/context';
 
 // Create HTTP link to your GraphQL endpoint
@@ -9,6 +9,7 @@ const httpLink = new HttpLink({
 
 // Auth link to add Firebase token to requests
 const authLink = new SetContextLink(async (prevContext, operation) => {
+  console.log('Setting auth context for operation:', operation.operationName);
   // Get the authentication token from Firebase
   const auth = await import('firebase/auth');
   const firebaseAuth = auth.getAuth();
@@ -18,6 +19,7 @@ const authLink = new SetContextLink(async (prevContext, operation) => {
   if (user) {
     try {
       token = await user.getIdToken();
+      console.log('Firebase token:', token);
     } catch (error) {
       console.error('Error getting Firebase token:', error);
     }
@@ -33,7 +35,7 @@ const authLink = new SetContextLink(async (prevContext, operation) => {
 
 // Create Apollo Client
 const client = new ApolloClient({
-  link: from([authLink, httpLink]),
+  link: authLink.concat(httpLink),
   cache: new InMemoryCache(),
   defaultOptions: {
     watchQuery: {
