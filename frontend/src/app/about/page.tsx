@@ -127,7 +127,7 @@ export default function About() {
                       </AccordionTrigger>
                       <AccordionContent className="mb-4">
                         Yes. If you find the same item cheaper in another
-                        galaxy, we'll collapse their star out of spite.
+                        galaxy, we&apos;ll collapse their star out of spite.
                       </AccordionContent>
                     </AccordionItem>
                     <AccordionItem value="item-4">
