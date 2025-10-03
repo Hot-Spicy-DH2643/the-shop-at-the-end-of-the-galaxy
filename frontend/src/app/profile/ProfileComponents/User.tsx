@@ -1,4 +1,4 @@
-import { UserType } from './users';
+import { UserType } from '../users';
 
 interface UserProps {
   user: UserType;

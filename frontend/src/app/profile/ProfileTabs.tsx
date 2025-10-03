@@ -1,10 +1,10 @@
 'use client';
 import { useState } from 'react';
-import User from './User';
+import User from './ProfileComponents/User';
 import { UserType } from './users';
-import Galaxy from '@/components/galaxy';
-import Purchases from '@/components/purchases';
-import Friends from '@/components/friends';
+import Galaxy from './ProfileComponents/Galaxy';
+import Purchases from './ProfileComponents/Purchases';
+import Friends from './ProfileComponents/Friends';
 
 interface ProfileTabProps {
   user: UserType;
@@ -36,9 +36,9 @@ const ProfileTab = ({ user }: ProfileTabProps) => {
       {/* Content Panel */}
       <div className="bg-black/20 p-6 rounded shadow-md min-h-[150px] w-full transition-all duration-300">
         {activeTab === 'user' && <User user={user} />}
-        {activeTab === 'purchases' && <Purchases />}
-        {activeTab === 'galaxy' && <Galaxy />}
-        {activeTab === 'friends' && <Friends />}
+        {activeTab === 'purchases' && <Purchases user={user} />}
+        {activeTab === 'galaxy' && <Galaxy user={user} />}
+        {activeTab === 'friends' && <Friends user={user} />}
       </div>
     </div>
   );
