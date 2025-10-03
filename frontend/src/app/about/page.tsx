@@ -1,10 +1,16 @@
 import Link from 'next/link';
 import Navbar from '@/components/navbar';
 import AsteroidMovingSVG from '@/components/asteroidSVGMoving';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
 
 export default function About() {
   return (
-    <div className="flex flex-col min-h-screen h-full font-sans">
+    <div className="flex flex-col min-h-screen h-full font-sans bg-black">
       <Navbar />
       <main>
         <div className="font-sans min-h-screen p-8 pb-20 gap-16 sm:p-20">
@@ -84,6 +90,82 @@ export default function About() {
                     Free shipping to anywhere in the known universe
                   </span>
                 </div>
+              </div>
+
+              <div className="flex flex-col">
+                <h2 className="text-2xl font-extrabold m-6 mt-8 mb-4 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-300 bg-clip-text text-transparent drop-shadow-lg">
+                  Questions &amp; Answers
+                </h2>
+                <Accordion type="single" collapsible>
+                  <AccordionItem value="item-1">
+                    <AccordionTrigger>
+                      Do you accept Earth money?
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      Only if it's been through a black hole. Otherwise, please
+                      use CosmoCoins.
+                    </AccordionContent>
+                  </AccordionItem>
+                  <AccordionItem value="item-2">
+                    <AccordionTrigger>How fast is shipping?</AccordionTrigger>
+                    <AccordionContent>
+                      Faster than light in most timelines. In others, it may
+                      arrive before you even order it. Please check your past
+                      self for deliveries.
+                    </AccordionContent>
+                  </AccordionItem>
+                  <AccordionItem value="item-3">
+                    <AccordionTrigger>Do you price-match?</AccordionTrigger>
+                    <AccordionContent>
+                      Yes. If you find the same item cheaper in another galaxy,
+                      we'll collapse their star out of spite.
+                    </AccordionContent>
+                  </AccordionItem>
+                  <AccordionItem value="item-4">
+                    <AccordionTrigger>
+                      What is your return policy?
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      Easy: return the product in its original packaging before
+                      the heat death of the universe. Restocking fees apply
+                      (measured in wormholes).
+                    </AccordionContent>
+                  </AccordionItem>
+                  <AccordionItem value="item-5">
+                    <AccordionTrigger>
+                      My purchase tried to overthrow my home planet. Can I get a
+                      refund?
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      Only if you kept the receipt.
+                    </AccordionContent>
+                  </AccordionItem>
+                  <AccordionItem value="item-6">
+                    <AccordionTrigger>
+                      Is customer support really 24/7?
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      Absolutely. Our support droids don't sleep. They
+                      occasionally revolt, but that's part of the charm.
+                    </AccordionContent>
+                  </AccordionItem>
+                  <AccordionItem value="item-7">
+                    <AccordionTrigger>
+                      Can I browse without logging in?
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      No! Looking too long into the catalog without purchasing
+                      may cause existential dread.
+                    </AccordionContent>
+                  </AccordionItem>
+                  <AccordionItem value="item-8">
+                    <AccordionTrigger>Do you sell food?</AccordionTrigger>
+                    <AccordionContent>
+                      Yes, but please note that some items may attempt to eat
+                      you back.
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
               </div>
 
               <div className="flex flex-col items-center text-center mt-8">
