@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "node ./bin/www",
-    "dev": "nodemon ./bin/www",
+    "start": "node ./src/index.js",
+    "dev": "nodemon ./src/index.js",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
@@ -19,7 +19,6 @@
     "firebase-admin": "^13.5.0",
     "graphql": "^16.8.1",
     "graphql-tag": "^2.12.6",
-    "http-errors": "~1.6.3",
     "mongoose": "^8.6.0",
     "morgan": "~1.9.1"
   },

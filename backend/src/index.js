@@ -4,14 +4,17 @@
  * Module dependencies.
  */
 
-import dotenv from 'dotenv';
-dotenv.config();
-
-import app from '../app.js';
-import debugLib from 'debug';
+// NOTE: With ES modules, all imports are hoisted. To ensure .env is loaded before other modules,
+// we need to load dotenv configuration before importing anything that uses env variables.
+// This is done by importing a config file first.
+import './config/dotenv.js';
+import { createApolloServer } from './loaders/apollo.js';
+import { createExpressApp, setupGraphQL } from './loaders/express.js';
 import http from 'http';
 
-const debug = debugLib('backend:server');
+// Create Apollo Server and Express app
+const server = createApolloServer();
+const app = createExpressApp();
 
 /**
  * Get port from environment and store in Express.
@@ -24,15 +27,26 @@ app.set('port', port);
  * Create HTTP server.
  */
 
-const server = http.createServer(app);
+const httpServer = http.createServer(app);
 
 /**
- * Listen on provided port, on all network interfaces.
+ * Function to start the server
  */
+async function startServer() {
+  await setupGraphQL(app, server);
 
-server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
+  /**
+   * Listen on provided port, on all network interfaces.
+   */
+  httpServer.listen(port);
+  httpServer.on('error', onError);
+  httpServer.on('listening', onListening);
+}
+
+// Start the server
+startServer().catch(error => {
+  console.error('Failed to start Apollo Server:', error);
+});
 
 /**
  * Normalize a port into a number, string, or false.
@@ -83,7 +97,7 @@ function onError(error) {
  */
 
 function onListening() {
-  const addr = server.address();
+  const addr = httpServer.address();
   const bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
-  debug('Listening on ' + bind);
+  console.log('🚀 Server listening on ' + bind);
 }
