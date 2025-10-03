@@ -1,16 +1,9 @@
-'use client';
-
 import Navbar from '@/components/navbar';
-import Galaxy from '@/components/galaxy';
-import Purchases from '@/components/purchases';
-import Coins from '@/components/coins';
-import Friends from '@/components/friends';
-import { useState } from 'react';
+import ProfileTab from './ProfileTabs';
+import { getUser, UserType } from './users';
 
-type Tab = 'purchases' | 'galaxy' | 'coins' | 'friends';
-
-export default function Profile() {
-  const [activeTab, setActiveTab] = useState<Tab>('purchases');
+export default async function Profile() {
+  const user: UserType = await getUser();
 
   return (
     <div className="galaxy-bg-space min-h-screen">
@@ -22,42 +15,26 @@ export default function Profile() {
       </div>
 
       {/* Profile content */}
-      <div className="flex items-center mt-10 px-8">
+      <div className="flex flex-col lg:flex-row flex-wrap justify-center items-center lg:items-start px-8 mt-4 md:mt-20 md:gap-8 lg:gap-12">
         {/* Profile Image */}
-        <div className="flex-shrink-0">
-          <div className="w-64 h-64 rounded-full bg-gray-400"></div>
-          {/* Replace with your image:
-          <img src="/profile.jpg" alt="Profile"
-            className="w-32 h-32 rounded-full object-contain border-2 border-gray-300"
-          /> */}
+        <div className="flex flex-row lg:flex-col justify-center items-center gap-4">
+          {/* <div className="w-20 h-20 md:w-40 md:h-40"></div> */}
+          <img
+            src="/default-user-img.png"
+            alt="Profile"
+            className="w-20 h-20 md:w-40 md:h-40 rounded-full object-contain"
+          />
+          <div className="text-white text-center leading-8">
+            {/* user information */}
+            <h4 className="text-2xl md:text-4xl lg:text-3xl xl:text-4xl font-semibold">
+              Hello👋
+            </h4>
+            <h4 className="text-2xl font-semibold">{user.username}</h4>
+          </div>
         </div>
 
         {/* Buttons beside image */}
-        <div className="flex flex-col ml-24 -mt-20">
-          <div className="flex flex-wrap gap-4 mb-6">
-            {(['purchases', 'galaxy', 'coins', 'friends'] as Tab[]).map(tab => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`px-6 py-3 font-bold text-sm rounded shadow ${
-                  activeTab === tab
-                    ? 'bg-gray-300'
-                    : 'bg-gray-200 hover:bg-gray-300'
-                }`}
-              >
-                {tab.toUpperCase().replace('_', ' ')}
-              </button>
-            ))}
-          </div>
-
-          {/* Content Panel */}
-          <div className="bg-black/20 p-6 rounded shadow-md min-h-[150px] w-full transition-all duration-300">
-            {activeTab === 'purchases' && <Purchases />}
-            {activeTab === 'galaxy' && <Galaxy />}
-            {activeTab === 'coins' && <Coins />}
-            {activeTab === 'friends' && <Friends />}
-          </div>
-        </div>
+        <ProfileTab user={user} />
       </div>
     </div>
   );
