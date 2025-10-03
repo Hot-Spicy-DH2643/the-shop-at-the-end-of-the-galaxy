@@ -1,24 +1,26 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 
 const navLinks = [
-  { label: 'Home', href: '#' },
-  { label: 'Page 1', href: '#' },
-  { label: 'Page 2', href: '#' },
-  { label: 'Page 3', href: '#' },
-  { label: 'Login', href: '#' },
+  { label: 'Home', href: '/home' },
+  { label: 'About', href: '/about' },
+  { label: 'Login', href: '/login' },
 ];
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
 
   return (
-    <nav className="w-full bg-blue-900 text-white">
+    <nav className="w-full text-white bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700">
       <div className="flex items-center justify-between h-14 px-4">
-        <span className="text-l sm:text-xl md:text-2xl pt-1 font-modak">
+        <Link
+          href="/testhome"
+          className="text-l sm:text-xl md:text-2xl pt-1 font-modak"
+        >
           THE SHOP AT THE END OF THE GALAXY
-        </span>
+        </Link>
         <button
           onClick={() => setOpen(v => !v)}
           aria-label="Toggle navigation"
@@ -48,7 +50,7 @@ export default function Navbar() {
       <div
         className={`${open ? 'block' : 'hidden'} lg:hidden w-full text-white font-bold galaxy-bg-space`}
       >
-        <ul className="flex flex-col">
+        <ul className="flex flex-col space-y-3 py-4">
           {navLinks.map(link => (
             <li key={link.label}>
               <a href={link.href} className="block px-6 py-2">
