@@ -16,7 +16,7 @@ export default function Navbar() {
     <nav className="w-full text-white bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700">
       <div className="flex items-center justify-between h-14 px-4">
         <Link
-          href="/testhome"
+          href="/"
           className="text-l sm:text-xl md:text-2xl pt-1 font-modak"
         >
           THE SHOP AT THE END OF THE GALAXY
