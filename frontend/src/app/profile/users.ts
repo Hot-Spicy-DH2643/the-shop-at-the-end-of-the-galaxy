@@ -5,7 +5,7 @@ export interface UserType {
   username: string;
   email: string;
   coins: number;
-  owned_astroids: [string];
+  owned_asteroids: [string];
 }
 
 export async function getUser(): Promise<UserType> {

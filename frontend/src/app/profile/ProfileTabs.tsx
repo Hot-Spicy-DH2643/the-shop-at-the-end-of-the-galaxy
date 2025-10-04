@@ -36,7 +36,7 @@ const ProfileTab = ({ user }: ProfileTabProps) => {
       {/* Content Panel */}
       <div className="bg-black/20 p-6 rounded shadow-md min-h-[150px] w-full transition-all duration-300">
         {activeTab === 'user' && <User user={user} />}
-        {activeTab === 'purchases' && <Purchases />}
+        {activeTab === 'purchases' && <Purchases user={user} />}
         {activeTab === 'galaxy' && <Galaxy />}
         {activeTab === 'friends' && <Friends />}
       </div>

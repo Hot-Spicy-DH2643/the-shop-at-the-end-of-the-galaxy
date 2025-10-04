@@ -1,8 +1,15 @@
-export default function Purchases() {
+import { UserType } from '../users';
+interface UserProps {
+  user: UserType;
+}
+
+export default function Purchases({ user }: UserProps) {
   return (
-    <div>
+    <div className="text-white">
       <h2 className="text-xl font-bold text-white">Purchases</h2>
-      <p className="text-white mt-2">Purchases is here</p>
+      {user.owned_asteroids.map(asteroid => (
+        <p key={asteroid}>{asteroid}</p>
+      ))}
     </div>
   );
 }
