@@ -1,11 +1,16 @@
 import axios from 'axios';
+
+export interface AsteroidType {
+  id: string;
+  isMyfavotire: boolean;
+}
 export interface UserType {
   id: string;
   name: string;
   username: string;
   email: string;
   coins: number;
-  owned_asteroids: [string];
+  owned_asteroids: AsteroidType[];
 }
 
 export async function getUser(): Promise<UserType> {
