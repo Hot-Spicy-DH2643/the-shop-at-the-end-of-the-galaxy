@@ -1,0 +1,15 @@
+{
+  "id": 1,
+  "name": "Leanne Graham",
+  "username": "Bret",
+  "email": "Sincere@april.biz",
+  "coins": 0,
+  "owned_astroids": [
+    "9203854",
+    "3748593",
+    "5647309",
+    "6574058",
+    "7438537",
+    "6574834"
+  ]
+}
