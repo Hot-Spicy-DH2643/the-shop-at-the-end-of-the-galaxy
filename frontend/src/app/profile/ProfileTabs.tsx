@@ -2,10 +2,10 @@
 import { useState } from 'react';
 import { UserType } from './users';
 
-import User from './PorfileComponents/User';
-import Galaxy from './PorfileComponents/Galaxy';
-import Purchases from './PorfileComponents/Purchases';
-import Friends from './PorfileComponents/Friends';
+import User from './ProfileComponents/User';
+import Galaxy from './ProfileComponents/Galaxy';
+import Purchases from './ProfileComponents/Purchases';
+import Friends from './ProfileComponents/Friends';
 interface ProfileTabProps {
   user: UserType;
 }
