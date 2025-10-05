@@ -1,9 +1,34 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import Navbar from '@/components/navbar';
 import ProfileTab from './ProfileTabs';
 import { getUser, UserType } from './users';
 
-export default async function Profile() {
-  const user: UserType = await getUser();
+export default function Profile() {
+  const [user, setUser] = useState<UserType | null>(null);
+
+  useEffect(() => {
+    getUser()
+      .then(userData => {
+        setUser(userData);
+      })
+      .catch(error => {
+        console.error('Failed to fetch user:', error);
+      });
+  }, []);
+
+  if (!user) {
+    return (
+      <div className="galaxy-bg-space min-h-screen">
+        <Navbar />
+        <div className="flex justify-center items-center h-screen">
+          <p className="text-white text-xl">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="galaxy-bg-space min-h-screen">
@@ -17,13 +42,15 @@ export default async function Profile() {
       {/* Profile content */}
       <div className="flex flex-col lg:flex-row flex-wrap justify-center items-center lg:items-start px-8 mt-4 md:mt-20 md:gap-8 lg:gap-12">
         {/* Profile Image */}
-        <div className="flex flex-row lg:flex-col justify-center items-center gap-4">
-          {/* <div className="w-20 h-20 md:w-40 md:h-40"></div> */}
-          <img
-            src="/default-user-img.png"
-            alt="Profile"
-            className="w-20 h-20 md:w-40 md:h-40 rounded-full object-contain"
-          />
+        {/* <div className="w-20 h-20 md:w-40 md:h-40"></div> */}
+        <Image
+          src="/default-user-img.png"
+          alt="Profile"
+          width={160}
+          height={160}
+          className="w-20 h-20 md:w-40 md:h-40 rounded-full object-contain"
+        />
+        <div className="text-white text-center leading-8">
           <div className="text-white text-center leading-8">
             {/* user information */}
             <h4 className="text-2xl md:text-4xl lg:text-3xl xl:text-4xl font-semibold">
