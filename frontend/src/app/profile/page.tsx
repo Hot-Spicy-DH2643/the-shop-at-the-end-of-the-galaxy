@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Navbar from '@/components/navbar';
 import ProfileTab from './ProfileTabs';
 import { getUser, UserType } from './users';
@@ -19,9 +20,11 @@ export default async function Profile() {
         {/* Profile Image */}
         <div className="flex flex-row lg:flex-col justify-center items-center gap-4">
           {/* <div className="w-20 h-20 md:w-40 md:h-40"></div> */}
-          <img
+          <Image
             src="/default-user-img.png"
             alt="Profile"
+            width={160}
+            height={160}
             className="w-20 h-20 md:w-40 md:h-40 rounded-full object-contain"
           />
           <div className="text-white text-center leading-8">
