@@ -1,4 +1,5 @@
 'use client';
+import { useEffect, useState } from 'react';
 import { UserType } from '../users';
 import AsteroidSVGMoving from '@/components/asteroidSVGMoving';
 interface UserProps {
@@ -6,7 +7,32 @@ interface UserProps {
 }
 
 export default function Purchases({ user }: UserProps) {
-  const asteroids = user.owned_asteroids;
+  // const asteroids = user.owned_asteroids;
+  const asteroids = []; // For testing no purchases
+
+  const [zeroPurchaseId, setZeroPurchaseId] = useState<string>('0000000');
+
+  useEffect(() => {
+    const id = Math.floor(Math.random() * 10000000)
+      .toString()
+      .padStart(7, '0');
+    setZeroPurchaseId(id);
+  }, []);
+
+  if (asteroids.length === 0) {
+    return (
+      <div className="text-white">
+        <h2 className="text-xl font-bold text-white">Purchases</h2>
+        <div className="flex flex-row items-center mt-10">
+          <AsteroidSVGMoving id={zeroPurchaseId} size={100} bgsize={160} />
+          <p className="ml-10 text-lg">
+            <span className="font-bold">{user.username}</span> has no asteroids{' '}
+            <span className=" text-yellow-300">yet</span>.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="text-white">
