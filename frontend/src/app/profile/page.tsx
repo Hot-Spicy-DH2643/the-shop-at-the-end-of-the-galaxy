@@ -1,14 +1,38 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Navbar from '@/components/navbar';
 import ProfileTab from './ProfileTabs';
 import { getUser, UserType } from './users';
 
-export default async function Profile() {
-  const user: UserType = await getUser();
+export default function Profile() {
+  const [user, setUser] = useState<UserType | null>(null);
+
+  useEffect(() => {
+    getUser()
+      .then(userData => {
+        setUser(userData);
+      })
+      .catch(error => {
+        console.error('Failed to fetch user:', error);
+      });
+  }, []);
+
+  if (!user) {
+    return (
+      <div className="galaxy-bg-space min-h-screen">
+        <Navbar />
+        <div className="flex justify-center items-center h-screen">
+          <p className="text-white text-xl">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="galaxy-bg-space min-h-screen">
-      <Navbar />
+      <Navbar user={user} />
 
       {/* Banner */}
       <div className="bg-black/30 py-10 flex justify-center">
