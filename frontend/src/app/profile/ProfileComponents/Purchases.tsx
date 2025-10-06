@@ -26,7 +26,17 @@ export default function Purchases({ user }: UserProps) {
           Purchases
         </h2>
         <div className="flex flex-row items-center mt-10">
-          <AsteroidSVGMoving id={zeroPurchaseId} size={100} bgsize={160} />
+          <style>
+            {`
+              @keyframes blurPulse {
+                0%, 100% { filter: blur(0px); opacity: 1;}
+                50% { filter: blur(5px); opacity: 0.3;}
+              }
+            `}
+          </style>
+          <div className="filter animate-[blurPulse_5s_ease-in-out_infinite]">
+            <AsteroidSVGMoving id={zeroPurchaseId} size={100} bgsize={160} />
+          </div>
           <p className="ml-10 text-lg">
             <span className="font-bold">{user.username}</span> has{' '}
             <span className="font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
