@@ -22,12 +22,20 @@ export default function Purchases({ user }: UserProps) {
   if (asteroids.length === 0) {
     return (
       <div className="text-white">
-        <h2 className="text-xl font-bold text-white">Purchases</h2>
+        <h2 className="text-2xl font-extrabold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-300 bg-clip-text text-transparent drop-shadow-lg">
+          Purchases
+        </h2>
         <div className="flex flex-row items-center mt-10">
           <AsteroidSVGMoving id={zeroPurchaseId} size={100} bgsize={160} />
           <p className="ml-10 text-lg">
-            <span className="font-bold">{user.username}</span> has no asteroids{' '}
-            <span className=" text-yellow-300">yet</span>.
+            <span className="font-bold">{user.username}</span> has{' '}
+            <span className="font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+              no{' '}
+            </span>{' '}
+            asteroids{' '}
+            <span className="font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+              yet.
+            </span>
           </p>
         </div>
       </div>
@@ -36,11 +44,15 @@ export default function Purchases({ user }: UserProps) {
 
   return (
     <div className="text-white">
-      <h2 className="text-xl font-bold text-white">Purchases</h2>
+      <h2 className="text-2xl font-extrabold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-300 bg-clip-text text-transparent drop-shadow-lg">
+        Purchases
+      </h2>
 
       <p className="mt-4 text-lg">
         <span className="font-bold">{user.username}</span> has{' '}
-        <span className="font-bold text-yellow-300">{asteroids.length}</span>{' '}
+        <span className="font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+          {asteroids.length}
+        </span>{' '}
         asteroids.
       </p>
 

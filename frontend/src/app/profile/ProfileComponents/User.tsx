@@ -30,8 +30,8 @@ export default function User({ user }: UserProps) {
             <td className="font-bold">Email:</td>
             <td>{user.email}</td>
           </tr>
-          <tr>
-            <td className="font-bold text-yellow-300">Conins:</td>
+          <tr className="font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+            <td>Conins:</td>
             <td>0</td>
           </tr>
         </tbody>

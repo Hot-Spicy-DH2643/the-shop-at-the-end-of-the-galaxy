@@ -4,6 +4,12 @@ export interface AsteroidType {
   id: string;
   isMyfavotire: boolean;
 }
+export interface FriendsType {
+  id: string;
+  name: string;
+  username: string;
+  emall: string;
+}
 export interface UserType {
   id: string;
   name: string;
@@ -11,6 +17,7 @@ export interface UserType {
   email: string;
   coins: number;
   owned_asteroids: AsteroidType[];
+  friends: FriendsType[];
 }
 
 export async function getUser(): Promise<UserType> {

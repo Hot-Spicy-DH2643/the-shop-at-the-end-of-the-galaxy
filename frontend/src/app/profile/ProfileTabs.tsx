@@ -54,7 +54,7 @@ const ProfileTab = ({ user }: ProfileTabProps) => {
         {activeTab === 'user' && <User user={user} />}
         {activeTab === 'purchases' && <Purchases user={user} />}
         {activeTab === 'galaxy' && <Galaxy />}
-        {activeTab === 'friends' && <Friends />}
+        {activeTab === 'friends' && <Friends user={user} />}
       </div>
     </div>
   );
