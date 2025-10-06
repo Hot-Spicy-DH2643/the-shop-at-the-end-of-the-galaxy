@@ -25,24 +25,25 @@ export default function Purchases({ user }: UserProps) {
         <h2 className="text-2xl font-extrabold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-300 bg-clip-text text-transparent drop-shadow-lg">
           Purchases
         </h2>
-        <div className="flex flex-row items-center mt-10">
+        <div className="flex flex-row items-center mt-10  text-center">
           <style>
             {`
               @keyframes blurPulse {
-                0%, 100% { filter: blur(0px); opacity: 1;}
-                50% { filter: blur(5px); opacity: 0.3;}
+                0% { filter: blur(0px); opacity: 1;}
+                100% { filter: blur(5px); opacity: 0.3;}
               }
             `}
           </style>
-          <div className="filter animate-[blurPulse_5s_ease-in-out_infinite]">
+          <div className="filter animate-[blurPulse_2s_ease-in-out_forwards]">
             <AsteroidSVGMoving id={zeroPurchaseId} size={100} bgsize={160} />
           </div>
           <p className="ml-10 text-lg">
             <span className="font-bold">{user.username}</span> has{' '}
+            <span className="block sm:inline"> </span>
             <span className="font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
               no{' '}
             </span>{' '}
-            asteroids{' '}
+            asteroid{' '}
             <span className="font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
               yet.
             </span>
