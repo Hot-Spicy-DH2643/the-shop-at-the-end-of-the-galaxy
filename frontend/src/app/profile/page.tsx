@@ -53,10 +53,13 @@ export default function Profile() {
           />
           <div className="text-white text-center leading-8">
             {/* user information */}
-            <h4 className="text-2xl md:text-4xl lg:text-3xl xl:text-4xl font-semibold">
-              Hello👋
+            <h4 className="text-2xl md:text-4xl lg:text-3xl font-extrabold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-300 bg-clip-text text-transparent drop-shadow-lg">
+              Hello,
             </h4>
-            <h4 className="text-2xl font-semibold">{user.username}</h4>
+
+            <h4 className="text-2xl font-semibold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-300 bg-clip-text text-transparent drop-shadow-lg">
+              {user.username}
+            </h4>
           </div>
         </div>
 

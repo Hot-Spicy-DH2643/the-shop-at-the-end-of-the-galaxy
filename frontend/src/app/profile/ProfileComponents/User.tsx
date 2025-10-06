@@ -7,7 +7,9 @@ interface UserProps {
 export default function User({ user }: UserProps) {
   return (
     <div className="text-white">
-      <h2 className="text-xl font-bold">User Information</h2>
+      <h2 className="text-2xl font-extrabold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-300 bg-clip-text text-transparent drop-shadow-lg">
+        User Information
+      </h2>
       <br />
 
       <table className="border-separate border-spacing-x-10 -ml-10 border-spacing-y-2">
