@@ -1,13 +1,19 @@
 import Link from 'next/link';
 import Navbar from '@/components/navbar';
 import AsteroidMovingSVG from '@/components/asteroidSVGMoving';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/accordion';
 
 export default function About() {
   return (
-    <div className="flex flex-col min-h-screen h-full font-sans">
+    <div className="flex flex-col min-h-screen h-full font-sans bg-black text-white">
       <Navbar />
       <main>
-        <div className="font-sans min-h-screen p-8 pb-20 gap-16 sm:p-20">
+        <div className="font-sans min-h-screen h-full p-8 pb-20 gap-16 sm:p-20 bg-black">
           <section className="max-w-4xl mx-auto">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-modak mb-8 text-center bg-gradient-to-r from-blue-400 via-purple-400 to-pink-300 bg-clip-text text-transparent drop-shadow-lg">
               ABOUT THE SHOP
@@ -86,6 +92,94 @@ export default function About() {
                 </div>
               </div>
 
+              <div className="flex flex-col">
+                <h2 className="text-2xl font-extrabold m-6 mt-8 mb-2 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-300 bg-clip-text text-transparent drop-shadow-lg">
+                  Questions &amp; Answers
+                </h2>
+                <div className="m-6 mt-0 font-sans lg:text-lg lg:mt-8">
+                  <Accordion
+                    type="single"
+                    collapsible
+                    className="font-sans lg:text-lg"
+                  >
+                    <AccordionItem value="item-1">
+                      <AccordionTrigger className="font-bold">
+                        Do you accept Earth money?
+                      </AccordionTrigger>
+                      <AccordionContent className="mb-4">
+                        Only if it&apos;s been through a black hole. Otherwise,
+                        please use CosmoCoins.
+                      </AccordionContent>
+                    </AccordionItem>
+                    <AccordionItem value="item-2">
+                      <AccordionTrigger className="font-bold">
+                        How fast is shipping?
+                      </AccordionTrigger>
+                      <AccordionContent className="mb-4">
+                        Faster than light in most timelines. In others, it may
+                        arrive before you even order it. Please check your past
+                        self for deliveries.
+                      </AccordionContent>
+                    </AccordionItem>
+                    <AccordionItem value="item-3">
+                      <AccordionTrigger className="font-bold">
+                        Do you price-match?
+                      </AccordionTrigger>
+                      <AccordionContent className="mb-4">
+                        Yes. If you find the same item cheaper in another
+                        galaxy, we&apos;ll collapse their star out of spite.
+                      </AccordionContent>
+                    </AccordionItem>
+                    <AccordionItem value="item-4">
+                      <AccordionTrigger className="font-bold">
+                        What is your return policy?
+                      </AccordionTrigger>
+                      <AccordionContent className="mb-4">
+                        Easy: return the product in its original packaging
+                        before the heat death of the universe. Restocking fees
+                        apply (measured in wormholes).
+                      </AccordionContent>
+                    </AccordionItem>
+                    <AccordionItem value="item-5">
+                      <AccordionTrigger className="font-bold">
+                        My purchase tried to overthrow my home planet. Can I get
+                        a refund?
+                      </AccordionTrigger>
+                      <AccordionContent className="mb-4">
+                        Only if you kept the receipt.
+                      </AccordionContent>
+                    </AccordionItem>
+                    <AccordionItem value="item-6">
+                      <AccordionTrigger className="font-bold">
+                        Is customer support really 24/7?
+                      </AccordionTrigger>
+                      <AccordionContent className="mb-4">
+                        Absolutely. Our support droids don&apos;t sleep. They
+                        occasionally revolt, but that&apos;s part of the charm.
+                      </AccordionContent>
+                    </AccordionItem>
+                    <AccordionItem value="item-7">
+                      <AccordionTrigger className="font-bold">
+                        Can I browse without logging in?
+                      </AccordionTrigger>
+                      <AccordionContent className="mb-4">
+                        No! Looking too long into the catalog without purchasing
+                        may cause existential dread.
+                      </AccordionContent>
+                    </AccordionItem>
+                    <AccordionItem value="item-8">
+                      <AccordionTrigger className="font-bold">
+                        Do you sell food?
+                      </AccordionTrigger>
+                      <AccordionContent className="mb-4">
+                        Yes, but please note that some items may attempt to eat
+                        you back.
+                      </AccordionContent>
+                    </AccordionItem>
+                  </Accordion>
+                </div>
+              </div>
+
               <div className="flex flex-col items-center text-center mt-8">
                 <h2 className="text-2xl font-extrabold m-6 mt-8 mb-4 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-300 bg-clip-text text-transparent drop-shadow-lg">
                   Ready to Spend your Credits?
@@ -98,7 +192,7 @@ export default function About() {
                 </Link>
               </div>
 
-              <div className="flex flex-row justify-center mt-12 gap-12">
+              <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] flex flex-row justify-center mt-12 gap-12 flex-nowrap overflow-x-hidden">
                 <AsteroidMovingSVG id="970801ML" size={150} bgsize={300} />
                 <AsteroidMovingSVG id="010512PK" size={150} bgsize={300} />
                 <AsteroidMovingSVG id="651117ZB" size={150} bgsize={300} />

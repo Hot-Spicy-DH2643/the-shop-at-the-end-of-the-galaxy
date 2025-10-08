@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 
 const navLinks = [
-  { label: 'Home', href: '/home' },
+  { label: 'Home', href: '/' },
   { label: 'About', href: '/about' },
   { label: 'Login', href: '/login' },
 ];
@@ -16,7 +16,7 @@ export default function Navbar() {
     <nav className="w-full text-white bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700">
       <div className="flex items-center justify-between h-14 px-4">
         <Link
-          href="/testhome"
+          href="/"
           className="text-l sm:text-xl md:text-2xl pt-1 font-modak"
         >
           THE SHOP AT THE END OF THE GALAXY
@@ -38,7 +38,12 @@ export default function Navbar() {
           <ul className="flex flex-row items-center">
             {navLinks.map(link => (
               <li key={link.label}>
-                <a href={link.href} className="block px-6 py-2">
+                <a
+                  href={link.href}
+                  className="block px-6 py-2 relative transition-all duration-500
+    before:content-[''] before:absolute before:left-0 before:bottom-1 before:w-0 before:h-0.5 before:bg-white before:transition-all before:duration-500
+    hover:before:w-full"
+                >
                   {link.label}
                 </a>
               </li>
