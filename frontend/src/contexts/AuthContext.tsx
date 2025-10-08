@@ -23,13 +23,40 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const BACKEND_URL =
+  process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, user => {
+    const unsubscribe = onAuthStateChanged(auth, async user => {
       setUser(user);
+
+      // If user just logged in, create backend session
+      if (user) {
+        try {
+          const token = await user.getIdToken();
+          const response = await fetch(`${BACKEND_URL}/auth/login`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            credentials: 'include', // Include cookies
+          });
+
+          if (!response.ok) {
+            console.error('Failed to create backend session');
+          } else {
+            console.log('✅ Backend session created');
+          }
+        } catch (error) {
+          console.error('Error creating backend session:', error);
+        }
+      }
+
       setLoading(false);
     });
 
@@ -38,17 +65,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signInWithEmail = async (email: string, password: string) => {
     await signInWithEmailAndPassword(auth, email, password);
+    // Session will be created in onAuthStateChanged
   };
 
   const signInWithGoogle = async () => {
     await signInWithPopup(auth, googleProvider);
+    // Session will be created in onAuthStateChanged
   };
 
   const signUpWithEmail = async (email: string, password: string) => {
     await createUserWithEmailAndPassword(auth, email, password);
+    // Session will be created in onAuthStateChanged
   };
 
   const logout = async () => {
+    // Destroy backend session first
+    try {
+      await fetch(`${BACKEND_URL}/auth/logout`, {
+        method: 'POST',
+        credentials: 'include', // Include cookies
+      });
+      console.log('✅ Backend session destroyed');
+    } catch (error) {
+      console.error('Error destroying backend session:', error);
+    }
+
+    // Then sign out from Firebase
     await signOut(auth);
   };
 

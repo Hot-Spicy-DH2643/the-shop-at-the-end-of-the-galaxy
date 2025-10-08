@@ -1,50 +1,10 @@
-import { UserType } from '../users';
-import AsteroidSVG from '@/components/asteroidSVG';
-import AsteroidMovingSVG from '@/components/asteroidSVGMoving';
-
-interface UserProps {
-  user: UserType;
-}
-
-const testAsteroids = [
-  {
-    id: 1847584,
-    name: 'Asteroid Name 1',
-    size: '30-45 km',
-    hazardLevel: 'high risk',
-    price: '1000 GC',
-  },
-  {
-    id: 2849203,
-    name: 'Asteroid Name 2',
-    size: '42-52 km',
-    hazardLevel: 'low risk',
-    price: '900 GC',
-  },
-  {
-    id: 3029374,
-    name: 'Asteroid Name 3',
-    size: '50-65 km',
-    hazardLevel: 'safe',
-    price: '400 GC',
-  },
-  {
-    id: 4039475,
-    name: 'Asteroid Name 4',
-    size: '10-24 km',
-    hazardLevel: 'low risk',
-    price: '800 GC',
-  },
-];
-
-export default function Galaxy({ user }: UserProps) {
+export default function Galaxy() {
   return (
-    <div className="text-white">
-      <h2 className="text-xl font-bold">Your Galaxy</h2>
-      <br />
-      <AsteroidSVG id="403975" size={60} />
-      <AsteroidSVG id="3029374" size={60} />
-      <AsteroidSVG id="2849203" size={60} />
+    <div>
+      <h2 className="text-2xl font-extrabold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-300 bg-clip-text text-transparent drop-shadow-lg">
+        Galaxy
+      </h2>
+      <p className="text-white mt-2">Galaxy is here.</p>
     </div>
   );
 }

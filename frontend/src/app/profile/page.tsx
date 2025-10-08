@@ -32,7 +32,7 @@ export default function Profile() {
 
   return (
     <div className="galaxy-bg-space min-h-screen">
-      <Navbar />
+      <Navbar user={user} />
 
       {/* Banner */}
       <div className="bg-black/30 py-10 flex justify-center">
@@ -42,21 +42,24 @@ export default function Profile() {
       {/* Profile content */}
       <div className="flex flex-col lg:flex-row flex-wrap justify-center items-center lg:items-start px-8 mt-4 md:mt-20 md:gap-8 lg:gap-12">
         {/* Profile Image */}
-        {/* <div className="w-20 h-20 md:w-40 md:h-40"></div> */}
-        <Image
-          src="/default-user-img.png"
-          alt="Profile"
-          width={160}
-          height={160}
-          className="w-20 h-20 md:w-40 md:h-40 rounded-full object-contain"
-        />
-        <div className="text-white text-center leading-8">
+        <div className="flex flex-row lg:flex-col justify-center items-center gap-4">
+          {/* <div className="w-20 h-20 md:w-40 md:h-40"></div> */}
+          <Image
+            src="/default-user-img.png"
+            alt="Profile"
+            width={160}
+            height={160}
+            className="w-20 h-20 md:w-40 md:h-40 rounded-full object-contain"
+          />
           <div className="text-white text-center leading-8">
             {/* user information */}
-            <h4 className="text-2xl md:text-4xl lg:text-3xl xl:text-4xl font-semibold">
-              Hello👋
+            <h4 className="text-2xl md:text-4xl lg:text-3xl font-extrabold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-300 bg-clip-text text-transparent drop-shadow-lg">
+              Hello,
             </h4>
-            <h4 className="text-2xl font-semibold">{user.username}</h4>
+
+            <h4 className="text-2xl font-semibold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-300 bg-clip-text text-transparent drop-shadow-lg">
+              {user.username}
+            </h4>
           </div>
         </div>
 
