@@ -96,7 +96,7 @@ export default function shop() {
             {/*Filter - Filters the results*/}
             <Accordion type="single" collapsible>
               <AccordionItem value="item-1">
-                <AccordionTrigger className="tgroup ext-4xl font-modak tracking-tight text-white justify-between gap-4">
+                <AccordionTrigger className="group py-4 inline-flex text-sm !font-modak text-white hover:underline justify-between gap-4 cursor-pointer">
                 FILTER
                  <ChevronDownIcon className="text-muted-foreground pointer-events-none size-4  transition-transform duration-200 text-white group-hover:text-gray-400" />
                 </AccordionTrigger>
@@ -140,7 +140,7 @@ export default function shop() {
           {/* Sort - Sorts the results */}
           <div className='flex items-center'>
             <DropdownMenu>
-                <DropdownMenuTrigger className='group py-4 inline-flex text-sm font-modak text-white hover:underline justify-between gap-4'>
+                <DropdownMenuTrigger className='group py-4 inline-flex text-sm font-modak text-white hover:underline justify-between gap-4 cursor-pointer'>
                   SORT
                   <ChevronDownIcon className="text-muted-foreground pointer-events-none size-4 shrink-0 translate-y-0.5 transition-transform duration-200 text-white group-hover:text-gray-400" />
                 </DropdownMenuTrigger>
@@ -176,7 +176,7 @@ export default function shop() {
       <section>
         <div>
           {/* Product Grid */}
-          <ul className="bg-transparent grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6 gap-4 p-4 flex-grow">
+          <ul className="bg-transparent grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6 gap-4 p-4 flex-grow">           
             {posts
               ? posts.map(asteroid => (
                   <Product
