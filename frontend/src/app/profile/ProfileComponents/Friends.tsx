@@ -1,9 +1,17 @@
 import Image from 'next/image';
 import type { User as UserType } from '@/store/AppModel';
+import { useRouter } from 'next/navigation';
 
 export default function Friends({ user }: { user: UserType }) {
-  const friends = user.friends;
   // const friends = [];
+  const friends = user.friends;
+
+  const router = useRouter();
+
+  const handleNavigation = (friendUsername: string) => {
+    const newUrl = `/profile?tab=friends?friend=${friendUsername}`;
+    router.push(newUrl);
+  };
 
   if (friends.length === 0) {
     return (
@@ -76,7 +84,10 @@ export default function Friends({ user }: { user: UserType }) {
                   {friend.name}
                 </p>
                 <p>{friend.username}</p>
-                <button className="bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700 text-white px-6 py-2 rounded shadow hover:scale-105 hover:shadow-xl transition cursor-pointer text-center m-1 my-2 md:w-auto">
+                <button
+                  className="bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700 text-white px-6 py-2 rounded shadow hover:scale-105 hover:shadow-xl transition cursor-pointer text-center m-1 my-2 md:w-auto"
+                  onClick={() => handleNavigation(friend.username)}
+                >
                   Visit Galaxy
                 </button>
               </div>
