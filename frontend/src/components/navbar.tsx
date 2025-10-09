@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { UserType } from '../app/profile/users';
+import type { User as UserType } from '@/store/AppModel';
 
 interface NavProps {
   user?: UserType | null;

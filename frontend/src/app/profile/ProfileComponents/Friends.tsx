@@ -1,12 +1,9 @@
 import Image from 'next/image';
-import { UserType } from '../users';
-interface UserProps {
-  user: UserType;
-}
+import type { User as UserType } from '@/store/AppModel';
 
-export default function Friends({ user }: UserProps) {
-  // const friends = user.friends;
-  const friends = [];
+export default function Friends({ user }: { user: UserType }) {
+  const friends = user.friends;
+  // const friends = [];
 
   if (friends.length === 0) {
     return (

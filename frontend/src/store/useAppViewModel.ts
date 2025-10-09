@@ -2,7 +2,7 @@
 
 import { create } from 'zustand';
 import type { AppState } from './AppModel';
-import { fetchAsteroids } from './AppModel';
+import { fetchAsteroids, fetchUser } from './AppModel';
 
 const useAppStore = create<AppState>(set => ({
   loading: false,
@@ -20,6 +20,20 @@ const useAppStore = create<AppState>(set => ({
       set({
         error:
           error instanceof Error ? error.message : 'Failed to fetch asteroids',
+        loading: false,
+      });
+    }
+  },
+  setUser: async (userId: string) => {
+    try {
+      set({ loading: true, error: null });
+      const user = await fetchUser(userId);
+      if (user) {
+        set({ user, loading: false });
+      }
+    } catch (error) {
+      set({
+        error: error instanceof Error ? error.message : 'Failed to fetch user',
         loading: false,
       });
     }

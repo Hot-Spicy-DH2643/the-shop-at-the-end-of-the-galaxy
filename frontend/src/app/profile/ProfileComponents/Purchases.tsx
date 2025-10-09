@@ -1,14 +1,12 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { UserType } from '../users';
+import type { User as UserType } from '@/store/AppModel';
 import AsteroidSVGMoving from '@/components/asteroidSVGMoving';
-interface UserProps {
-  user: UserType;
-}
 
-export default function Purchases({ user }: UserProps) {
-  // const asteroids = user.owned_asteroids;
-  const asteroids = []; // For testing no purchases
+export default function Purchases({ user }: { user: UserType }) {
+  const asteroids = user.owned_asteroids;
+  const favoriteAsteroids = user.favorite_asteroids;
+  // const asteroids = []; // For testing no purchases
 
   const [zeroPurchaseId, setZeroPurchaseId] = useState<string>('0000000');
 
@@ -70,11 +68,11 @@ export default function Purchases({ user }: UserProps) {
       <div className="grid grid-cols-1 md:grid-cols-2">
         {asteroids.map((asteroid, idx) => (
           <div
-            key={asteroid.id}
+            key={asteroid}
             className="relative rounded bg-[rgba(23,23,23,0.7)]1 shadow text-center cursor-pointer"
           >
             <div className="p-6">
-              {asteroid.isMyfavotire ? (
+              {favoriteAsteroids.includes(asteroid) ? (
                 <p className="font-bold font-3xl mt-4 text-yellow-300 absolute top-2 left-2 z-40">
                   ⭐️
                 </p>
@@ -82,12 +80,12 @@ export default function Purchases({ user }: UserProps) {
 
               <div className="flex flex-col justify-center items-center hover:scale-[1.08] transition duration-300">
                 <AsteroidSVGMoving
-                  id={`${asteroid.id}-${idx}`}
+                  id={`${asteroid}-${idx}`}
                   size={100}
                   bgsize={160}
                 />
 
-                <p className="font-bold font-sm mt-4">({asteroid.id})</p>
+                <p className="font-bold font-sm mt-4">({asteroid})</p>
                 <p>Size</p>
                 <p>Hazard Level</p>
                 <p>Price</p>
@@ -95,12 +93,12 @@ export default function Purchases({ user }: UserProps) {
                 <button
                   className={`text-white px-6 py-2 mt-8 rounded shadow
                  transition cursor-pointer ${
-                   asteroid.isMyfavotire
+                   favoriteAsteroids.includes(asteroid)
                      ? 'outline outline-offset-2 outline-blue-500 hover:bg-blue-500'
                      : 'bg-blue-900 hover:bg-blue-500'
                  }`}
                 >
-                  {asteroid.isMyfavotire
+                  {favoriteAsteroids.includes(asteroid)
                     ? 'Remove from my Favorites'
                     : 'Add to my Favorites'}
                 </button>
