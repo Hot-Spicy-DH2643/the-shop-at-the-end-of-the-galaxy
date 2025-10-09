@@ -26,7 +26,7 @@ export default function Product({ asteroid }: ProductProps) {
       </div>
 
       {/* Text Information */}
-      <div className="flex flex-col items-center text-center space-y-1 group-hover:scale-[1.08] transition duration-300 p-">
+      <div className="flex flex-col items-center text-center space-y-1 group-hover:scale-[1.08] transition duration-300">
         {/* Name */}
         <h3 className="text-white font-bold text-lg truncate">
           {asteroid.name}
@@ -37,11 +37,13 @@ export default function Product({ asteroid }: ProductProps) {
           {asteroid.is_potentially_hazardous_asteroid
             ? 'Hazardous'
             : 'Not Hazardous'}
-          , Diameter: {diameterM.toFixed(1)} m
         </p>
+        
+        {/* Diameter */}
+        <p className="text-gray-400 text-xs">Diameter: {diameterM.toFixed(1)} m</p>
 
         {/* Price placeholder */}
-        <p className="text-gray-400 text-xs font-medium">price</p>
+        <p className="text-gray-400 text-xs pb-1">price</p>
       </div>
     </div>
   );
