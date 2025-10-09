@@ -1,23 +1,53 @@
 'use client';
 import { useEffect, useState } from 'react';
-import type { User as UserType } from '@/store/AppModel';
+import type { User, Asteroid } from '@/store/AppModel';
 import AsteroidSVGMoving from '@/components/asteroidSVGMoving';
+import { useAppStore } from '@/store/useAppViewModel';
 
-export default function Purchases({ user }: { user: UserType }) {
-  const asteroids = user.owned_asteroids;
+interface PurchaseProps {
+  user: User;
+  asteroids: Asteroid[];
+}
+
+function calculateAsteroidSizeM(asteroid: Asteroid): number {
+  const { estimated_diameter } = asteroid;
+  const min = estimated_diameter.kilometers.estimated_diameter_min;
+  const max = estimated_diameter.kilometers.estimated_diameter_max;
+  return ((min + max) / 2) * 1000; // convert to meters
+}
+
+export default function Purchases({ user }: PurchaseProps) {
+  // const owned_asteroids = []; // For testing no purchases
+  const owned_asteroids = user.owned_asteroids;
   const favoriteAsteroids = user.favorite_asteroids;
-  // const asteroids = []; // For testing no purchases
 
   const [zeroPurchaseId, setZeroPurchaseId] = useState<string>('0000000');
 
+  const { asteroids, setAsteroids } = useAppStore();
+  const [owned_asteroids_detail, setOwnedAsteroidsDetail] = useState<
+    Asteroid[]
+  >([]);
+
   useEffect(() => {
-    const id = Math.floor(Math.random() * 10000000)
-      .toString()
-      .padStart(7, '0');
-    setZeroPurchaseId(id);
+    if (owned_asteroids.length === 0) {
+      const id = Math.floor(Math.random() * 10000000)
+        .toString()
+        .padStart(7, '0');
+      setZeroPurchaseId(id);
+    }
+    setAsteroids();
   }, []);
 
-  if (asteroids.length === 0) {
+  useEffect(() => {
+    if (asteroids.length > 0 && owned_asteroids.length > 0) {
+      setOwnedAsteroidsDetail(
+        asteroids.filter(asteroid => owned_asteroids.includes(asteroid.id))
+      );
+      console.log('Owned asteroids detail:', owned_asteroids_detail);
+    }
+  }, [asteroids, owned_asteroids]);
+
+  if (owned_asteroids.length === 0) {
     return (
       <div className="text-white">
         <h2 className="text-2xl font-extrabold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-300 bg-clip-text text-transparent drop-shadow-lg">
@@ -60,19 +90,19 @@ export default function Purchases({ user }: { user: UserType }) {
       <p className="mt-4 text-lg">
         <span className="font-bold">{user.username}</span> has{' '}
         <span className="font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-          {asteroids.length}
+          {owned_asteroids_detail.length}
         </span>{' '}
         asteroids.
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2">
-        {asteroids.map((asteroid, idx) => (
+        {owned_asteroids_detail.map((asteroid, idx) => (
           <div
-            key={asteroid}
+            key={asteroid.id}
             className="relative rounded bg-[rgba(23,23,23,0.7)]1 shadow text-center cursor-pointer"
           >
             <div className="p-6">
-              {favoriteAsteroids.includes(asteroid) ? (
+              {favoriteAsteroids.includes(asteroid.id) ? (
                 <p className="font-bold font-3xl mt-4 text-yellow-300 absolute top-2 left-2 z-40">
                   ⭐️
                 </p>
@@ -80,14 +110,18 @@ export default function Purchases({ user }: { user: UserType }) {
 
               <div className="flex flex-col text-sm justify-center items-center hover:scale-[1.08] transition duration-300">
                 <AsteroidSVGMoving
-                  id={`${asteroid}-${idx}`}
+                  id={`${asteroid.id}-${idx}`}
                   size={100}
                   bgsize={160}
                 />
 
-                <p className="font-bold font-sm mt-4">ID: {asteroid}</p>
-                <p>Hazard Level</p>
-                <p>Diameter</p>
+                <p className="font-bold font-sm mt-4">{asteroid.name}</p>
+                <p>
+                  {asteroid.is_potentially_hazardous_asteroid
+                    ? 'Hazardous'
+                    : 'Not Hazardous'}
+                </p>
+                <p>Diameter: {calculateAsteroidSizeM(asteroid).toFixed(1)} m</p>
                 <p>Price</p>
                 <button className="bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700 text-white px-6 py-2 rounded shadow hover:scale-105 hover:shadow-xl transition cursor-pointer text-center m-1 my-2 md:w-auto">
                   Show Details

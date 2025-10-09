@@ -5,14 +5,14 @@
   "email": "Sincere@april.biz",
   "coins": 0,
   "owned_asteroids": [
-    "9203854",
-    "3748593",
-    "5647309",
-    "6574058",
-    "7438537",
-    "6574834"
+    "2465633",
+    "3426410",
+    "3553060",
+    "3726710",
+    "3727181",
+    "3727639"
   ],
-  "favorite_asteroids": ["3748593", "6574058"],
+  "favorite_asteroids": ["2465633", "3426410"],
   "friends": [
     {
       "_comment": "Populate the data later...",
