@@ -2,6 +2,11 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { UserType } from '../app/profile/users';
+
+interface NavProps {
+  user?: UserType | null;
+}
 
 const navLinks = [
   { label: 'Home', href: '/' },
@@ -9,7 +14,7 @@ const navLinks = [
   { label: 'Login', href: '/login' },
 ];
 
-export default function Navbar() {
+export default function Navbar({ user }: NavProps) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -36,18 +41,22 @@ export default function Navbar() {
         {/* Desktop nav */}
         <div className="hidden lg:flex ml-8">
           <ul className="flex flex-row items-center">
-            {navLinks.map(link => (
-              <li key={link.label}>
-                <a
-                  href={link.href}
-                  className="block px-6 py-2 relative transition-all duration-500
+            {navLinks.map(link => {
+              return (
+                <li key={link.label}>
+                  <a
+                    href={
+                      user && link.label === 'Login' ? '/profile' : link.href
+                    }
+                    className="block px-6 py-2 relative transition-all duration-500
     before:content-[''] before:absolute before:left-0 before:bottom-1 before:w-0 before:h-0.5 before:bg-white before:transition-all before:duration-500
     hover:before:w-full"
-                >
-                  {link.label}
-                </a>
-              </li>
-            ))}
+                  >
+                    {user && link.label === 'Login' ? 'Profile' : link.label}
+                  </a>
+                </li>
+              );
+            })}
           </ul>
         </div>
       </div>
@@ -58,8 +67,11 @@ export default function Navbar() {
         <ul className="flex flex-col space-y-3 py-4">
           {navLinks.map(link => (
             <li key={link.label}>
-              <a href={link.href} className="block px-6 py-2">
-                {link.label}
+              <a
+                href={user && link.label === 'Login' ? '/profile' : link.href}
+                className="block px-6 py-2"
+              >
+                {user && link.label === 'Login' ? 'Profile' : link.label}
               </a>
             </li>
           ))}
