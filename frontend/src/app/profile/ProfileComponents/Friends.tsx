@@ -76,7 +76,7 @@ export default function Friends({ user }: { user: UserType }) {
                   {friend.name}
                 </p>
                 <p>{friend.username}</p>
-                <button className="bg-blue-900 text-white px-6 py-2 mt-8 rounded shadow hover:bg-blue-500 transition cursor-pointer">
+                <button className="bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700 text-white px-6 py-2 rounded shadow hover:scale-105 hover:shadow-xl transition cursor-pointer text-center m-1 my-2 md:w-auto">
                   Visit Galaxy
                 </button>
               </div>
