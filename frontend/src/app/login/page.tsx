@@ -8,9 +8,17 @@ import Link from 'next/link';
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [username, setUsername] = useState('');
   const [error, setError] = useState('');
-  const { signInWithEmail, signInWithGoogle, getIdToken, loading } =
-    useAuthStore();
+  const [isSignUp, setIsSignUp] = useState(false);
+  const {
+    signInWithEmail,
+    signUpWithEmail,
+    signInWithGoogle,
+    getIdToken,
+    loading,
+  } = useAuthStore();
   const router = useRouter();
 
   const handleEmailLogin = async (e: React.FormEvent) => {
@@ -18,16 +26,41 @@ export default function Login() {
     setError('');
 
     try {
-      await signInWithEmail(email, password);
-      console.log('Email login successful');
-      router.push('/'); // Redirect to dashboard after successful login
+      if (isSignUp) {
+        // Sign-up validation
+        if (!username.trim()) {
+          setError('Please enter a username');
+          return;
+        }
+        if (username.length < 3) {
+          setError('Username must be at least 3 characters long');
+          return;
+        }
+        if (password.length < 6) {
+          setError('Password must be at least 6 characters long');
+          return;
+        }
+        if (password !== confirmPassword) {
+          setError('Passwords do not match');
+          return;
+        }
+
+        await signUpWithEmail(email, password);
+        console.log('Sign up successful');
+      } else {
+        await signInWithEmail(email, password);
+        console.log('Email login successful');
+      }
+      router.push('/'); // Redirect to dashboard after successful login/signup
     } catch (err) {
       const errorMessage =
         err instanceof Error
           ? err.message
-          : 'Failed to sign in. Please check your credentials.';
+          : isSignUp
+            ? 'Failed to sign up. Please try again.'
+            : 'Failed to sign in. Please check your credentials.';
       setError(errorMessage);
-      console.error('Login error:', err);
+      console.error(isSignUp ? 'Sign up error:' : 'Login error:', err);
     }
   };
 
@@ -51,7 +84,7 @@ export default function Login() {
 
   return (
     <div className="galaxy-bg-space min-h-screen w-full flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="text-white text-left w-50 mb-4 w-full max-w-xl pl-4 sm:pl-8">
+      <div className="text-white text-left mb-4 w-full max-w-xl pl-4 sm:pl-8">
         <Link
           href="/"
           className="block px-4 py-2 relative transition-all duration-500
@@ -61,11 +94,11 @@ export default function Login() {
           &lt; Back to Home
         </Link>
       </div>
-      <div className="flex flex-col items-center justify-center bg-gray-100 py-12 px-4 sm:px-6 lg:px-8 w-auto max-w-xl mx-auto rounded-lg shadow-lg">
+      <div className="flex flex-col items-center justify-center bg-gray-100 py-6 px-4 sm:px-6 lg:px-8 w-auto max-w-xl mx-auto rounded-lg shadow-lg">
         <div className="max-w-md w-full space-y-8">
           <div>
             <h2 className="mt-6 text-center text-3xl sm:text-4xl md:text-5xl lg:text-4xl xl:text-5xl font-modak mb-2 bg-gradient-to-r from-blue-900 via-purple-800 to-pink-700 bg-clip-text text-transparent drop-shadow-lg p-8 py-2 uppercase leading-7 sm:leading-10 lg:leading-8 xl:leading-10">
-              SIGN IN TO YOUR ACCOUNT
+              {isSignUp ? 'CREATE YOUR ACCOUNT' : 'SIGN IN TO YOUR ACCOUNT'}
             </h2>
           </div>
 
@@ -77,8 +110,34 @@ export default function Login() {
             )}
 
             <div className="space-y-4">
+              {isSignUp && (
+                <div>
+                  <label
+                    htmlFor="username"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Username
+                  </label>
+                  <input
+                    id="username"
+                    name="username"
+                    type="text"
+                    autoComplete="username"
+                    required
+                    className="relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                    placeholder="Choose a username"
+                    value={username}
+                    onChange={e => setUsername(e.target.value)}
+                    disabled={loading}
+                  />
+                </div>
+              )}
+
               <div>
-                <label htmlFor="email" className="sr-only">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Email address
                 </label>
                 <input
@@ -88,29 +147,60 @@ export default function Login() {
                   autoComplete="email"
                   required
                   className="relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                  placeholder="Email address"
+                  placeholder="Enter your email"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   disabled={loading}
                 />
               </div>
+
               <div>
-                <label htmlFor="password" className="sr-only">
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Password
                 </label>
                 <input
                   id="password"
                   name="password"
                   type="password"
-                  autoComplete="current-password"
+                  autoComplete={isSignUp ? 'new-password' : 'current-password'}
                   required
                   className="relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                  placeholder="Password"
+                  placeholder={
+                    isSignUp
+                      ? 'Create a password (min. 6 characters)'
+                      : 'Enter your password'
+                  }
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   disabled={loading}
                 />
               </div>
+
+              {isSignUp && (
+                <div>
+                  <label
+                    htmlFor="confirmPassword"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Confirm Password
+                  </label>
+                  <input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type="password"
+                    autoComplete="new-password"
+                    required
+                    className="relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                    placeholder="Confirm your password"
+                    value={confirmPassword}
+                    onChange={e => setConfirmPassword(e.target.value)}
+                    disabled={loading}
+                  />
+                </div>
+              )}
             </div>
 
             <div>
@@ -119,7 +209,13 @@ export default function Login() {
                 disabled={loading}
                 className="group relative w-full flex justify-center py-2 px-4 text-sm font-medium rounded-md text-blue-900 border border-blue-900 bg-transparent hover:bg-blue-50 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
-                {loading ? 'Signing in...' : 'Sign in'}
+                {loading
+                  ? isSignUp
+                    ? 'Creating account...'
+                    : 'Signing in...'
+                  : isSignUp
+                    ? 'Create Account'
+                    : 'Sign in'}
               </button>
             </div>
 
@@ -139,7 +235,7 @@ export default function Login() {
                 type="button"
                 onClick={handleGoogleLogin}
                 disabled={loading}
-                className="group relative w-full flex justify-center py-2 px-4 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700 text-white px-6 py-2 rounded shadow hover:scale-105 hover:shadow-xl transition cursor-pointer text-center"
+                className="group relative w-full flex justify-center px-6 py-2 border border-gray-300 text-sm font-medium rounded text-white bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700 shadow hover:scale-105 hover:shadow-xl transition cursor-pointer text-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                   <path
@@ -160,6 +256,24 @@ export default function Login() {
                   />
                 </svg>
                 Sign in with Google
+              </button>
+            </div>
+
+            <div className="text-center mt-4">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsSignUp(!isSignUp);
+                  setError('');
+                  setUsername('');
+                  setConfirmPassword('');
+                }}
+                disabled={loading}
+                className="text-sm text-blue-900 hover:text-blue-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              >
+                {isSignUp
+                  ? 'Already have an account? Sign in'
+                  : "Don't have an account? Sign up"}
               </button>
             </div>
           </form>
