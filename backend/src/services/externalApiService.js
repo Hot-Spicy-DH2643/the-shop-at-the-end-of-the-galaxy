@@ -255,21 +255,36 @@ export async function cacheAsteroidsData() {
 
 /**
  * Get asteroids from database or fetch from API if cache is empty
- * @returns {Promise<Array>} Array of asteroids
+ * @param {number} page - Page number (1-indexed)
+ * @param {number} pageSize - Number of items per page
+ * @returns {Promise<Object>} Paginated asteroids with metadata
  */
-export async function getAsteroids() {
+export async function getAsteroids(page = 1, pageSize = 20) {
   try {
     // Check if we have cached data
-    const count = await Asteroid.countDocuments();
+    let totalCount = await Asteroid.countDocuments();
 
-    if (count === 0) {
+    if (totalCount === 0) {
       console.log('⚠️  No cached data found. Fetching from NASA API...');
       await cacheAsteroidsData();
+      // Recount after caching
+      totalCount = await Asteroid.countDocuments();
     }
 
-    // Return all asteroids from database
-    const asteroids = await Asteroid.find().lean();
-    return asteroids;
+    // Calculate pagination
+    const skip = (page - 1) * pageSize;
+    const totalPages = Math.ceil(totalCount / pageSize);
+
+    // Return paginated asteroids from database
+    const asteroids = await Asteroid.find().skip(skip).limit(pageSize).lean();
+
+    return {
+      asteroids,
+      totalCount,
+      page,
+      pageSize,
+      totalPages,
+    };
   } catch (error) {
     console.error('❌ Error getting asteroids:', error.message);
     throw error;
