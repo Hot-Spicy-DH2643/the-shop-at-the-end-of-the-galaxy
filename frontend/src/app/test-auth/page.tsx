@@ -2,7 +2,7 @@
 
 import { useQuery } from '@apollo/client/react';
 import { gql } from '@apollo/client';
-import { useAuthStore } from '../../store/useAuthStore';
+import { useAuthStore } from '../../store/useAuthViewModel';
 
 const GET_PROTECTED_DATA = gql`
   query GetProtectedData {

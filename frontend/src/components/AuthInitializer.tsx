@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useAuthStore } from '../store/useAuthStore';
+import { useAuthStore } from '../store/useAuthViewModel';
 
 /**
  * Component to initialize authentication state.
