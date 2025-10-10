@@ -114,7 +114,6 @@ export async function fetchUserData(): Promise<UserData | null> {
 
   try {
     const response = await axios.get<UserData>(`${baseUrl}/userFakeData.json`);
-    const response = await axios.get<UserData>(`${baseUrl}/userFakeData.json`);
     if (!response.status) throw new Error('Failed to fetch');
 
     const userData: UserData = await response.data;

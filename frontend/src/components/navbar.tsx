@@ -2,11 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import type { User as UserType } from '@/store/AppModel';
-
-interface NavProps {
-  user?: UserType | null;
-}
+import { useAuthStore } from '@/store/useAuthViewModel';
 
 const navLinks = [
   { label: 'Home', href: '/' },
@@ -14,7 +10,8 @@ const navLinks = [
   { label: 'Login', href: '/login' },
 ];
 
-export default function Navbar({ user }: NavProps) {
+export default function Navbar() {
+  const { user, logout } = useAuthStore();
   const [open, setOpen] = useState(false);
 
   return (
@@ -53,12 +50,24 @@ export default function Navbar({ user }: NavProps) {
     hover:before:w-full"
                   >
                     {user && link.label === 'Login'
-                      ? `Hello, ${user.username}`
+                      ? `Hello, ${user.displayName}`
                       : link.label}
                   </a>
                 </li>
               );
             })}
+            {user && (
+              <li>
+                <button
+                  onClick={logout}
+                  className="cursor-pointer block px-6 py-2 relative transition-all duration-500
+    before:content-[''] before:absolute before:left-0 before:bottom-1 before:w-0 before:h-0.5 before:bg-white before:transition-all before:duration-500
+    hover:before:w-full"
+                >
+                  Logout
+                </button>
+              </li>
+            )}
           </ul>
         </div>
       </div>
@@ -77,6 +86,13 @@ export default function Navbar({ user }: NavProps) {
               </a>
             </li>
           ))}
+          {user && (
+            <li>
+              <button onClick={logout} className="block px-6 py-2">
+                Logout
+              </button>
+            </li>
+          )}
         </ul>
       </div>
     </nav>
