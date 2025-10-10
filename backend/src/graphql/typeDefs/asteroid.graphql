@@ -1,0 +1,118 @@
+type EstimatedDiameter {
+  kilometers: DiameterRange!
+  meters: DiameterRange!
+  miles: DiameterRange!
+  feet: DiameterRange!
+}
+
+type DiameterRange {
+  estimated_diameter_min: Float!
+  estimated_diameter_max: Float!
+}
+
+type CloseApproachData {
+  close_approach_date: String!
+  close_approach_date_full: String!
+  epoch_date_close_approach: Float!
+  relative_velocity: RelativeVelocity!
+  miss_distance: MissDistance!
+  orbiting_body: String!
+}
+
+type RelativeVelocity {
+  kilometers_per_second: String!
+  kilometers_per_hour: String!
+  miles_per_hour: String!
+}
+
+type MissDistance {
+  astronomical: String!
+  lunar: String!
+  kilometers: String!
+  miles: String!
+}
+
+type OrbitalData {
+  orbit_id: String!
+  orbit_determination_date: String!
+  first_observation_date: String!
+  last_observation_date: String!
+  data_arc_in_days: Int!
+  observations_used: Int!
+  orbit_uncertainty: String!
+  minimum_orbit_intersection: String!
+  jupiter_tisserand_invariant: String!
+  epoch_osculation: String!
+  eccentricity: String!
+  semi_major_axis: String!
+  inclination: String!
+  ascending_node_longitude: String!
+  orbital_period: String!
+  perihelion_distance: String!
+  perihelion_argument: String!
+  aphelion_distance: String!
+  perihelion_time: String!
+  mean_anomaly: String!
+  mean_motion: String!
+  equinox: String!
+  orbit_class: OrbitClass!
+}
+
+type OrbitClass {
+  orbit_class_type: String!
+  orbit_class_description: String!
+  orbit_class_range: String!
+}
+
+type Asteroid {
+  id: String!
+  neo_reference_id: String!
+  name: String!
+  nasa_jpl_url: String!
+  absolute_magnitude_h: Float!
+  estimated_diameter: EstimatedDiameter!
+  is_potentially_hazardous_asteroid: Boolean!
+  close_approach_data: [CloseApproachData!]!
+  is_sentry_object: Boolean!
+  orbital_data: OrbitalData
+  price: Float!
+  size: Int!
+}
+
+type CacheStatus {
+  lastUpdated: String!
+  status: String!
+  recordCount: Int!
+  errorMessage: String
+}
+
+type AsteroidPage {
+  asteroids: [Asteroid!]!
+  totalCount: Int!
+  page: Int!
+  pageSize: Int!
+  totalPages: Int!
+}
+
+# TODO: Add allAsteroids query
+extend type Query {
+  # Get all asteroids from cache with pagination
+  asteroids(page: Int = 1, pageSize: Int = 20): AsteroidPage!
+
+  # Get a specific asteroid by ID
+  asteroid(id: String!): Asteroid
+
+  # Get cache status
+  cacheStatus: CacheStatus
+
+  # Get asteroids filtered by hazard status
+  asteroidsByHazard(isHazardous: Boolean!): [Asteroid!]!
+
+  # Get asteroids by size category
+  asteroidsBySize(size: Int!): [Asteroid!]!
+}
+
+extend type Mutation {
+  # Manually trigger cache refresh (admin only)
+  refreshAsteroidCache: CacheStatus!
+}

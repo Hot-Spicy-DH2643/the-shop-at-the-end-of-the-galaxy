@@ -10,6 +10,8 @@
 import './config/dotenv.js';
 import { createApolloServer } from './loaders/apollo.js';
 import { createExpressApp, setupGraphQL } from './loaders/express.js';
+import { connectDatabase } from './loaders/database.js';
+import { initializeCronJobs } from './utils/cronJobs.js';
 import http from 'http';
 
 // Create Apollo Server and Express app
@@ -33,6 +35,12 @@ const httpServer = http.createServer(app);
  * Function to start the server
  */
 async function startServer() {
+  // Connect to database
+  await connectDatabase();
+
+  // Initialize cron jobs for daily asteroid cache
+  initializeCronJobs();
+
   await setupGraphQL(app, server);
 
   /**

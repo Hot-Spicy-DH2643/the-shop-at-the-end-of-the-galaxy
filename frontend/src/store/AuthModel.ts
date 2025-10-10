@@ -7,6 +7,7 @@ import {
   signOut,
   createUserWithEmailAndPassword,
   onAuthStateChanged,
+  updateProfile,
 } from 'firebase/auth';
 import { auth, googleProvider } from '../lib/firebase';
 
@@ -21,7 +22,11 @@ export interface AuthState {
   setLoading: (loading: boolean) => void;
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
-  signUpWithEmail: (email: string, password: string) => Promise<void>;
+  signUpWithEmail: (
+    email: string,
+    password: string,
+    username: string
+  ) => Promise<void>;
   logout: () => Promise<void>;
   getIdToken: () => Promise<string | null>;
   initializeAuth: () => void;
@@ -77,9 +82,18 @@ export async function signInWithGoogle(): Promise<void> {
 
 export async function signUpWithEmail(
   email: string,
-  password: string
+  password: string,
+  username: string
 ): Promise<void> {
-  await createUserWithEmailAndPassword(auth, email, password);
+  const userCredential = await createUserWithEmailAndPassword(
+    auth,
+    email,
+    password
+  );
+  // Set the display name for the user
+  await updateProfile(userCredential.user, {
+    displayName: username,
+  });
   // Session will be created in onAuthStateChanged
 }
 
