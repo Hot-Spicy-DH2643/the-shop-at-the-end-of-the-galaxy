@@ -4,6 +4,7 @@ import { create } from 'zustand';
 import type { AppState } from './AppModel';
 import { fetchAsteroids, fetchUserData } from './AppModel';
 import type { shopAsteroid } from './AppModel';
+import { use } from 'react';
 
 //Antonio can change this to a fixed price calculation if needed
 function generateRandomPrice(min: number, max: number): number {
@@ -19,10 +20,19 @@ function calculateAverageDiameterM(asteroid: shopAsteroid): number {
 
 export function onHandleProductClick(id: string) {
   // should open the product modal component with detailed info
+  useAppStore.getState().setSelectedAsteroidId(id);
 }
 
 export function onHandleStarred(id: string) {
-  // should toggle the starred status of the asteroid
+  // should toggle the starred status of the asteroid - and add to/remove from favorites??
+  useAppStore.setState(state => {
+    const updatedAsteroids = state.asteroids.map(asteroid =>
+      asteroid.id === id
+        ? { ...asteroid, is_starred: !asteroid.is_starred }
+        : asteroid
+    );
+    return { asteroids: updatedAsteroids };
+  });
 }
 
 const useAppStore = create<AppState>(set => ({
@@ -30,6 +40,8 @@ const useAppStore = create<AppState>(set => ({
   error: null,
   userData: null,
   asteroids: [],
+  selectedAsteroidId: null,
+  setSelectedAsteroidId: (id: string | null) => set({ selectedAsteroidId: id }),
   setLoading: (loading: boolean) => set({ loading }),
   setError: (error: string | null) => set({ error }),
   setAsteroids: async () => {
@@ -56,7 +68,9 @@ const useAppStore = create<AppState>(set => ({
     try {
       set({ loading: true, error: null });
       const userData = await fetchUserData();
-      set({ userData, loading: false });
+      if (userData) {
+        set({ userData, loading: false });
+      }
     } catch (error) {
       set({
         error: error instanceof Error ? error.message : 'Failed to fetch user',

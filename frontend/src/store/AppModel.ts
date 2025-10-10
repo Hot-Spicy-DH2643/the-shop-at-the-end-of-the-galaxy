@@ -77,9 +77,11 @@ export type AppState = {
   asteroids: shopAsteroid[];
   loading: boolean;
   error: string | null;
+  selectedAsteroidId: string | null;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   setAsteroids: () => Promise<void>;
+  setSelectedAsteroidId: (id: string | null) => void;
   setUserData: () => Promise<void>;
 };
 
@@ -111,6 +113,7 @@ export async function fetchUserData(): Promise<UserData | null> {
   const baseUrl = 'http://localhost:3000';
 
   try {
+    const response = await axios.get<UserData>(`${baseUrl}/userFakeData.json`);
     const response = await axios.get<UserData>(`${baseUrl}/userFakeData.json`);
     if (!response.status) throw new Error('Failed to fetch');
 

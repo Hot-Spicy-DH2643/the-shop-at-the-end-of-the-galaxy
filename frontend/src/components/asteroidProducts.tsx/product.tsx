@@ -13,8 +13,12 @@ export default function Product({ asteroid, onHandleProductClick, onHandleStarre
   return (
     <div className='relative'>
       {/* Star button*/}
-        <button onClick={() => onHandleStarred(asteroid.id)} className="hover:scale[1.08] transition duration-300 p-1 absolute top-1 right-2 z-10 cursor-pointer">
-          <Star className={ asteroid.is_starred ? 'text-yellow-400' : 'text-gray-600 group-hover:text-yellow-400'} />
+        <button onClick={() => onHandleStarred(asteroid.id)} className="p-1 absolute top-1 right-2 z-10 cursor-pointer">
+          {asteroid.is_starred
+          ? <Star className="hover:scale-[1.08] transition duration-300 text-yellow-300" fill='yellow' />
+          : <Star className='hover:scale-[1.08] transition duration-300 text-grey-600'/>
+          }
+          
         </button>
 
       <div onClick={() => onHandleProductClick(asteroid.id)} className="group animate-fade-in rounded flex flex-col items-center overflow-hidden m-4 cursor-pointer">
