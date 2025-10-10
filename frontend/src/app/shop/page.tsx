@@ -17,6 +17,7 @@ import { ChevronDownIcon, Filter } from 'lucide-react';
 import Product from '@/components/asteroidProducts.tsx/product';
 import ProductSkeleton from '@/components/asteroidProducts.tsx/productSkeleton';
 import { useAppStore } from '@/store/useAppViewModel';
+import {onHandleProductClick, onHandleStarred} from '@/store/useAppViewModel';
 
 const SORT_OPTIONS = [
   { name: 'None', value: 'None' }, // for when no sorting is selected
@@ -50,7 +51,7 @@ export default function Shop() {
 
   console.log('Current filter state:', filter);
 
-  // Fetch asteroids on mount
+  // Fetch asteroids on mount - cheating.
   useEffect(() => {
     setAsteroids();
   }, [setAsteroids]);
@@ -163,8 +164,8 @@ export default function Shop() {
                   <Product
                     key={asteroid.id}
                     asteroid={asteroid}
-                    //onProductClick={() => handleProductClick(asteroid.id)}
-                    //onLikedClick={() => handleLikedClick(asteroid.id)}
+                    onHandleProductClick={() => onHandleProductClick(asteroid.id)}
+                    onHandleStarred={() => onHandleStarred(asteroid.id)}
                   />
                 ))}
           </ul>
