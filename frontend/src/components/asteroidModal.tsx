@@ -17,7 +17,7 @@ export default function AsteroidModal() {
           <div>
             <AsteroidSVGMoving size={100} id="2000433" bgsize={160} />
           </div>
-          <div className="w-100 mx-auto px-8 mt-4">
+          <div className="w-100 mx-auto px-8 mt-4 text-white">
             <h2 className="text-xl md:text-2xl mb-4 font-mono">
               433 Eros (A898 PA)
             </h2>
@@ -87,7 +87,7 @@ export default function AsteroidModal() {
 
         <div className="overflow-x-auto rounded-lg shadow mt-6">
           <div className="overflow-hidden rounded-lg shadow bg-gradient-to-br from-gray-900 via-gray-950 to-black mb-6">
-            <table className="w-full text-left">
+            <table className="w-full text-left text-white">
               <thead>
                 <tr>
                   <th className="px-4 py-3 text-purple-200 font-bold rounded-tl-lg">
