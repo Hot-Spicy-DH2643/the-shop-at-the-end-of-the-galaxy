@@ -2,7 +2,7 @@
 
 import axios from 'axios';
 
-export type Asteroid = {
+export interface Asteroid {
   id: string;
   neo_reference_id: string;
   name: string;
@@ -47,6 +47,13 @@ export type Asteroid = {
   is_sentry_object: boolean;
 };
 
+export type shopAsteroid = Asteroid & {
+  price: number;
+  ownership_id: string | null;
+  is_starred: boolean;
+  size: number;
+}
+
 type Friend = {
   id: string;
   name: string;
@@ -67,7 +74,7 @@ export type User = {
 
 export type AppState = {
   user: User | null;
-  asteroids: Asteroid[];
+  asteroids: shopAsteroid[];
   loading: boolean;
   error: string | null;
   setLoading: (loading: boolean) => void;
@@ -78,17 +85,17 @@ export type AppState = {
 
 interface FakeDataResponse {
   near_earth_objects: {
-    [date: string]: Asteroid[];
+    [date: string]: shopAsteroid[];
   };
 }
 
-export async function fetchAsteroids(): Promise<Asteroid[]> {
+export async function fetchAsteroids(): Promise<shopAsteroid[]> {
   try {
     const response = await axios.get<FakeDataResponse>('/fakedata.json');
 
     // Combine all arrays from near_earth_objects into one array
     const neo = response.data.near_earth_objects;
-    const allAsteroids: Asteroid[] = Object.values(neo).flat();
+    const allAsteroids: shopAsteroid[] = Object.values(neo).flat();
 
     return allAsteroids;
   } catch (error) {
