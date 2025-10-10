@@ -18,13 +18,28 @@ function calculateAverageDiameterM(asteroid: shopAsteroid): number {
   return ((min + max) / 2) * 1000; // convert to meters
 }
 
+export function fetchOrbitalData(id: string) {
+  //const response = await axios.get("https://api.nasa.gov/neo/rest/v1/neo/" + {id} + "api_key=" + process.env.SARA_NASA_API_KEY);
+  //return response.data; 
+}
+
 export function onHandleProductClick(id: string) {
-  // should open the product modal component with detailed info
+  // open the product modal component with detailed info
   useAppStore.getState().setSelectedAsteroidId(id);
+  
+  // also get the orbital data using the fetch
+  /*fetchOrbitalData(id).then(orbitalData => {
+    useAppStore.setState(state => ({
+      asteroids: state.asteroids.map(asteroid =>
+        asteroid.id === id ?
+          { ...asteroid, orbital_data: orbitalData } : asteroid
+      ),
+    }));
+  });*/
 }
 
 export function onHandleStarred(id: string) {
-  // should toggle the starred status of the asteroid - and add to/remove from favorites??
+  // toggle the starred status of the asteroid - and add to/remove from favorites??
   useAppStore.setState(state => {
     const updatedAsteroids = state.asteroids.map(asteroid =>
       asteroid.id === id
@@ -34,6 +49,10 @@ export function onHandleStarred(id: string) {
     return { asteroids: updatedAsteroids };
   });
 }
+
+
+
+
 
 const useAppStore = create<AppState>(set => ({
   loading: false,
