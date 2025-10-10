@@ -1,22 +1,10 @@
 'use client';
 import { useEffect, useState } from 'react';
-import type { User, Asteroid } from '@/store/AppModel';
+import type { UserData, shopAsteroid } from '@/store/AppModel';
 import AsteroidSVGMoving from '@/components/asteroidSVGMoving';
 import { useAppStore } from '@/store/useAppViewModel';
 
-interface PurchaseProps {
-  user: User;
-  asteroids: Asteroid[];
-}
-
-function calculateAsteroidSizeM(asteroid: Asteroid): number {
-  const { estimated_diameter } = asteroid;
-  const min = estimated_diameter.kilometers.estimated_diameter_min;
-  const max = estimated_diameter.kilometers.estimated_diameter_max;
-  return ((min + max) / 2) * 1000; // convert to meters
-}
-
-export default function Purchases({ user }: PurchaseProps) {
+export default function Purchases({ user }: { user: UserData }) {
   // const owned_asteroids = []; // For testing no purchases
   const owned_asteroids = user.owned_asteroids;
   const favoriteAsteroids = user.favorite_asteroids;
@@ -25,7 +13,7 @@ export default function Purchases({ user }: PurchaseProps) {
 
   const { asteroids, setAsteroids } = useAppStore();
   const [owned_asteroids_detail, setOwnedAsteroidsDetail] = useState<
-    Asteroid[]
+    shopAsteroid[]
   >([]);
 
   useEffect(() => {
@@ -121,7 +109,7 @@ export default function Purchases({ user }: PurchaseProps) {
                     ? 'Hazardous'
                     : 'Not Hazardous'}
                 </p>
-                <p>Diameter: {calculateAsteroidSizeM(asteroid).toFixed(1)} m</p>
+                <p>Diameter: {asteroid.size.toFixed(2)} m</p>
                 <p>Price</p>
                 <button className="bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700 text-white px-6 py-2 rounded shadow hover:scale-105 hover:shadow-xl transition cursor-pointer text-center m-1 my-2 md:w-auto">
                   Show Details

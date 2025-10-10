@@ -2,10 +2,10 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import type { User as UserType } from '@/store/AppModel';
+import type { UserData } from '@/store/AppModel';
 
 interface NavProps {
-  user?: UserType | null;
+  user?: UserData | null;
 }
 
 const navLinks = [

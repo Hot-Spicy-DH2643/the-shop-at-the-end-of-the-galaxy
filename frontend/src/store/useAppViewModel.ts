@@ -55,9 +55,9 @@ const useAppStore = create<AppState>(set => ({
   setUser: async (userId: string) => {
     try {
       set({ loading: true, error: null });
-      const user = await fetchUser(userId);
-      if (user) {
-        set({ user, loading: false });
+      const userData = await fetchUser(userId);
+      if (userData) {
+        set({ userData, loading: false });
       }
     } catch (error) {
       set({

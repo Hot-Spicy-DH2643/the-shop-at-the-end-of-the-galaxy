@@ -2,19 +2,15 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-import type { User as UserType } from '@/store/AppModel';
+import type { UserData } from '@/store/AppModel';
 import User from './ProfileComponents/User';
 import Galaxy from './ProfileComponents/Galaxy';
 import Purchases from './ProfileComponents/Purchases';
 import Friends from './ProfileComponents/Friends';
 
-interface ProfileTabProps {
-  user: UserType;
-}
-
 type Tab = 'user' | 'purchases' | 'galaxy' | 'friends';
 
-const ProfileTab = ({ user }: ProfileTabProps) => {
+const ProfileTab = ({ user }: { user: UserData }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const currentTab = (searchParams.get('tab') as Tab) || 'user';

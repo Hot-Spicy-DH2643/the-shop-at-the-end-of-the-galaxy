@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
-import { getUser, UserType, AsteroidType } from '../users';
+// import { getUser, UserType, AsteroidType } from '../users';
+import type { UserData, Asteroid } from '@/store/AppModel';
 import AsteroidSVGMoving from '@/components/asteroidSVGMoving';
 import AstroidSVG from '@/components/asteroidSVGMoving';
 
 export default function Galaxy() {
-  const [userAsteroids, setUserAsteroids] = useState<AsteroidType[]>([]);
+  const [userAsteroids, setUserAsteroids] = useState<Asteroid[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

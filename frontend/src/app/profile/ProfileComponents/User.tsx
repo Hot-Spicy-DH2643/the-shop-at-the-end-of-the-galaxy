@@ -1,6 +1,6 @@
-import type { User as UserType } from '@/store/AppModel';
+import type { UserData } from '@/store/AppModel';
 
-export default function User({ user }: { user: UserType }) {
+export default function User({ user }: { user: UserData }) {
   return (
     <div className="text-white">
       <h2 className="text-2xl font-extrabold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-300 bg-clip-text text-transparent drop-shadow-lg">
