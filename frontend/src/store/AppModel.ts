@@ -77,9 +77,11 @@ export type AppState = {
   asteroids: shopAsteroid[];
   loading: boolean;
   error: string | null;
+  selectedAsteroidId: string | null;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   setAsteroids: () => Promise<void>;
+  setSelectedAsteroidId: (id: string | null) => void;
 };
 
 interface FakeDataResponse {
