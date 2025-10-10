@@ -1,48 +1,50 @@
 import AsteroidSVG from '../asteroidSVG';
-import type { Asteroid } from '@/types/product';
+import { shopAsteroid } from '@/store/AppModel';
+import { Star } from "lucide-react";
 
 interface ProductProps {
-  asteroid: Asteroid;
-  // add any onClick handlers if needed
+  asteroid: shopAsteroid;
+  onHandleProductClick: (id: string) => void;
+  onHandleStarred: (id: string) => void;
 }
 
-//what do we do with pricing and ownership tags??
-
-function calculateAsteroidSizeM(asteroid: Asteroid): number {
-  const { estimated_diameter } = asteroid;
-  const min = estimated_diameter.kilometers.estimated_diameter_min;
-  const max = estimated_diameter.kilometers.estimated_diameter_max;
-  return ((min + max) / 2) * 1000; // convert to meters
-}
-
-export default function Product({ asteroid }: ProductProps) {
-  const diameterM = calculateAsteroidSizeM(asteroid);
+export default function Product({ asteroid, onHandleProductClick, onHandleStarred }: ProductProps) {
 
   return (
-    <div className="group animate-fade-in rounded flex flex-col items-center overflow-hidden m-4 cursor-pointer">
-      {/* Asteroid Image */}
-      <div className="group-hover:scale-[1.08] transition duration-300 p-1 pb-2">
-        <AsteroidSVG id={asteroid.id} size={100} />
-      </div>
+    <div className='relative'>
+      {/* Star button*/}
+        <button onClick={() => onHandleStarred(asteroid.id)} className="hover:scale[1.08] transition duration-300 p-1 absolute top-1 right-2 z-10 cursor-pointer">
+          <Star className={ asteroid.is_starred ? 'text-yellow-400' : 'text-gray-600 group-hover:text-yellow-400'} />
+        </button>
 
-      {/* Text Information */}
-      <div className="flex flex-col items-center text-center space-y-1 group-hover:scale-[1.08] transition duration-300 p-">
-        {/* Name */}
-        <h3 className="text-white font-bold text-lg truncate">
-          {asteroid.name}
-        </h3>
+      <div onClick={() => onHandleProductClick(asteroid.id)} className="group animate-fade-in rounded flex flex-col items-center overflow-hidden m-4 cursor-pointer">
+        {/* Asteroid Image */}
+        <div className="group-hover:scale-[1.08] transition duration-300 p-1 pb-2">
+          <AsteroidSVG id={asteroid.id} size={100} />
+        </div>
 
-        {/* Hazardous / Diameter */}
-        <p className="text-gray-400 text-xs">
-          {asteroid.is_potentially_hazardous_asteroid
-            ? 'Hazardous'
-            : 'Not Hazardous'}
-          , Diameter: {diameterM.toFixed(1)} m
-        </p>
+        {/* Text Information */}
+        <div className="flex flex-col items-center text-center space-y-1 group-hover:scale-[1.08] transition duration-300">
+          {/* Name */}
+          <h3 className="text-white font-bold text-lg truncate">
+            {asteroid.name}
+          </h3>
 
-        {/* Price placeholder */}
-        <p className="text-gray-400 text-xs font-medium">price</p>
+          {/* Hazardous / Diameter */}
+          <p className="text-gray-400 text-xs">
+            {asteroid.is_potentially_hazardous_asteroid
+              ? 'Hazardous'
+              : 'Not Hazardous'}
+          </p>
+          
+          {/* Diameter */}
+          <p className="text-gray-400 text-xs">Diameter: {asteroid.size.toFixed(2)} m</p>
+
+          {/* Price */}
+          <p className="text-gray-400 text-xs pb-1">{asteroid.price} GC</p>
+        </div>
       </div>
     </div>
+    
   );
 }
