@@ -46,19 +46,39 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   signInWithEmail: async (email, password) => {
-    await signInWithEmail(email, password);
+    set({ loading: true });
+    try {
+      await signInWithEmail(email, password);
+    } finally {
+      // Loading will be set to false by onAuthStateChanged
+    }
   },
 
   signInWithGoogle: async () => {
-    await signInWithGoogle();
+    set({ loading: true });
+    try {
+      await signInWithGoogle();
+    } finally {
+      // Loading will be set to false by onAuthStateChanged
+    }
   },
 
-  signUpWithEmail: async (email, password) => {
-    await signUpWithEmail(email, password);
+  signUpWithEmail: async (email, password, username) => {
+    set({ loading: true });
+    try {
+      await signUpWithEmail(email, password, username);
+    } finally {
+      // Loading will be set to false by onAuthStateChanged
+    }
   },
 
   logout: async () => {
-    await logout();
+    set({ loading: true });
+    try {
+      await logout();
+    } finally {
+      set({ loading: false });
+    }
   },
 
   getIdToken: async () => {

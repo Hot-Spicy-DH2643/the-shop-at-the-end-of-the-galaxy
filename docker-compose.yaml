@@ -2,18 +2,18 @@ services:
   mongo:
     image: mongo:6
     ports:
-      - '27017:27017'
+      - "27017:27017"
     volumes:
       - mongo-data:/data/db
   backend:
     build: ./backend
     environment:
       - PORT=3001
-      - MONGO_URI=mongodb://mongo:27017/mydb
+      - MONGO_URI=mongodb://mongo:27017/galaxy-shop
     env_file:
       - ./backend/.env
     ports:
-      - '3001:3001'
+      - "3001:3001"
     volumes:
       - ./backend:/app
     depends_on:
@@ -25,7 +25,7 @@ services:
       - PORT=3000
       - NEXT_PUBLIC_API_URL=http://localhost:3001/api
     ports:
-      - '3000:3000'
+      - "3000:3000"
     depends_on:
       - backend
     volumes:
