@@ -86,9 +86,18 @@ type CacheStatus {
   errorMessage: String
 }
 
-extend type Query {
-  # Get all asteroids from cache
+type AsteroidPage {
   asteroids: [Asteroid!]!
+  totalCount: Int!
+  page: Int!
+  pageSize: Int!
+  totalPages: Int!
+}
+
+# TODO: Add allAsteroids query
+extend type Query {
+  # Get all asteroids from cache with pagination
+  asteroids(page: Int = 1, pageSize: Int = 20): AsteroidPage!
 
   # Get a specific asteroid by ID
   asteroid(id: String!): Asteroid
