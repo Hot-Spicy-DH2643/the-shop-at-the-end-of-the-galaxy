@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { UserType } from '../app/profile/users';
+import type { User as UserType } from '@/store/AppModel';
 
 interface NavProps {
   user?: UserType | null;
@@ -52,7 +52,9 @@ export default function Navbar({ user }: NavProps) {
     before:content-[''] before:absolute before:left-0 before:bottom-1 before:w-0 before:h-0.5 before:bg-white before:transition-all before:duration-500
     hover:before:w-full"
                   >
-                    {user && link.label === 'Login' ? 'Profile' : link.label}
+                    {user && link.label === 'Login'
+                      ? `Hello, ${user.username}`
+                      : link.label}
                   </a>
                 </li>
               );

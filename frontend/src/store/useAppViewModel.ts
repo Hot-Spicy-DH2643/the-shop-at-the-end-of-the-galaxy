@@ -2,7 +2,7 @@
 
 import { create } from 'zustand';
 import type { AppState } from './AppModel';
-import { fetchAsteroids } from './AppModel';
+import { fetchAsteroids, fetchUser } from './AppModel';
 import type { shopAsteroid } from './AppModel';
 import { use } from 'react';
 
@@ -38,7 +38,7 @@ export function onHandleStarred(id: string) {
 const useAppStore = create<AppState>(set => ({
   loading: false,
   error: null,
-  user: null,
+  userData: null,
   asteroids: [],
   selectedAsteroidId: null,
   setSelectedAsteroidId: (id: string | null) => set({ selectedAsteroidId: id }),
@@ -60,6 +60,20 @@ const useAppStore = create<AppState>(set => ({
       set({
         error:
           error instanceof Error ? error.message : 'Failed to fetch asteroids',
+        loading: false,
+      });
+    }
+  },
+  setUser: async (userId: string) => {
+    try {
+      set({ loading: true, error: null });
+      const user = await fetchUser(userId);
+      if (user) {
+        set({ user, loading: false });
+      }
+    } catch (error) {
+      set({
+        error: error instanceof Error ? error.message : 'Failed to fetch user',
         loading: false,
       });
     }
