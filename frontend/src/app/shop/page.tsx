@@ -179,6 +179,7 @@ export default function Shop() {
         <AsteroidModal
           asteroid={selectedAsteroid}
           onClose={() => useAppStore.getState().setSelectedAsteroidId(null)}
+          onHandleStarred={() => onHandleStarred(selectedAsteroid.id)}
         />
       )}
     </div>
