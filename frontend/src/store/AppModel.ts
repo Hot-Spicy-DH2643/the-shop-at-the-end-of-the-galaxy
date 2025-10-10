@@ -45,14 +45,14 @@ export interface Asteroid {
     orbiting_body: string;
   }>;
   is_sentry_object: boolean;
-};
+}
 
 export type shopAsteroid = Asteroid & {
   price: number;
   ownership_id: string | null;
   is_starred: boolean;
   size: number;
-}
+};
 
 type Friend = {
   id: string;
@@ -61,7 +61,7 @@ type Friend = {
   email: string;
 };
 
-export type User = {
+export type UserData = {
   id: number;
   name: string;
   username: string;
@@ -73,7 +73,7 @@ export type User = {
 };
 
 export type AppState = {
-  user: User | null;
+  user: UserData | null;
   asteroids: shopAsteroid[];
   loading: boolean;
   error: string | null;
@@ -100,5 +100,22 @@ export async function fetchAsteroids(): Promise<shopAsteroid[]> {
   } catch (error) {
     console.error('Error fetching data:', error);
     return [];
+  }
+}
+
+export async function fetchUserData(): Promise<UserData> {
+  const baseUrl = 'http://localhost:3000';
+
+  try {
+    const response = await axios.get<UserData>(`${baseUrl}/userFakeData.json`);
+    if (!response.status) throw new Error('Failed to fetch');
+
+    const user: UserData = await response.data;
+
+    console.log(user);
+
+    return user;
+  } catch (error) {
+    throw error;
   }
 }
