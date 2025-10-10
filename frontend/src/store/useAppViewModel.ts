@@ -2,7 +2,7 @@
 
 import { create } from 'zustand';
 import type { AppState } from './AppModel';
-import { fetchAsteroids } from './AppModel';
+import { fetchAsteroids, fetchUser } from './AppModel';
 import type { shopAsteroid } from './AppModel';
 
 //Antonio can change this to a fixed price calculation if needed
