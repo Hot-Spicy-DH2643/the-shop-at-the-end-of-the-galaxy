@@ -52,7 +52,36 @@ export type shopAsteroid = Asteroid & {
   ownership_id: string | null;
   is_starred: boolean;
   size: number;
-};
+  orbital_data: {
+    orbit_id: string;
+    orbit_determination_date: string;
+    first_observation_date: string;
+    last_observation_date: string;
+    data_arc_in_days: number;
+    observations_used: number;
+    orbit_uncertainty: string;
+    minimum_orbit_intersection: string;
+    jupiter_tisserand_invariant: string;
+    epoch_osculation: string;
+    eccentricity: string;
+    semi_major_axis: string;
+    inclination: string;
+    ascending_node_longitude: string;
+    orbital_period: string;
+    perihelion_distance: string;
+    perihelion_argument: string;
+    aphelion_distance: string;
+    perihelion_time: string;
+    mean_anomaly: string;
+    mean_motion: string;
+    equinox: string;
+    orbit_class: {
+      orbit_class_type: string;
+      orbit_class_description: string;
+      orbit_class_range: string;
+    };
+  };
+}
 
 type Friend = {
   id: string;
@@ -82,7 +111,7 @@ export type AppState = {
   setError: (error: string | null) => void;
   setAsteroids: () => Promise<void>;
   setSelectedAsteroidId: (id: string | null) => void;
-  setUser: (userId: string) => Promise<void>;
+  setUserData: () => Promise<void>;
 };
 
 interface FakeDataResponse {
@@ -106,9 +135,8 @@ export async function fetchAsteroids(): Promise<shopAsteroid[]> {
   }
 }
 
-export async function fetchUser(userId: string): Promise<UserData | null> {
-  //will use userID later with GraphQL
-  console.log('userId is: ', userId);
+export async function fetchUserData(): Promise<UserData | null> {
+  // will auto carry cookie when using graphql
 
   //using fake user data for now
   const baseUrl = 'http://localhost:3000';
@@ -117,11 +145,11 @@ export async function fetchUser(userId: string): Promise<UserData | null> {
     const response = await axios.get<UserData>(`${baseUrl}/userFakeData.json`);
     if (!response.status) throw new Error('Failed to fetch');
 
-    const user: UserData = await response.data;
+    const userData: UserData = await response.data;
 
-    console.log(user);
+    console.log(userData);
 
-    return user;
+    return userData;
   } catch (error) {
     throw error;
   }
