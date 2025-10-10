@@ -1,29 +1,40 @@
 'use client';
 import AsteroidSVGMoving from './asteroidSVGMoving';
 import Image from 'next/image';
+import { shopAsteroid } from '@/store/AppModel';
 
-export default function AsteroidModal() {
+interface modalProps {
+  asteroid: shopAsteroid;
+  onClose: () => void;
+}
+
+export default function AsteroidModal({ asteroid, onClose }: modalProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 overflow-y-auto">
       <div className="relative w-[90vw] max-w-xl m-2 bg-black p-4 rounded-lg shadow-2xl">
         <button
           className="absolute top-4 right-5 text-3xl text-gray-400 hover:text-white transition-colors"
           aria-label="Close"
+          onClick={onClose}
         >
           &times;
         </button>
 
         <div className="w-100% flex flex-col md:flex-row items-center gap-4 p-4 pb-0">
           <div>
-            <AsteroidSVGMoving size={100} id="2000433" bgsize={160} />
+            <AsteroidSVGMoving size={100} id={asteroid.id} bgsize={160} />
           </div>
           <div className="w-100 mx-auto px-8 mt-4">
             <h2 className="text-xl md:text-2xl mb-4 font-mono">
-              433 Eros (A898 PA)
+              {asteroid.name}
             </h2>
-            <p>ID: 2000433</p>
-            <p>Not hazardous</p>
-            <p>Size: 22-50 km</p>
+            <p>{asteroid.id}</p>
+            <p>
+              {asteroid.is_potentially_hazardous_asteroid
+                ? 'Hazardous'
+                : 'Not Hazardous'}
+            </p>
+            <p>Diameter: {asteroid.size.toFixed(2)} m</p>
             <p className="mt-4 text-lg font-bold text-purple-400 mr-8 mb-4">
               <Image
                 src="/cosmocoin-tiny.png"
@@ -31,8 +42,8 @@ export default function AsteroidModal() {
                 className="inline-block mr-1"
                 width={18}
                 height={18}
-              />{' '}
-              800 CosmoCredits
+              />
+              {asteroid.price}
             </p>
           </div>
         </div>
@@ -54,7 +65,8 @@ export default function AsteroidModal() {
                   Orbit class type:
                 </td>
                 <td className="px-4 py-3 text-pink-100">
-                  AMO (Near-Earth asteroid orbits)
+                  AMO (Near-Earth asteroid orbits){' '}
+                  {/*Ask Antonio what this is???*/}
                 </td>
               </tr>
               <tr className="border-b border-gray-800 last:border-b-0">
