@@ -1,20 +1,15 @@
 'use client';
 
-import { useEffect } from 'react';
 import Image from 'next/image';
 import Navbar from '@/components/navbar';
 import ProfileTab from './ProfileTabs';
 // import { getUser, UserType } from './users';
+import { useAuthStore } from '@/store/useAuthViewModel';
 import { useAppStore } from '@/store/useAppViewModel';
 
 export default function Profile() {
-  // const [user, setUser] = useState<UserType | null>(null);
-  const userId = '1';
-  const { userData, setUser } = useAppStore();
-
-  useEffect(() => {
-    setUser(userId);
-  }, [setUser]);
+  const { user } = useAuthStore();
+  const { userData } = useAppStore();
 
   if (!userData) {
     return (
@@ -29,7 +24,7 @@ export default function Profile() {
 
   return (
     <div className="galaxy-bg-space min-h-screen">
-      <Navbar user={userData} />
+      <Navbar />
 
       {/* Banner */}
       <div className="w-full h-40 bg-transparent text-white items-center justify-center flex text-5xl font-modak py-6 px-4">
@@ -55,7 +50,7 @@ export default function Profile() {
             </h4>
 
             <h4 className="text-2xl font-semibold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-300 bg-clip-text text-transparent drop-shadow-lg">
-              {userData.username}
+              {user.displayName}
             </h4>
           </div>
         </div>

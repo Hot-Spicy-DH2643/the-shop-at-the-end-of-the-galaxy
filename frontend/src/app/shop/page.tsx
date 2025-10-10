@@ -18,6 +18,7 @@ import Product from '@/components/asteroidProducts.tsx/product';
 import ProductSkeleton from '@/components/asteroidProducts.tsx/productSkeleton';
 import { useAppStore } from '@/store/useAppViewModel';
 import {onHandleProductClick, onHandleStarred} from '@/store/useAppViewModel';
+import AsteroidModal from '@/components/asteroidModal';
 
 const SORT_OPTIONS = [
   { name: 'None', value: 'None' }, // for when no sorting is selected
@@ -42,6 +43,9 @@ const HAZARD_FILTER = {
 export default function Shop() {
   // Get state and actions from Zustand store
   const { asteroids, loading, setAsteroids } = useAppStore();
+
+  const selectedAsteroidId = useAppStore(state => state.selectedAsteroidId);
+  const selectedAsteroid = asteroids.find(a => a.id === selectedAsteroidId);
 
   // Keep filter state local as it's UI-specific
   const [filter, setFilter] = useState({
@@ -93,7 +97,6 @@ export default function Shop() {
                             htmlFor={`hazard-${index}`}
                             className="ml-3 text-sm font-medium text-white"
                           >
-                            {' '}
                             {option.label}
                           </label>
                         </li>
@@ -171,6 +174,13 @@ export default function Shop() {
           </ul>
         </div>
       </section>
+      {/* Step 4: Show modal if an asteroid is selected */}
+      {selectedAsteroidId && selectedAsteroid && (
+        <AsteroidModal
+          asteroid={selectedAsteroid}
+          onClose={() => useAppStore.getState().setSelectedAsteroidId(null)}
+        />
+      )}
     </div>
   );
 }
