@@ -45,14 +45,14 @@ export interface Asteroid {
     orbiting_body: string;
   }>;
   is_sentry_object: boolean;
-};
+}
 
 export type shopAsteroid = Asteroid & {
   price: number;
   ownership_id: string | null;
   is_starred: boolean;
   size: number;
-}
+};
 
 type Friend = {
   id: string;
@@ -61,7 +61,7 @@ type Friend = {
   email: string;
 };
 
-export type User = {
+export type UserData = {
   id: number;
   name: string;
   username: string;
@@ -73,7 +73,7 @@ export type User = {
 };
 
 export type AppState = {
-  user: User | null;
+  userData: UserData | null;
   asteroids: shopAsteroid[];
   loading: boolean;
   error: string | null;

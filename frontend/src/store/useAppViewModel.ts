@@ -28,7 +28,7 @@ export function onHandleStarred(id: string) {
 const useAppStore = create<AppState>(set => ({
   loading: false,
   error: null,
-  user: null,
+  userData: null,
   asteroids: [],
   setLoading: (loading: boolean) => set({ loading }),
   setError: (error: string | null) => set({ error }),
