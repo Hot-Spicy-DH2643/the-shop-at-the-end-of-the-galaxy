@@ -2,7 +2,7 @@
 
 import { useQuery } from '@apollo/client/react';
 import { gql } from '@apollo/client';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuthStore } from '../../store/useAuthStore';
 
 const GET_PROTECTED_DATA = gql`
   query GetProtectedData {
@@ -15,7 +15,8 @@ interface ProtectedDataResult {
 }
 
 export default function TestAuth() {
-  const { user, loading: authLoading } = useAuth();
+  const user = useAuthStore(state => state.user);
+  const authLoading = useAuthStore(state => state.loading);
   const { data, loading, error } = useQuery<ProtectedDataResult>(
     GET_PROTECTED_DATA,
     {

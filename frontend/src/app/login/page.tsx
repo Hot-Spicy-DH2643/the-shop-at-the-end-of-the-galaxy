@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuthStore } from '../../store/useAuthStore';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -9,7 +9,8 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const { signInWithEmail, signInWithGoogle, loading, getIdToken } = useAuth();
+  const { signInWithEmail, signInWithGoogle, getIdToken, loading } =
+    useAuthStore();
   const router = useRouter();
 
   const handleEmailLogin = async (e: React.FormEvent) => {
