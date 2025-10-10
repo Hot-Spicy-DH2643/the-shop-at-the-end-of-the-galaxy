@@ -45,7 +45,7 @@ export default function Login() {
           return;
         }
 
-        await signUpWithEmail(email, password);
+        await signUpWithEmail(email, password, username);
         console.log('Sign up successful');
       } else {
         await signInWithEmail(email, password);

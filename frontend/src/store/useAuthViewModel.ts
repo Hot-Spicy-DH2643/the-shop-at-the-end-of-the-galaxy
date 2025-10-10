@@ -63,10 +63,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
   },
 
-  signUpWithEmail: async (email, password) => {
+  signUpWithEmail: async (email, password, username) => {
     set({ loading: true });
     try {
-      await signUpWithEmail(email, password);
+      await signUpWithEmail(email, password, username);
     } finally {
       // Loading will be set to false by onAuthStateChanged
     }
