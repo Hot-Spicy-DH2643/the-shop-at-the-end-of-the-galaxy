@@ -1,3 +1,4 @@
+'use client';
 import Image from 'next/image';
 import type { UserData } from '@/store/AppModel';
 import { useRouter } from 'next/navigation';

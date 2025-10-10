@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 import type { UserData } from '@/store/AppModel';
+import type { User as FirebaseUser } from 'firebase/auth';
+
 import User from './ProfileComponents/User';
 import Galaxy from './ProfileComponents/Galaxy';
 import Purchases from './ProfileComponents/Purchases';
@@ -10,7 +12,13 @@ import Friends from './ProfileComponents/Friends';
 
 type Tab = 'user' | 'purchases' | 'galaxy' | 'friends';
 
-const ProfileTab = ({ user }: { user: UserData }) => {
+const ProfileTab = ({
+  firebaseUser,
+  userData,
+}: {
+  firebaseUser: FirebaseUser;
+  userData: UserData;
+}) => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const currentTab = (searchParams.get('tab') as Tab) || 'user';
@@ -47,10 +55,12 @@ const ProfileTab = ({ user }: { user: UserData }) => {
 
       {/* Content Panel */}
       <div className="bg-black/20 p-6 rounded shadow-md min-h-[150px] w-full transition-all duration-300">
-        {activeTab === 'user' && <User user={user} />}
-        {activeTab === 'purchases' && <Purchases user={user} />}
+        {activeTab === 'user' && (
+          <User firebaseUser={firebaseUser} userData={userData} />
+        )}
+        {activeTab === 'purchases' && <Purchases user={userData} />}
         {activeTab === 'galaxy' && <Galaxy />}
-        {activeTab === 'friends' && <Friends user={user} />}
+        {activeTab === 'friends' && <Friends user={userData} />}
       </div>
     </div>
   );

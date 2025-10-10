@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import type { UserData, shopAsteroid } from '@/store/AppModel';
+
 import AsteroidSVGMoving from '@/components/asteroidSVGMoving';
 import { useAppStore } from '@/store/useAppViewModel';
 
@@ -23,7 +24,9 @@ export default function Purchases({ user }: { user: UserData }) {
         .padStart(7, '0');
       setZeroPurchaseId(id);
     }
-    setAsteroids();
+    if (asteroids.length === 0) {
+      setAsteroids();
+    }
   }, []);
 
   useEffect(() => {
