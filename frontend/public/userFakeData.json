@@ -5,13 +5,14 @@
   "email": "Sincere@april.biz",
   "coins": 0,
   "owned_asteroids": [
-    { "id": "9203854", "isMyfavotire": true },
-    { "id": "3748593", "isMyfavotire": true },
-    { "id": "5647309", "isMyfavotire": true },
-    { "id": "6574058", "isMyfavotire": false },
-    { "id": "7438537", "isMyfavotire": false },
-    { "id": "6574834", "isMyfavotire": false }
+    "2465633",
+    "3426410",
+    "3553060",
+    "3726710",
+    "3727181",
+    "3727639"
   ],
+  "favorite_asteroids": ["2465633", "3426410"],
   "friends": [
     {
       "_comment": "Populate the data later...",

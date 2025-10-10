@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-import { UserType } from './users';
+import type { User as UserType } from '@/store/AppModel';
 import User from './ProfileComponents/User';
 import Galaxy from './ProfileComponents/Galaxy';
 import Purchases from './ProfileComponents/Purchases';
