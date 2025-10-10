@@ -77,9 +77,11 @@ export type AppState = {
   asteroids: shopAsteroid[];
   loading: boolean;
   error: string | null;
+  selectedAsteroidId: string | null;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   setAsteroids: () => Promise<void>;
+  setSelectedAsteroidId: (id: string | null) => void;
   setUser: (userId: string) => Promise<void>;
 };
 
@@ -104,7 +106,7 @@ export async function fetchAsteroids(): Promise<shopAsteroid[]> {
   }
 }
 
-export async function fetchUser(userId: string): Promise<User | null> {
+export async function fetchUser(userId: string): Promise<UserData | null> {
   //will use userID later with GraphQL
   console.log('userId is: ', userId);
 
@@ -112,10 +114,10 @@ export async function fetchUser(userId: string): Promise<User | null> {
   const baseUrl = 'http://localhost:3000';
 
   try {
-    const response = await axios.get<User>(`${baseUrl}/userFakeData.json`);
+    const response = await axios.get<UserData>(`${baseUrl}/userFakeData.json`);
     if (!response.status) throw new Error('Failed to fetch');
 
-    const user: User = await response.data;
+    const user: UserData = await response.data;
 
     console.log(user);
 
