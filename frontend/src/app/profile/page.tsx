@@ -32,8 +32,8 @@ export default function Profile() {
       <Navbar user={user} />
 
       {/* Banner */}
-      <div className="bg-black/30 py-10 flex justify-center">
-        <h1 className="text-4xl font-bold text-white">PROFILE</h1>
+      <div className="w-full h-40 bg-transparent text-white items-center justify-center flex text-5xl font-modak py-6 px-4">
+        PROFILE
       </div>
 
       {/* Profile content */}
