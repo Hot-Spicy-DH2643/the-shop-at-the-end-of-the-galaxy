@@ -80,7 +80,7 @@ export type AppState = {
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   setAsteroids: () => Promise<void>;
-  setUser: (userId: string) => Promise<void>;
+  setUserData: () => Promise<void>;
 };
 
 interface FakeDataResponse {
@@ -104,22 +104,21 @@ export async function fetchAsteroids(): Promise<shopAsteroid[]> {
   }
 }
 
-export async function fetchUser(userId: string): Promise<User | null> {
-  //will use userID later with GraphQL
-  console.log('userId is: ', userId);
+export async function fetchUserData(): Promise<UserData | null> {
+  // will auto carry cookie when using graphql
 
   //using fake user data for now
   const baseUrl = 'http://localhost:3000';
 
   try {
-    const response = await axios.get<User>(`${baseUrl}/userFakeData.json`);
+    const response = await axios.get<UserData>(`${baseUrl}/userFakeData.json`);
     if (!response.status) throw new Error('Failed to fetch');
 
-    const user: User = await response.data;
+    const userData: UserData = await response.data;
 
-    console.log(user);
+    console.log(userData);
 
-    return user;
+    return userData;
   } catch (error) {
     throw error;
   }

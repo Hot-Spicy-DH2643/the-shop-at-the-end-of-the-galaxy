@@ -2,7 +2,7 @@
 
 import { create } from 'zustand';
 import type { AppState } from './AppModel';
-import { fetchAsteroids, fetchUser } from './AppModel';
+import { fetchAsteroids, fetchUserData } from './AppModel';
 import type { shopAsteroid } from './AppModel';
 
 //Antonio can change this to a fixed price calculation if needed
@@ -52,13 +52,11 @@ const useAppStore = create<AppState>(set => ({
       });
     }
   },
-  setUser: async (userId: string) => {
+  setUserData: async () => {
     try {
       set({ loading: true, error: null });
-      const user = await fetchUser(userId);
-      if (user) {
-        set({ user, loading: false });
-      }
+      const userData = await fetchUserData();
+      set({ userData, loading: false });
     } catch (error) {
       set({
         error: error instanceof Error ? error.message : 'Failed to fetch user',
