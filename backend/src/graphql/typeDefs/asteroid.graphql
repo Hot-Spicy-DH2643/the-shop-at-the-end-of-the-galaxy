@@ -76,7 +76,7 @@ type Asteroid {
   is_sentry_object: Boolean!
   orbital_data: OrbitalData
   price: Float!
-  size: Int!
+  size: Float!
 }
 
 type CacheStatus {
