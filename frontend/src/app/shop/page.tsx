@@ -82,7 +82,7 @@ export default function Shop() {
   };
 
   return (
-    <div className="galaxy-bg-space">
+    <div className="galaxy-bg-space font-sans">
       <Navbar />
       {/* Banner */}
 

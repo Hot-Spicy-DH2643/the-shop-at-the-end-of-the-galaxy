@@ -6,6 +6,7 @@ import { useAuthStore } from '@/store/useAuthViewModel';
 
 const navLinks = [
   { label: 'Home', href: '/' },
+  { label: 'Shop', href: '/shop' },
   { label: 'About', href: '/about' },
   { label: 'Login', href: '/login' },
 ];
@@ -41,7 +42,7 @@ export default function Navbar() {
             {navLinks.map(link => {
               return (
                 <li key={link.label}>
-                  <a
+                  <Link
                     href={
                       user && link.label === 'Login' ? '/profile' : link.href
                     }
@@ -52,7 +53,7 @@ export default function Navbar() {
                     {user && link.label === 'Login'
                       ? `Hello, ${user.displayName}`
                       : link.label}
-                  </a>
+                  </Link>
                 </li>
               );
             })}
@@ -78,12 +79,12 @@ export default function Navbar() {
         <ul className="flex flex-col space-y-3 py-4">
           {navLinks.map(link => (
             <li key={link.label}>
-              <a
+              <Link
                 href={user && link.label === 'Login' ? '/profile' : link.href}
                 className="block px-6 py-2"
               >
                 {user && link.label === 'Login' ? 'Profile' : link.label}
-              </a>
+              </Link>
             </li>
           ))}
           {user && (
