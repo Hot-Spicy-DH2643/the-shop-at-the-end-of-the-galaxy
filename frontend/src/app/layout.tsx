@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Geist, Geist_Mono, Modak } from 'next/font/google';
 import './globals.css';
 import { Providers } from './providers';
 
@@ -10,6 +10,12 @@ const geistSans = Geist({
 
 const geistMono = Geist_Mono({
   variable: '--font-geist-mono',
+  subsets: ['latin'],
+});
+
+const modak = Modak({
+  weight: '400',
+  variable: '--font-modak',
   subsets: ['latin'],
 });
 

@@ -58,7 +58,7 @@ export const asteroidResolvers = {
 
     // TODO: Might delete, using frontend filter
     // Get asteroids filtered by hazard status
-    asteroidsByHazard: async (parent, { isHazardous }) => {
+    asteroidsByHazard: async (parent, { isHazardous, page = 1, pageSize = 20 }) => {
       try {
         const asteroids = await Asteroid.find({
           is_potentially_hazardous_asteroid: isHazardous,
