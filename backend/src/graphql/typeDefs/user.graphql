@@ -1,0 +1,9 @@
+type User {
+  id: ID!
+  coins: Int!
+  owned_asteroids: [String!]!
+  is_starred: [String!]!
+  followers: [String!]!
+  followings: [String!]!
+  cart: [String!]!
+}

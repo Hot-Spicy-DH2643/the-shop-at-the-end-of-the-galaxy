@@ -271,24 +271,35 @@ export async function fetchAsteroids(
     };
   }
 }
-
-export async function fetchUserData(): Promise<UserData | null> {
-  // will auto carry cookie when using graphql
-
-  //using fake user data for now
-  const baseUrl = 'http://localhost:3000';
-
+const GET_USER_BY_ID = gql`
+  query GetUserById($id: ID!) {
+    user(id: $id) {
+      id
+      coins
+      owned_asteroids
+      is_starred
+      followers
+      followings
+      cart
+    }
+  }
+`;
+export async function fetchUserData(id: string): Promise<UserData | null> {
   try {
-    const response = await fetch(`${baseUrl}/userFakeData.json`);
-    if (!response.ok) throw new Error('Failed to fetch');
+    const { data } = await client.query<{ user: UserData }>({
+      query: GET_USER_BY_ID,
+      variables: { id },
+      fetchPolicy: 'network-only',
+    });
 
-    const userData: UserData = await response.json();
-
-    console.log(userData);
-
-    return userData;
+    if (!data || !data.user) {
+      console.error('No data returned from GraphQL query');
+      return null;
+    }
+    return data.user;
   } catch (error) {
-    throw error;
+    console.error('Error fetching user from GraphQL:', error);
+    return null;
   }
 }
 

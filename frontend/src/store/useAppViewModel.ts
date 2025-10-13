@@ -73,7 +73,7 @@ const useAppStore = create<AppState>(set => ({
   setUserData: async () => {
     try {
       set({ loading: true, error: null });
-      const userData = await fetchUserData();
+      const userData = await fetchUserData('123');
       if (userData) {
         set({ userData, loading: false });
       }
