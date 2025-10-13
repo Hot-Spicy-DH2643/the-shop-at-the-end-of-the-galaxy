@@ -33,29 +33,40 @@ jobs:
       - name: Stop existing containers
         run: |
           echo "Stopping existing containers..."
-          docker compose down -v || true
+          docker compose -f docker-compose.caddy.yaml down -v || true
 
-      - name: Deploy Application
+      - name: Deploy Application with Caddy
         run: |
-          echo "Building and starting application with Docker Compose..."
-          docker compose up -d --build
+          echo "Building and starting application with Caddy reverse proxy..."
+          docker compose -f docker-compose.caddy.yaml up -d --build
 
       - name: Wait for services to be ready
         run: |
           echo "Waiting for services to start..."
-          sleep 15
-          echo "Checking backend status..."
-          curl -f http://localhost:3001 || echo "Backend is still starting..."
-          echo "Checking frontend status..."
-          curl -f http://localhost:3000 || echo "Frontend is still starting..."
+          sleep 20
+          echo "Checking Caddy proxy..."
+          curl -f http://localhost || echo "Caddy is still starting..."
+          echo "Checking backend through Caddy..."
+          curl -f http://localhost/graphql || echo "Backend is still starting..."
 
       - name: Show running containers
-        run: docker compose ps
+        run: docker compose -f docker-compose.caddy.yaml ps
+
+      - name: Show Caddy logs (last 20 lines)
+        if: always()
+        run: docker compose -f docker-compose.caddy.yaml logs --tail=20 caddy
 
       - name: Deployment Complete
         run: |
           echo "✅ Deployment completed successfully!"
-          echo "Backend: http://localhost:3001"
-          echo "Frontend: http://localhost:3000"
           echo ""
-          echo "To view logs, run: docker compose logs -f"
+          echo "🌐 Your application is now accessible through Caddy:"
+          echo "   Main Site: http://localhost"
+          echo "   GraphQL API: http://localhost/graphql"
+          echo "   Backend API: http://localhost/api"
+          echo ""
+          echo "📊 To view logs:"
+          echo "   All services: docker compose -f docker-compose.caddy.yaml logs -f"
+          echo "   Caddy only: docker compose -f docker-compose.caddy.yaml logs -f caddy"
+          echo "   Backend only: docker compose -f docker-compose.caddy.yaml logs -f backend"
+          echo "   Frontend only: docker compose -f docker-compose.caddy.yaml logs -f frontend"

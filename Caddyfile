@@ -1,0 +1,76 @@
+# Caddyfile - Production Configuration
+
+# Production domain with automatic HTTPS
+
+the-shop-at-the-end-of-the-galaxy.lambozhuang.me { # Frontend - serve the main site
+reverse_proxy frontend:3000
+
+    # Backend API - strip /api prefix and forward to backend
+    # Example: /api/auth/login -> backend receives /auth/login
+    handle /api/* {
+        uri strip_prefix /api
+        reverse_proxy backend:3001
+    }
+
+    # GraphQL endpoint - forward directly
+    # Example: /graphql -> backend receives /graphql
+    handle /graphql* {
+        reverse_proxy backend:3001
+    }
+
+    # Logging
+    log {
+        output file /var/log/caddy/access.log
+    }
+
+}
+
+# Local development configuration (uncomment to use)
+
+# :80 {
+
+# reverse_proxy frontend:3000
+
+#
+
+# handle /api/\* {
+
+# uri strip_prefix /api
+
+# reverse_proxy backend:3001
+
+# }
+
+#
+
+# handle /graphql\* {
+
+# reverse_proxy backend:3001
+
+# }
+
+# }
+
+# Alternative: If you want to serve on port 8080
+
+# :8080 {
+
+# reverse_proxy frontend:3000
+
+#
+
+# handle /api\* {
+
+# reverse_proxy backend:3001
+
+# }
+
+#
+
+# handle /graphql\* {
+
+# reverse_proxy backend:3001
+
+# }
+
+# }

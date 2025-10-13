@@ -1,0 +1,77 @@
+# Docker Compose with Caddy Reverse Proxy
+
+services:
+  mongo:
+    image: mongo:6
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - app-network
+
+  backend:
+    build: ./backend
+    environment:
+      - PORT=3001
+      - MONGO_URI=mongodb://mongo:27017/galaxy-shop
+    env_file:
+      - ./backend/.env
+    # Remove port exposure - only accessible through Caddy
+    expose:
+      - "3001"
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - mongo
+    command: sh -c "npm install && npm run dev"
+    networks:
+      - app-network
+
+  frontend:
+    build: ./frontend
+    environment:
+      - PORT=3000
+      - NEXT_PUBLIC_API_URL=http://localhost/api
+      - NEXT_PUBLIC_GRAPHQL_URI=http://localhost/graphql
+      - WATCHPACK_POLLING=true
+      - CHOKIDAR_USEPOLLING=true
+      - CHOKIDAR_INTERVAL=1000
+    # Remove port exposure - only accessible through Caddy
+    expose:
+      - "3000"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    command: sh -c "npm install && npm run dev"
+    networks:
+      - app-network
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80" # HTTP
+      - "443:443" # HTTPS
+      - "443:443/udp" # HTTP/3
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - app-network
+
+volumes:
+  mongo-data:
+  caddy-data:
+  caddy-config:
+
+networks:
+  app-network:
+    driver: bridge
