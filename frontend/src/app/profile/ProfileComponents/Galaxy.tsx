@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react';
-// import { getUser, UserType, AsteroidType } from '../users';
 import Sun from '@/components/centralPlanet';
 import OrbitPath from '@/components/orbitingAsteroid';
-import type { UserData, Asteroid } from '@/store/AppModel';
-import AsteroidSVGMoving from '@/components/asteroidSVGMoving';
+import type { Asteroid, UserData } from '@/store/AppModel';
 import AsteroidDetails from '@/components/asteroidDetails';
 import AsteroidSVG from '@/components/asteroidSVG';
 import '@/app/globals.css';
+import { useAppStore } from '@/store/useAppViewModel';
 const ORBIT_LANES = [
   { radius: 60, depth: -30, duration: 15, tilt: 15 },
   { radius: 90, depth: -15, duration: 20, tilt: 10 },
@@ -18,28 +17,17 @@ const ORBIT_LANES = [
 //TODO: I am gonna structure up this code, now I have just written everything
 //TODO: to make sure it works, but do not worry! :D
 
-export default function Galaxy() {
-  const [userAsteroids, setUserAsteroids] = useState<Asteroid[]>([]);
+export default function Galaxy({ userData }: { userData: UserData }) {
+  const [userAsteroids, setUserAsteroids] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedAsteroid, setSelectedAsteroid] = useState<AsteroidType | null>(
-    null
-  );
+  const [selectedAsteroid, setSelectedAsteroid] = useState<string | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
-    const fetchUserAsteroids = async () => {
-      try {
-        const userData = await getUser();
-        setUserAsteroids(userData.owned_asteroids);
-        setLoading(false);
-      } catch (err) {
-        setError('Failed to fetch asteroids');
-        setLoading(false);
-      }
-    };
-
-    fetchUserAsteroids();
+    console.log('User Data in Galaxy:', userData);
+    setUserAsteroids(userData.owned_asteroids);
+    setLoading(false);
   }, []);
 
   if (loading) {
@@ -50,7 +38,7 @@ export default function Galaxy() {
     return <div className="text-red-500">{error}</div>;
   }
 
-  const handleAsteroidClick = (asteroid: AsteroidType) => {
+  const handleAsteroidClick = (asteroid: string) => {
     setSelectedAsteroid(asteroid);
   };
 
@@ -76,7 +64,7 @@ export default function Galaxy() {
             const lane = ORBIT_LANES[index % ORBIT_LANES.length];
             return (
               <div
-                key={asteroid.id}
+                key={asteroid}
                 className="absolute top-1/2 left-1/2 [transform-style:preserve-3d]"
                 style={{
                   width: `${lane.radius * 2}px`,
@@ -99,12 +87,12 @@ export default function Galaxy() {
                   }}
                   style={{
                     filter:
-                      asteroid.id === selectedAsteroid?.id
+                      asteroid === selectedAsteroid
                         ? 'drop-shadow(0 0 10px #fff)'
                         : 'none',
                   }}
                 >
-                  <AsteroidSVG id={asteroid.id.toString()} size={40} />
+                  <AsteroidSVG id={asteroid.toString()} size={40} />
                 </div>
               </div>
             );
@@ -162,7 +150,7 @@ export default function Galaxy() {
 
                 return (
                   <div
-                    key={`modal-${asteroid.id}`}
+                    key={`modal-${asteroid}`}
                     className="absolute top-1/2 left-1/2 [transform-style:preserve-3d]"
                     style={{
                       width: `${lane.radius * 2}px`,
@@ -178,12 +166,12 @@ export default function Galaxy() {
                       onClick={() => handleAsteroidClick(asteroid)}
                       style={{
                         filter:
-                          asteroid.id === selectedAsteroid?.id
+                          asteroid === selectedAsteroid
                             ? 'drop-shadow(0 0 10px #fff)'
                             : 'none',
                       }}
                     >
-                      <AsteroidSVG id={asteroid.id.toString()} size={80} />
+                      <AsteroidSVG id={asteroid.toString()} size={80} />
                     </div>
                   </div>
                 );
