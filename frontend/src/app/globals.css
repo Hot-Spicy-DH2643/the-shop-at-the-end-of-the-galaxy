@@ -53,7 +53,7 @@ html {
       repeat;
   background-size:
     cover, cover, cover, auto; /* nebula covers whole screen, stars repeat */
-  animation: move-stars 120s linear infinite; /* slowed a little */
+  animation: move-stars 200s linear infinite; /* slowed a little */
 }
 
 .animate-moveUp {

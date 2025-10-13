@@ -1,6 +1,7 @@
 'use client';
 
-import axios from 'axios';
+import { gql } from '@apollo/client';
+import client from '@/lib/apollo-client';
 
 export interface Asteroid {
   id: string;
@@ -52,7 +53,7 @@ export type shopAsteroid = Asteroid & {
   ownership_id: string | null;
   is_starred: boolean;
   size: number;
-  orbital_data: {
+  orbital_data?: {
     orbit_id: string;
     orbit_determination_date: string;
     first_observation_date: string;
@@ -81,7 +82,7 @@ export type shopAsteroid = Asteroid & {
       orbit_class_range: string;
     };
   };
-}
+};
 
 type Friend = {
   id: string;
@@ -107,31 +108,167 @@ export type AppState = {
   loading: boolean;
   error: string | null;
   selectedAsteroidId: string | null;
+  // Pagination state
+  currentPage: number;
+  totalPages: number;
+  totalCount: number;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
-  setAsteroids: () => Promise<void>;
+  setAsteroids: (page?: number) => Promise<void>;
   setSelectedAsteroidId: (id: string | null) => void;
   setUserData: () => Promise<void>;
 };
 
-interface FakeDataResponse {
-  near_earth_objects: {
-    [date: string]: shopAsteroid[];
+// GraphQL query to fetch asteroids with pagination
+const GET_ASTEROIDS = gql`
+  query GetAsteroids($page: Int, $pageSize: Int) {
+    asteroids(page: $page, pageSize: $pageSize) {
+      asteroids {
+        id
+        neo_reference_id
+        name
+        nasa_jpl_url
+        absolute_magnitude_h
+        estimated_diameter {
+          kilometers {
+            estimated_diameter_min
+            estimated_diameter_max
+          }
+          meters {
+            estimated_diameter_min
+            estimated_diameter_max
+          }
+          miles {
+            estimated_diameter_min
+            estimated_diameter_max
+          }
+          feet {
+            estimated_diameter_min
+            estimated_diameter_max
+          }
+        }
+        is_potentially_hazardous_asteroid
+        close_approach_data {
+          close_approach_date
+          close_approach_date_full
+          epoch_date_close_approach
+          relative_velocity {
+            kilometers_per_second
+            kilometers_per_hour
+            miles_per_hour
+          }
+          miss_distance {
+            astronomical
+            lunar
+            kilometers
+            miles
+          }
+          orbiting_body
+        }
+        is_sentry_object
+        orbital_data {
+          orbit_id
+          orbit_determination_date
+          first_observation_date
+          last_observation_date
+          data_arc_in_days
+          observations_used
+          orbit_uncertainty
+          minimum_orbit_intersection
+          jupiter_tisserand_invariant
+          epoch_osculation
+          eccentricity
+          semi_major_axis
+          inclination
+          ascending_node_longitude
+          orbital_period
+          perihelion_distance
+          perihelion_argument
+          aphelion_distance
+          perihelion_time
+          mean_anomaly
+          mean_motion
+          equinox
+          orbit_class {
+            orbit_class_type
+            orbit_class_description
+            orbit_class_range
+          }
+        }
+        price
+        size
+      }
+      totalCount
+      page
+      pageSize
+      totalPages
+    }
+  }
+`;
+
+interface AsteroidsResponse {
+  asteroids: {
+    asteroids: (Asteroid & { price: number; size: number })[];
+    totalCount: number;
+    page: number;
+    pageSize: number;
+    totalPages: number;
   };
 }
 
-export async function fetchAsteroids(): Promise<shopAsteroid[]> {
+export const DEFAULT_PAGE_SIZE = 24;
+
+export interface AsteroidsResult {
+  asteroids: shopAsteroid[];
+  totalCount: number;
+  totalPages: number;
+  currentPage: number;
+}
+
+export async function fetchAsteroids(
+  page: number = 1,
+  pageSize: number = DEFAULT_PAGE_SIZE
+): Promise<AsteroidsResult> {
   try {
-    const response = await axios.get<FakeDataResponse>('/fakedata.json');
+    const { data } = await client.query<AsteroidsResponse>({
+      query: GET_ASTEROIDS,
+      variables: { page, pageSize },
+      fetchPolicy: 'network-only', // Always fetch fresh data from server
+    });
 
-    // Combine all arrays from near_earth_objects into one array
-    const neo = response.data.near_earth_objects;
-    const allAsteroids: shopAsteroid[] = Object.values(neo).flat();
+    if (!data) {
+      console.error('No data returned from GraphQL query');
+      return {
+        asteroids: [],
+        totalCount: 0,
+        totalPages: 0,
+        currentPage: page,
+      };
+    }
 
-    return allAsteroids;
+    // Transform backend data to include frontend-specific fields
+    const asteroids: shopAsteroid[] = data.asteroids.asteroids.map(
+      asteroid => ({
+        ...asteroid,
+        ownership_id: null, // TODO: Get from user data
+        is_starred: false, // TODO: Get from user data
+      })
+    );
+
+    return {
+      asteroids,
+      totalCount: data.asteroids.totalCount,
+      totalPages: data.asteroids.totalPages,
+      currentPage: data.asteroids.page,
+    };
   } catch (error) {
-    console.error('Error fetching data:', error);
-    return [];
+    console.error('Error fetching asteroids from GraphQL:', error);
+    return {
+      asteroids: [],
+      totalCount: 0,
+      totalPages: 0,
+      currentPage: page,
+    };
   }
 }
 
@@ -142,10 +279,10 @@ export async function fetchUserData(): Promise<UserData | null> {
   const baseUrl = 'http://localhost:3000';
 
   try {
-    const response = await axios.get<UserData>(`${baseUrl}/userFakeData.json`);
-    if (!response.status) throw new Error('Failed to fetch');
+    const response = await fetch(`${baseUrl}/userFakeData.json`);
+    if (!response.ok) throw new Error('Failed to fetch');
 
-    const userData: UserData = await response.data;
+    const userData: UserData = await response.json();
 
     console.log(userData);
 

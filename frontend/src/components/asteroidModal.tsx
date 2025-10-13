@@ -10,9 +10,22 @@ interface modalProps {
   onHandleStarred: (id: string) => void;
 }
 
-export default function AsteroidModal({ asteroid, onClose, onHandleStarred }: modalProps) {
+export default function AsteroidModal({
+  asteroid,
+  onClose,
+  onHandleStarred,
+}: modalProps) {
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 overflow-y-auto">
+    <div
+      className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 overflow-y-auto"
+      onClick={handleBackdropClick}
+    >
       <div className="relative w-[90vw] max-w-xl m-2 bg-black p-4 rounded-lg shadow-2xl">
         <button
           className="absolute top-4 right-5 text-3xl text-gray-400 hover:text-white transition-colors"
@@ -28,20 +41,29 @@ export default function AsteroidModal({ asteroid, onClose, onHandleStarred }: mo
           </div>
 
           <div className="w-100 mx-auto px-8 mt-4">
-            <div className='flex flex-row mb-4 justify-between items-center'>
-              <h2 className="text-xl md:text-2xl font-mono">
-                {asteroid.name}
-              </h2>
+            <div className="flex flex-row mb-4 justify-between items-center">
+              <h2 className="text-xl md:text-2xl font-mono">{asteroid.name}</h2>
 
-              <button onClick={() => onHandleStarred(asteroid.id)} className="cursor-pointer">
-              {asteroid.is_starred
-                ? <Star size={22} className="hover:scale-[1.08] transition duration-300 text-yellow-300" fill='yellow' />
-                : <Star size={22} className='hover:scale-[1.08] transition duration-300 text-grey-600'/>
-              }
+              <button
+                onClick={() => onHandleStarred(asteroid.id)}
+                className="cursor-pointer"
+              >
+                {asteroid.is_starred ? (
+                  <Star
+                    size={22}
+                    className="hover:scale-[1.08] transition duration-300 text-yellow-300"
+                    fill="yellow"
+                  />
+                ) : (
+                  <Star
+                    size={22}
+                    className="hover:scale-[1.08] transition duration-300 text-grey-600"
+                  />
+                )}
               </button>
             </div>
 
-            <p>{asteroid.id}</p>
+            <p>ID: {asteroid.id}</p>
             <p>
               {asteroid.is_potentially_hazardous_asteroid
                 ? 'Hazardous'
@@ -59,7 +81,6 @@ export default function AsteroidModal({ asteroid, onClose, onHandleStarred }: mo
               {asteroid.price}
             </p>
           </div>
-
         </div>
 
         <div className="mb-6 text-sm font-bold mx-auto px-8 mt-2 items-center flex flex-col md:flex-row justify-center">
@@ -78,7 +99,7 @@ export default function AsteroidModal({ asteroid, onClose, onHandleStarred }: mo
                 </td>
                 <td className="px-4 py-3 text-pink-100">
                   AMO (Near-Earth asteroid orbits){' '}
-                  {/*Ask Antonio what this is???*/}
+                  {/* TODO: These need to be updated with real values. */}
                 </td>
               </tr>
               <tr className="border-b border-gray-800 last:border-b-0">
