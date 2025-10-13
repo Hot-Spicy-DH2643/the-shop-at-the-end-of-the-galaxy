@@ -2,7 +2,13 @@
 
 import { create } from 'zustand';
 import type { AppState } from './AppModel';
-import { fetchAsteroids, fetchUserData, DEFAULT_PAGE_SIZE } from './AppModel';
+import {
+  fetchAsteroids,
+  fetchUserData,
+  DEFAULT_PAGE_SIZE,
+  sortAsteroids,
+  type SortOption,
+} from './AppModel';
 
 export function onHandleProductClick(id: string) {
   // open the product modal component with detailed info
@@ -80,4 +86,44 @@ const useAppStore = create<AppState>(set => ({
   },
 }));
 
+// ============================================
+// SORTING HOOKS
+// ============================================
+
+/**
+ * Custom hook to get sorted asteroids based on sort option
+ * This is the main hook for all sorting operations in the shop
+ *
+ * @param sortBy - The sorting criteria (e.g., 'price-asc', 'size-desc', etc.)
+ * @param limit - Optional limit to return only the first N asteroids
+ * @returns Sorted array of asteroids
+ *
+ * @example
+ * In shop page:
+ * const sortedAsteroids = useSortedAsteroids(filter.sort);
+ */
+export function useSortedAsteroids(
+  sortBy: SortOption = 'None',
+  limit?: number
+) {
+  const asteroids = useAppStore(state => state.asteroids);
+  return sortAsteroids(asteroids, sortBy, limit);
+}
+
+/**
+ * Custom hook to get asteroids sorted by closest approach date to now
+ * This performs the sorting on the frontend in real-time
+ * Used specifically for the homepage
+ *
+ * Internally uses sortAsteroids() with 'distance-asc' for consistency
+ *
+ * @param limit - Optional limit to return only the first N asteroids
+ * @returns Sorted array of asteroids (closest approach dates first)
+ */
+export function useAsteroidsSortedByClosestApproach(limit?: number) {
+  const asteroids = useAppStore(state => state.asteroids);
+  return sortAsteroids(asteroids, 'distance-asc', limit);
+}
+
 export { useAppStore };
+export type { SortOption };
