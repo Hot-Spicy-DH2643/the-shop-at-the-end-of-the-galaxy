@@ -8,10 +8,10 @@ import { CacheMetadata } from '../../models/CacheMetadata.js';
 
 export const asteroidResolvers = {
   Query: {
-    // Get all asteroids
-    asteroids: async () => {
+    // Get all asteroids with pagination
+    asteroids: async (parent, { page = 1, pageSize = 20 }) => {
       try {
-        return await getAsteroids();
+        return await getAsteroids(page, pageSize);
       } catch (error) {
         console.error('Error in asteroids resolver:', error);
         throw new Error('Failed to fetch asteroids');
