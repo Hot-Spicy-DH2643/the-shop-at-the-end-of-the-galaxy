@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { getUser, UserType, AsteroidType } from '../users';
+// import { getUser, UserType, AsteroidType } from '../users';
 import Sun from '@/components/centralPlanet';
 import OrbitPath from '@/components/orbitingAsteroid';
+import type { UserData, Asteroid } from '@/store/AppModel';
 import AsteroidSVGMoving from '@/components/asteroidSVGMoving';
 import AsteroidDetails from '@/components/asteroidDetails';
 import AsteroidSVG from '@/components/asteroidSVG';
@@ -18,7 +19,7 @@ const ORBIT_LANES = [
 //TODO: to make sure it works, but do not worry! :D
 
 export default function Galaxy() {
-  const [userAsteroids, setUserAsteroids] = useState<AsteroidType[]>([]);
+  const [userAsteroids, setUserAsteroids] = useState<Asteroid[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedAsteroid, setSelectedAsteroid] = useState<AsteroidType | null>(

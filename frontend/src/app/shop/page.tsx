@@ -17,7 +17,8 @@ import { ChevronDownIcon, Filter } from 'lucide-react';
 import Product from '@/components/asteroidProducts.tsx/product';
 import ProductSkeleton from '@/components/asteroidProducts.tsx/productSkeleton';
 import { useAppStore } from '@/store/useAppViewModel';
-import {onHandleProductClick, onHandleStarred} from '@/store/useAppViewModel';
+import { onHandleProductClick, onHandleStarred } from '@/store/useAppViewModel';
+import AsteroidModal from '@/components/asteroidModal';
 
 const SORT_OPTIONS = [
   { name: 'None', value: 'None' }, // for when no sorting is selected
@@ -41,7 +42,17 @@ const HAZARD_FILTER = {
 
 export default function Shop() {
   // Get state and actions from Zustand store
-  const { asteroids, loading, setAsteroids } = useAppStore();
+  const {
+    asteroids,
+    loading,
+    setAsteroids,
+    currentPage,
+    totalPages,
+    totalCount,
+  } = useAppStore();
+
+  const selectedAsteroidId = useAppStore(state => state.selectedAsteroidId);
+  const selectedAsteroid = asteroids.find(a => a.id === selectedAsteroidId);
 
   // Keep filter state local as it's UI-specific
   const [filter, setFilter] = useState({
@@ -51,10 +62,16 @@ export default function Shop() {
 
   console.log('Current filter state:', filter);
 
-  // Fetch asteroids on mount - cheating.
+  // Fetch asteroids on mount
   useEffect(() => {
-    setAsteroids();
+    setAsteroids(1);
   }, [setAsteroids]);
+
+  // Handler for page changes
+  const handlePageChange = (newPage: number) => {
+    setAsteroids(newPage);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
     <div className="galaxy-bg-space">
@@ -62,7 +79,7 @@ export default function Shop() {
       {/* Banner */}
 
       <div className="w-full h-40 bg-transparent text-white items-center justify-center flex text-5xl font-modak py-6 px-4">
-        ASTEROIDS
+        SHOP
       </div>
 
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 my-6">
@@ -93,7 +110,6 @@ export default function Shop() {
                             htmlFor={`hazard-${index}`}
                             className="ml-3 text-sm font-medium text-white"
                           >
-                            {' '}
                             {option.label}
                           </label>
                         </li>
@@ -164,13 +180,95 @@ export default function Shop() {
                   <Product
                     key={asteroid.id}
                     asteroid={asteroid}
-                    onHandleProductClick={() => onHandleProductClick(asteroid.id)}
+                    onHandleProductClick={() =>
+                      onHandleProductClick(asteroid.id)
+                    }
                     onHandleStarred={() => onHandleStarred(asteroid.id)}
                   />
                 ))}
           </ul>
+
+          {!loading && totalPages > 1 && (
+            <div className="flex flex-col items-center gap-3 py-8">
+              <div className="flex justify-center items-center gap-2">
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="px-3 py-1.5 text-sm border border-white/30 bg-transparent text-white rounded hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+                >
+                  Previous
+                </button>
+
+                <div className="flex gap-2">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                    pageNum => {
+                      const showPage =
+                        pageNum <= 3 ||
+                        pageNum === totalPages ||
+                        (pageNum >= currentPage - 1 &&
+                          pageNum <= currentPage + 1);
+
+                      const showEllipsisBefore =
+                        pageNum === 4 && currentPage > 5;
+                      const showEllipsisAfter =
+                        pageNum === totalPages - 1 &&
+                        currentPage < totalPages - 2;
+
+                      if (showEllipsisBefore || showEllipsisAfter) {
+                        return (
+                          <span
+                            key={pageNum}
+                            className="px-2 py-1.5 text-white"
+                          >
+                            ...
+                          </span>
+                        );
+                      }
+
+                      if (!showPage) return null;
+
+                      return (
+                        <button
+                          key={pageNum}
+                          onClick={() => handlePageChange(pageNum)}
+                          className={`px-3 py-1.5 text-sm rounded ${
+                            currentPage === pageNum
+                              ? 'bg-purple-600 text-white'
+                              : 'border border-white/30 bg-transparent text-white hover:bg-white/10'
+                          }`}
+                        >
+                          {pageNum}
+                        </button>
+                      );
+                    }
+                  )}
+                </div>
+
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="px-3 py-1.5 text-sm border border-white/30 bg-transparent text-white rounded hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+                >
+                  Next
+                </button>
+              </div>
+
+              <span className="text-white text-sm">
+                Page {currentPage} of {totalPages} ({totalCount} total
+                asteroids)
+              </span>
+            </div>
+          )}
         </div>
       </section>
+
+      {selectedAsteroidId && selectedAsteroid && (
+        <AsteroidModal
+          asteroid={selectedAsteroid}
+          onClose={() => useAppStore.getState().setSelectedAsteroidId(null)}
+          onHandleStarred={() => onHandleStarred(selectedAsteroid.id)}
+        />
+      )}
     </div>
   );
 }

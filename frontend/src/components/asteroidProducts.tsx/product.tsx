@@ -1,6 +1,7 @@
 import AsteroidSVG from '../asteroidSVG';
 import { shopAsteroid } from '@/store/AppModel';
-import { Star } from "lucide-react";
+import { Star } from 'lucide-react';
+import Image from 'next/image';
 
 interface ProductProps {
   asteroid: shopAsteroid;
@@ -8,16 +9,32 @@ interface ProductProps {
   onHandleStarred: (id: string) => void;
 }
 
-export default function Product({ asteroid, onHandleProductClick, onHandleStarred }: ProductProps) {
-
+export default function Product({
+  asteroid,
+  onHandleProductClick,
+  onHandleStarred,
+}: ProductProps) {
   return (
-    <div className='relative'>
+    <div className="relative">
       {/* Star button*/}
-        <button onClick={() => onHandleStarred(asteroid.id)} className="hover:scale[1.08] transition duration-300 p-1 absolute top-1 right-2 z-10 cursor-pointer">
-          <Star className={ asteroid.is_starred ? 'text-yellow-400' : 'text-gray-600 group-hover:text-yellow-400'} />
-        </button>
+      <button
+        onClick={() => onHandleStarred(asteroid.id)}
+        className="p-1 absolute top-1 right-2 z-10 cursor-pointer"
+      >
+        {asteroid.is_starred ? (
+          <Star
+            className="hover:scale-[1.08] transition duration-300 text-yellow-300"
+            fill="yellow"
+          />
+        ) : (
+          <Star className="hover:scale-[1.08] transition duration-300 text-grey-600" />
+        )}
+      </button>
 
-      <div onClick={() => onHandleProductClick(asteroid.id)} className="group animate-fade-in rounded flex flex-col items-center overflow-hidden m-4 cursor-pointer">
+      <div
+        onClick={() => onHandleProductClick(asteroid.id)}
+        className="group animate-fade-in rounded flex flex-col items-center overflow-hidden m-4 cursor-pointer"
+      >
         {/* Asteroid Image */}
         <div className="group-hover:scale-[1.08] transition duration-300 p-1 pb-2">
           <AsteroidSVG id={asteroid.id} size={100} />
@@ -36,15 +53,23 @@ export default function Product({ asteroid, onHandleProductClick, onHandleStarre
               ? 'Hazardous'
               : 'Not Hazardous'}
           </p>
-          
-          {/* Diameter */}
-          <p className="text-gray-400 text-xs">Diameter: {asteroid.size.toFixed(2)} m</p>
+
+          {/* Size */}
+          <p className="text-gray-400 text-xs">Size: {asteroid.size} m</p>
 
           {/* Price */}
-          <p className="text-gray-400 text-xs pb-1">{asteroid.price} GC</p>
+          <p className="mt-1 font-bold text-purple-400">
+            <Image
+              src="/cosmocoin-tiny.png"
+              alt="coin icon"
+              className="inline-block mr-1"
+              width={18}
+              height={18}
+            />
+            {asteroid.price}
+          </p>
         </div>
       </div>
     </div>
-    
   );
 }

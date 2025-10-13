@@ -1,25 +1,21 @@
 'use client';
-
-import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Navbar from '@/components/navbar';
 import ProfileTab from './ProfileTabs';
-import { getUser, UserType } from './users';
+
+import { useAuthStore } from '@/store/useAuthViewModel';
+import { useAppStore } from '@/store/useAppViewModel';
+import { useEffect } from 'react';
 
 export default function Profile() {
-  const [user, setUser] = useState<UserType | null>(null);
+  const { user } = useAuthStore();
+  const { userData, setUserData, loading } = useAppStore();
 
   useEffect(() => {
-    getUser()
-      .then(userData => {
-        setUser(userData);
-      })
-      .catch(error => {
-        console.error('Failed to fetch user:', error);
-      });
+    setUserData();
   }, []);
 
-  if (!user) {
+  if (!user || loading || !userData) {
     return (
       <div className="galaxy-bg-space min-h-screen">
         <Navbar />
@@ -32,11 +28,11 @@ export default function Profile() {
 
   return (
     <div className="galaxy-bg-space min-h-screen">
-      <Navbar user={user} />
+      <Navbar />
 
       {/* Banner */}
-      <div className="bg-black/30 py-10 flex justify-center">
-        <h1 className="text-4xl font-bold text-white">PROFILE</h1>
+      <div className="w-full h-40 bg-transparent text-white items-center justify-center flex text-5xl font-modak py-6 px-4">
+        PROFILE
       </div>
 
       {/* Profile content */}
@@ -58,13 +54,13 @@ export default function Profile() {
             </h4>
 
             <h4 className="text-2xl font-semibold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-300 bg-clip-text text-transparent drop-shadow-lg">
-              {user.username}
+              {user.displayName}
             </h4>
           </div>
         </div>
 
         {/* Buttons beside image */}
-        <ProfileTab user={user} />
+        <ProfileTab firebaseUser={user} userData={userData} />
       </div>
     </div>
   );
