@@ -2,20 +2,40 @@
 
 # Production domain with automatic HTTPS
 
-the-shop-at-the-end-of-the-galaxy.lambozhuang.me { # Frontend - serve the main site
-reverse_proxy frontend:3000
+# Caddyfile - Production Configuration with Cloudflare
+
+# Production domain with automatic HTTPS
+
+the-shop-at-the-end-of-the-galaxy.lambozhuang.me { # Trust Cloudflare's forwarded headers
+trusted_proxies cloudflare {
+interval 12h
+}
+
+    # Frontend - serve the main site
+    reverse_proxy frontend:3000 {
+        # Forward headers properly - Cloudflare provides these
+        header_up X-Forwarded-Proto {http.request.header.X-Forwarded-Proto}
+        header_up X-Forwarded-For {http.request.header.X-Forwarded-For}
+        header_up X-Real-IP {http.request.header.Cf-Connecting-Ip}
+    }
 
     # Backend API - strip /api prefix and forward to backend
     # Example: /api/auth/login -> backend receives /auth/login
     handle /api/* {
         uri strip_prefix /api
-        reverse_proxy backend:3001
+        reverse_proxy backend:3001 {
+            header_up X-Forwarded-Proto {http.request.header.X-Forwarded-Proto}
+            header_up X-Forwarded-For {http.request.header.X-Forwarded-For}
+        }
     }
 
     # GraphQL endpoint - forward directly
     # Example: /graphql -> backend receives /graphql
     handle /graphql* {
-        reverse_proxy backend:3001
+        reverse_proxy backend:3001 {
+            header_up X-Forwarded-Proto {http.request.header.X-Forwarded-Proto}
+            header_up X-Forwarded-For {http.request.header.X-Forwarded-For}
+        }
     }
 
     # Logging
