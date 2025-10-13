@@ -58,9 +58,13 @@ const ProfileTab = ({
         {activeTab === 'user' && (
           <User firebaseUser={firebaseUser} userData={userData} />
         )}
-        {activeTab === 'purchases' && <Purchases user={userData} />}
+        {activeTab === 'purchases' && (
+          <Purchases firebaseUser={firebaseUser} userData={userData} />
+        )}
         {activeTab === 'galaxy' && <Galaxy userData={userData} />}
-        {activeTab === 'friends' && <Friends user={userData} />}
+        {activeTab === 'friends' && (
+          <Friends firebaseUser={firebaseUser} userData={userData} />
+        )}
       </div>
     </div>
   );

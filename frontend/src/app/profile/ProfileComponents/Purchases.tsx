@@ -1,19 +1,26 @@
 'use client';
 import { useEffect, useState } from 'react';
 import type { UserData, shopAsteroid } from '@/store/AppModel';
+import type { User as FirebaseUser } from 'firebase/auth';
 
 import AsteroidSVGMoving from '@/components/asteroidSVGMoving';
 import { useAppStore } from '@/store/useAppViewModel';
 
-export default function Purchases({ user }: { user: UserData }) {
+export default function Purchases({
+  firebaseUser,
+  userData,
+}: {
+  firebaseUser: FirebaseUser;
+  userData: UserData;
+}) {
   // const owned_asteroids = []; // For testing no purchases
-  const owned_asteroids = user.owned_asteroids;
-  const favoriteAsteroids = user.favorite_asteroids;
+  const owned_asteroids = userData.owned_asteroids;
+  const favoriteAsteroids = userData.favorite_asteroids;
 
   const [zeroPurchaseId, setZeroPurchaseId] = useState<string>('0000000');
 
   const { asteroids, setAsteroids } = useAppStore();
-  const [owned_asteroids_detail, setOwnedAsteroidsDetail] = useState<
+  const [show_owned_asteroids, setShowOwnedAsteroids] = useState<
     shopAsteroid[]
   >([]);
 
@@ -31,10 +38,10 @@ export default function Purchases({ user }: { user: UserData }) {
 
   useEffect(() => {
     if (asteroids.length > 0 && owned_asteroids.length > 0) {
-      setOwnedAsteroidsDetail(
+      setShowOwnedAsteroids(
         asteroids.filter(asteroid => owned_asteroids.includes(asteroid.id))
       );
-      console.log('Owned asteroids detail:', owned_asteroids_detail);
+      console.log('Owned asteroids detail:', show_owned_asteroids);
     }
   }, [asteroids, owned_asteroids]);
 
@@ -57,7 +64,7 @@ export default function Purchases({ user }: { user: UserData }) {
             <AsteroidSVGMoving id={zeroPurchaseId} size={100} bgsize={160} />
           </div>
           <p className="ml-10 text-lg">
-            <span className="font-bold">{user.username}</span> has{' '}
+            <span className="font-bold">{firebaseUser.displayName}</span> has{' '}
             <span className="block sm:inline"> </span>
             <span className="font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
               no{' '}
@@ -79,15 +86,15 @@ export default function Purchases({ user }: { user: UserData }) {
       </h2>
 
       <p className="mt-4 text-lg">
-        <span className="font-bold">{user.username}</span> has{' '}
+        <span className="font-bold">{firebaseUser.displayName}</span> has{' '}
         <span className="font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-          {owned_asteroids_detail.length}
+          {owned_asteroids.length}
         </span>{' '}
         asteroids.
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2">
-        {owned_asteroids_detail.map((asteroid, idx) => (
+        {show_owned_asteroids.map((asteroid, idx) => (
           <div
             key={asteroid.id}
             className="relative rounded bg-[rgba(23,23,23,0.7)]1 shadow text-center cursor-pointer"

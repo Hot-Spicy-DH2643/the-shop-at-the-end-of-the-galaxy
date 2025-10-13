@@ -1,11 +1,18 @@
 'use client';
 import Image from 'next/image';
 import type { UserData } from '@/store/AppModel';
+import type { User as FirebaseUser } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 
-export default function Friends({ user }: { user: UserData }) {
+export default function Friends({
+  firebaseUser,
+  userData,
+}: {
+  firebaseUser: FirebaseUser;
+  userData: UserData;
+}) {
   // const friends = [];
-  const friends = user.friends;
+  const friends = userData.friends;
 
   const router = useRouter();
 
@@ -38,7 +45,7 @@ export default function Friends({ user }: { user: UserData }) {
           />
 
           <p className="ml-10 text-lg">
-            <span className="font-bold">{user.username}</span> has{' '}
+            <span className="font-bold">{firebaseUser.displayName}</span> has{' '}
             <span className="block sm:inline"> </span>
             <span className="font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
               no{' '}
@@ -59,7 +66,7 @@ export default function Friends({ user }: { user: UserData }) {
       </h2>
 
       <p className="mt-4 text-lg">
-        <span className="font-bold">{user.username}</span> has{' '}
+        <span className="font-bold">{firebaseUser.displayName}</span> has{' '}
         <span className="font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
           {friends.length}
         </span>{' '}
