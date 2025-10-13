@@ -12,15 +12,20 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
+  DropdownMenuItem,
 } from '@/components/dropdown';
 import { ChevronDownIcon, Filter } from 'lucide-react';
 import Product from '@/components/asteroidProducts.tsx/product';
 import ProductSkeleton from '@/components/asteroidProducts.tsx/productSkeleton';
-import { useAppStore } from '@/store/useAppViewModel';
+import {
+  useAppStore,
+  useSortedAsteroids,
+  type SortOption,
+} from '@/store/useAppViewModel';
 import { onHandleProductClick, onHandleStarred } from '@/store/useAppViewModel';
 import AsteroidModal from '@/components/asteroidModal';
 
-const SORT_OPTIONS = [
+const SORT_OPTIONS: Array<{ name: string; value: SortOption }> = [
   { name: 'None', value: 'None' }, // for when no sorting is selected
   { name: 'Size: Small to Big', value: 'size-asc' },
   { name: 'Size: Big to Small', value: 'size-desc' },
@@ -28,7 +33,7 @@ const SORT_OPTIONS = [
   { name: 'Price: High to Low', value: 'price-desc' },
   { name: 'Distance: Near to Far', value: 'distance-asc' },
   { name: 'Distance: Far to Near', value: 'distance-desc' },
-] as const;
+];
 
 const HAZARD_FILTER = {
   id: 'hazardous',
@@ -42,23 +47,26 @@ const HAZARD_FILTER = {
 
 export default function Shop() {
   // Get state and actions from Zustand store
-  const {
-    asteroids,
-    loading,
-    setAsteroids,
-    currentPage,
-    totalPages,
-    totalCount,
-  } = useAppStore();
-
-  const selectedAsteroidId = useAppStore(state => state.selectedAsteroidId);
-  const selectedAsteroid = asteroids.find(a => a.id === selectedAsteroidId);
+  const { loading, setAsteroids, currentPage, totalPages, totalCount } =
+    useAppStore();
 
   // Keep filter state local as it's UI-specific
-  const [filter, setFilter] = useState({
+  const [filter, setFilter] = useState<{
+    hazardous: string[];
+    sort: SortOption;
+  }>({
     hazardous: [''],
     sort: 'None',
   });
+
+  // MVVM: Get sorted asteroids based on current filter
+  // This automatically re-sorts when filter.sort changes
+  const sortedAsteroids = useSortedAsteroids(filter.sort);
+
+  const selectedAsteroidId = useAppStore(state => state.selectedAsteroidId);
+  const selectedAsteroid = sortedAsteroids.find(
+    a => a.id === selectedAsteroidId
+  );
 
   console.log('Current filter state:', filter);
 
@@ -141,13 +149,13 @@ export default function Shop() {
 
               <DropdownMenuContent align="end">
                 {SORT_OPTIONS.map(option => (
-                  <button
+                  <DropdownMenuItem
                     key={option.name}
-                    className={`text-left w-full block ml-4 py-2 px-4 text-sm
+                    className={`cursor-pointer ml-4 py-2 px-4 text-sm rounded-none
                             ${
                               option.value === filter.sort
-                                ? 'bg-blue-900 text-white' // Selected style
-                                : 'bg-blue-500 hover:bg-blue-900 text-white' // Default style
+                                ? 'bg-gray-800 text-white' // Selected style
+                                : 'bg-black hover:bg-gray-800 text-white' // Default style
                             }`}
                     onClick={() => {
                       setFilter(prev => ({
@@ -157,7 +165,7 @@ export default function Shop() {
                     }}
                   >
                     {option.name}
-                  </button>
+                  </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
@@ -176,7 +184,7 @@ export default function Shop() {
               ? new Array(20) // loading state with 20 skeletons
                   .fill(null)
                   .map((_, index) => <ProductSkeleton key={index} />)
-              : asteroids.map(asteroid => (
+              : sortedAsteroids.map(asteroid => (
                   <Product
                     key={asteroid.id}
                     asteroid={asteroid}
