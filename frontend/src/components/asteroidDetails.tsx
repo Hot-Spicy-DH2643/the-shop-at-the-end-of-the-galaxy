@@ -1,7 +1,7 @@
-import { AsteroidType } from '../app/profile/users';
+import { shopAsteroid } from '@/store/AppModel';
 
 interface AsteroidDetailsProps {
-  asteroid: AsteroidType | null;
+  asteroid: shopAsteroid | null;
 }
 
 export default function AsteroidDetails({ asteroid }: AsteroidDetailsProps) {
@@ -18,7 +18,7 @@ export default function AsteroidDetails({ asteroid }: AsteroidDetailsProps) {
       <h3 className="text-xl font-bold mb-4">Asteroid Details</h3>
       <p className="mb-2">ID: {asteroid.id}</p>
       <p className="mb-2">
-        Status: {asteroid.isMyfavotire ? 'Favorite' : 'Regular'}
+        Status: {asteroid.is_starred ? 'Favorite' : 'Regular'}
       </p>
     </div>
   );

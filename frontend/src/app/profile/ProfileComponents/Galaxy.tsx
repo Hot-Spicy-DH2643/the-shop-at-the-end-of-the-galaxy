@@ -113,7 +113,7 @@ export default function Galaxy({ userData }: { userData: UserData }) {
       {/* Code for the Info Panel */}
       {!isExpanded && (
         <div className="w-[20%] min-w-[230px] bg-gray-900/80 backdrop-blur-lg p-6 rounded-xl border border-gray-700 shadow-lg text-white">
-          <AsteroidDetails asteroid={selectedAsteroid} />
+          {/* <AsteroidDetails asteroid={selectedAsteroid} /> */}
         </div>
       )}
 
