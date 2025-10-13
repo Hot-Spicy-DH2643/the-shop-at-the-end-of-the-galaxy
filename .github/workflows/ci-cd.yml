@@ -15,10 +15,10 @@ jobs:
           echo "Cleaning workspace..."
           # Stop any running containers first
           docker compose -f docker-compose.caddy.yaml down -v 2>/dev/null || true
-          # Clean node_modules and other Docker-created files
-          sudo rm -rf backend/node_modules frontend/node_modules frontend/.next 2>/dev/null || true
+          # Clean node_modules, .next, and pnpm store with proper permissions
+          sudo rm -rf backend/node_modules frontend/node_modules frontend/.next frontend/.pnpm-store 2>/dev/null || true
           # Alternative: Use Docker to clean files with proper permissions
-          docker run --rm -v "$PWD":/workspace alpine sh -c "rm -rf /workspace/backend/node_modules /workspace/frontend/node_modules /workspace/frontend/.next" 2>/dev/null || true
+          docker run --rm -v "$PWD":/workspace alpine sh -c "rm -rf /workspace/backend/node_modules /workspace/frontend/node_modules /workspace/frontend/.next /workspace/frontend/.pnpm-store" 2>/dev/null || true
 
       - name: Checkout code
         uses: actions/checkout@v4
