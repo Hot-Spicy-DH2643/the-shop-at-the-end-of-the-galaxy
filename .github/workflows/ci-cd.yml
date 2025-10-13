@@ -3,7 +3,7 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - production # Change this to your protected branch name
+      - release # Change this to your protected branch name
 
 jobs:
   deploy:
