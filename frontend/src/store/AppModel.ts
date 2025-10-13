@@ -291,3 +291,133 @@ export async function fetchUserData(): Promise<UserData | null> {
     throw error;
   }
 }
+
+// ============================================
+// SORTING FUNCTIONS - Pure Business Logic
+// ============================================
+
+/**
+ * Helper function to get the closest approach distance from Earth for an asteroid
+ * Currently unused, but kept for future reference if physical distance sorting is needed
+ * @param asteroid - The asteroid to analyze
+ * @returns Distance in kilometers, or Infinity if no data
+ */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function getClosestApproachDistance(asteroid: shopAsteroid): number {
+  if (
+    !asteroid.close_approach_data ||
+    asteroid.close_approach_data.length === 0
+  ) {
+    return Infinity;
+  }
+
+  // Find the approach with minimum distance to Earth
+  const closestApproach = asteroid.close_approach_data.reduce(
+    (closest, current) => {
+      const currentDist = parseFloat(current.miss_distance.kilometers);
+      const closestDist = parseFloat(closest.miss_distance.kilometers);
+      return currentDist < closestDist ? current : closest;
+    }
+  );
+
+  return parseFloat(closestApproach.miss_distance.kilometers);
+}
+
+/**
+ * Helper function to get the time difference from now to closest approach date
+ * @param asteroid - The asteroid to analyze
+ * @returns Absolute time difference in milliseconds, or Infinity if no data
+ */
+function getClosestApproachTimeDiff(asteroid: shopAsteroid): number {
+  const now = new Date().getTime();
+
+  if (
+    !asteroid.close_approach_data ||
+    asteroid.close_approach_data.length === 0
+  ) {
+    return Infinity;
+  }
+
+  // Find the approach date closest to now (absolute time difference)
+  const closestApproach = asteroid.close_approach_data.reduce(
+    (closest, current) => {
+      const currentDate = new Date(current.close_approach_date_full).getTime();
+      const closestDate = new Date(closest.close_approach_date_full).getTime();
+
+      const currentDiff = Math.abs(currentDate - now);
+      const closestDiff = Math.abs(closestDate - now);
+
+      return currentDiff < closestDiff ? current : closest;
+    }
+  );
+
+  return Math.abs(
+    new Date(closestApproach.close_approach_date_full).getTime() - now
+  );
+}
+
+/**
+ * Sort type definition matching the shop's SORT_OPTIONS
+ */
+export type SortOption =
+  | 'None'
+  | 'size-asc'
+  | 'size-desc'
+  | 'price-asc'
+  | 'price-desc'
+  | 'distance-asc'
+  | 'distance-desc';
+
+/**
+ * Universal sorting function for asteroids
+ * All sorting logic is centralized here for reusability and maintainability
+ *
+ * @param asteroids - Array of asteroids to sort
+ * @param sortBy - The sorting criteria
+ * @param limit - Optional limit to return only the first N asteroids
+ * @returns Sorted array of asteroids
+ */
+export function sortAsteroids(
+  asteroids: shopAsteroid[],
+  sortBy: SortOption = 'None',
+  limit?: number
+): shopAsteroid[] {
+  if (sortBy === 'None') {
+    return limit ? asteroids.slice(0, limit) : [...asteroids];
+  }
+
+  const sorted = [...asteroids].sort((a, b) => {
+    switch (sortBy) {
+      case 'size-asc':
+        return a.size - b.size;
+
+      case 'size-desc':
+        return b.size - a.size;
+
+      case 'price-asc':
+        return a.price - b.price;
+
+      case 'price-desc':
+        return b.price - a.price;
+
+      case 'distance-asc': {
+        // Near to far (by time - closest approach date to now)
+        const timeA = getClosestApproachTimeDiff(a);
+        const timeB = getClosestApproachTimeDiff(b);
+        return timeA - timeB;
+      }
+
+      case 'distance-desc': {
+        // Far to near (by time - furthest approach date from now)
+        const timeA = getClosestApproachTimeDiff(a);
+        const timeB = getClosestApproachTimeDiff(b);
+        return timeB - timeA;
+      }
+
+      default:
+        return 0;
+    }
+  });
+
+  return limit ? sorted.slice(0, limit) : sorted;
+}
