@@ -21,6 +21,12 @@ const useAppStore = create<AppState>(set => ({
   currentPage: 1,
   totalPages: 0,
   totalCount: 0,
+  cart: [],
+  addToCart: asteroid => set(state => ({ cart: [...state.cart, asteroid] })),
+  removeFromCart: id =>
+    set(state => ({ cart: state.cart.filter(a => a.id !== id) })),
+  clearCart: () => set({ cart: [] }),
+
   setSelectedAsteroidId: (id: string | null) => set({ selectedAsteroidId: id }),
   setLoading: (loading: boolean) => set({ loading }),
   setError: (error: string | null) => set({ error }),

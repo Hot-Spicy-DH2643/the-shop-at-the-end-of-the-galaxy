@@ -3,6 +3,7 @@ import AsteroidSVGMoving from './asteroidSVGMoving';
 import Image from 'next/image';
 import { shopAsteroid, getFormattedAsteroidData } from '@/store/AppModel';
 import { Star, ShoppingBasket, CalendarPlus } from 'lucide-react';
+import { useAppStore } from '@/store/useAppViewModel';
 
 interface modalProps {
   asteroid: shopAsteroid;
@@ -22,6 +23,13 @@ export default function AsteroidModal({
     if (e.target === e.currentTarget) {
       onClose();
     }
+  };
+
+  const addToCart = useAppStore(state => state.addToCart);
+
+  const handleAddToCart = () => {
+    addToCart(asteroid);
+    onClose(); // optional: close modal after adding
   };
 
   const handleAddToCalendar = () => {
@@ -116,7 +124,10 @@ export default function AsteroidModal({
         </div>
 
         <div className="mb-6 text-sm font-bold mx-auto px-8 mt-2 items-center flex flex-col md:flex-row justify-center">
-          <button className="bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700 text-white px-6 py-2 rounded shadow hover:scale-105 hover:shadow-xl transition cursor-pointer text-center m-1 my-2 w-full md:w-auto">
+          <button
+            onClick={handleAddToCart}
+            className="bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700 text-white px-6 py-2 rounded shadow hover:scale-105 hover:shadow-xl transition cursor-pointer text-center m-1 my-2 w-full md:w-auto"
+          >
             <ShoppingBasket className="inline-block mr-2 mb-1" size={22} />
             Add to basket
           </button>
