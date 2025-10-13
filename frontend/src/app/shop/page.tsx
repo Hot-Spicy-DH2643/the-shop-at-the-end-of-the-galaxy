@@ -14,13 +14,16 @@ import {
   DropdownMenuTrigger,
   DropdownMenuItem,
 } from '@/components/dropdown';
+import { Slider } from '@/components/slider';
 import { ChevronDownIcon, Filter } from 'lucide-react';
 import Product from '@/components/asteroidProducts.tsx/product';
 import ProductSkeleton from '@/components/asteroidProducts.tsx/productSkeleton';
 import {
   useAppStore,
   useSortedAsteroids,
+  useFilteredAsteroids,
   type SortOption,
+  type FilterState
 } from '@/store/useAppViewModel';
 import { onHandleProductClick, onHandleStarred } from '@/store/useAppViewModel';
 import AsteroidModal from '@/components/asteroidModal';
@@ -45,26 +48,39 @@ const HAZARD_FILTER = {
   ] as const,
 };
 
+const ORBIT_FILTER = {
+  id: 'orbit_type',
+  name: 'Orbit Type',
+  options: [
+    { value: 'all', label: 'All', checked: true },
+    { value: 'APO', label: 'Apollo (APO)', checked: false },
+    { value: 'ATE', label: 'Aten (ATE)', checked: false },
+    { value: 'AMO', label: 'Amor (AMO)', checked: false },
+    { value: 'IEO', label: 'Atira/Interior Earth Object (IEO)', checked: false },
+  ] as const,
+};
+
 export default function Shop() {
   // Get state and actions from Zustand store
   const { loading, setAsteroids, currentPage, totalPages, totalCount } =
     useAppStore();
 
   // Keep filter state local as it's UI-specific
-  const [filter, setFilter] = useState<{
-    hazardous: string[];
-    sort: SortOption;
-  }>({
-    hazardous: [''],
+  const [filter, setFilter] = useState<FilterState>({
+    hazardous: 'all',
+    sizeRange: [0, 100],
+    distanceRange: [0, 100],
+    orbitType: [],
     sort: 'None',
   });
 
   // MVVM: Get sorted asteroids based on current filter
   // This automatically re-sorts when filter.sort changes
-  const sortedAsteroids = useSortedAsteroids(filter.sort);
+  const filteredAsteroids = useFilteredAsteroids(filter);
+
 
   const selectedAsteroidId = useAppStore(state => state.selectedAsteroidId);
-  const selectedAsteroid = sortedAsteroids.find(
+  const selectedAsteroid = filteredAsteroids.find(
     a => a.id === selectedAsteroidId
   );
 
@@ -104,7 +120,7 @@ export default function Shop() {
                   {/*Hazard filter*/}
                   <div>
                     <h3 className="text-sm font-modak text-white mb-4">
-                      Hazard level
+                      Hazard Level
                     </h3>
                     <ul className="space-y-4">
                       {HAZARD_FILTER.options.map((option, index) => (
@@ -112,7 +128,14 @@ export default function Shop() {
                           <input
                             type="checkbox"
                             id={`hazard-${index}`}
-                            className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                            className="h-4 w-4 rounded border-gray-300 text-purple-400 focus:ring-purple-500"
+                            checked={filter.hazardous === option.value} // controlled by state
+                            onChange={() => {
+                              setFilter(prev => ({
+                                ...prev,
+                                hazardous: option.value, // update selected value
+                              }));
+                            }}
                           />
                           <label
                             htmlFor={`hazard-${index}`}
@@ -125,14 +148,88 @@ export default function Shop() {
                     </ul>
                   </div>
 
+                  {/* Orbit Type Filter */}
                   <div>
-                    <h3 className="text-sm font-modak text-white mb-4">Size</h3>
+                    <h3 className="text-sm font-modak text-white mb-4">
+                      Orbit Type
+                    </h3>
+                    <ul className="space-y-4">
+                      {ORBIT_FILTER.options.map((option, index) => (
+                        <li key={option.value} className="flex items-center">
+                          <input
+                            type="checkbox"
+                            id={`orbit-${index}`}
+                            className="h-4 w-4 rounded border-gray-300 text-purple-400 focus:ring-purple-500"
+                            checked={
+                              option.value === 'all'
+                                ? filter.orbitType.length === 0
+                                : filter.orbitType.includes(option.value)
+                            }
+                            onChange={e => {
+                              if (option.value === 'all') {
+                                // "All" clears any specific selections
+                                setFilter(prev => ({ ...prev, orbitTypes: [] }));
+                              } else {
+                                setFilter(prev => ({
+                                  ...prev,
+                                  orbitTypes: e.target.checked
+                                    ? [...prev.orbitType, option.value]
+                                    : prev.orbitType.filter(o => o !== option.value),
+                                }));
+                              }
+                            }}
+                          />
+                          <label
+                            htmlFor={`orbit-${index}`}
+                            className="ml-3 text-sm font-medium text-white"
+                          >
+                            {option.label}
+                          </label>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  
+                  {/*Size and distance sliders*/}
+                  <div>
+                    <div>
+                      <h3 className="text-sm font-modak text-white mb-4">
+                        Size
+                      </h3>
+                      <Slider
+                        min={0}
+                        max={100}
+                        step={1}
+                        value={filter.sizeRange}
+                        onValueChange={(value: [number, number]) =>
+                          setFilter(prev => ({ ...prev, sizeRange: value }))
+                        }
+                      />
+                    </div>
+
+                    <div>
+                      <h3 className="text-sm font-modak text-white mb-4">
+                        Distance Away
+                      </h3>
+                      <Slider
+                        min={0}
+                        max={100}
+                        step={1}
+                        value={filter.distanceRange}
+                        onValueChange={(value: [number, number]) =>
+                          setFilter(prev => ({ ...prev, distanceRange: value }))
+                        }
+                      />
+                    </div>
                   </div>
 
-                  {/*Distance Slider*/}
-                  {/*Size Slider*/}
 
-                  {/*Orbit class type filter*/}
+                  
+
+
+                  
+
+                  {/*Orbit class type filter - same type as HAZARDOUS*/}
                   {/*Approaches - what type of filter??*/}
                 </AccordionContent>
               </AccordionItem>
@@ -184,7 +281,7 @@ export default function Shop() {
               ? new Array(20) // loading state with 20 skeletons
                   .fill(null)
                   .map((_, index) => <ProductSkeleton key={index} />)
-              : sortedAsteroids.map(asteroid => (
+              : filteredAsteroids.map(asteroid => (
                   <Product
                     key={asteroid.id}
                     asteroid={asteroid}

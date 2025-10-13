@@ -8,34 +8,9 @@ import {
   DEFAULT_PAGE_SIZE,
   sortAsteroids,
   type SortOption,
+  filterAndSortAsteroids,
+  type FilterState
 } from './AppModel';
-
-export function onHandleProductClick(id: string) {
-  // open the product modal component with detailed info
-  useAppStore.getState().setSelectedAsteroidId(id);
-
-  // also get the orbital data using the fetch
-  /*fetchOrbitalData(id).then(orbitalData => {
-    useAppStore.setState(state => ({
-      asteroids: state.asteroids.map(asteroid =>
-        asteroid.id === id ?
-          { ...asteroid, orbital_data: orbitalData } : asteroid
-      ),
-    }));
-  });*/
-}
-
-export function onHandleStarred(id: string) {
-  // toggle the starred status of the asteroid - and add to/remove from favorites??
-  useAppStore.setState(state => {
-    const updatedAsteroids = state.asteroids.map(asteroid =>
-      asteroid.id === id
-        ? { ...asteroid, is_starred: !asteroid.is_starred }
-        : asteroid
-    );
-    return { asteroids: updatedAsteroids };
-  });
-}
 
 const useAppStore = create<AppState>(set => ({
   loading: false,
@@ -86,44 +61,51 @@ const useAppStore = create<AppState>(set => ({
   },
 }));
 
-// ============================================
-// SORTING HOOKS
-// ============================================
 
-/**
- * Custom hook to get sorted asteroids based on sort option
- * This is the main hook for all sorting operations in the shop
- *
- * @param sortBy - The sorting criteria (e.g., 'price-asc', 'size-desc', etc.)
- * @param limit - Optional limit to return only the first N asteroids
- * @returns Sorted array of asteroids
- *
- * @example
- * In shop page:
- * const sortedAsteroids = useSortedAsteroids(filter.sort);
- */
+// =========================
+//  CUSTOM HOOKS
+
+{/* Sorting */}
 export function useSortedAsteroids(
-  sortBy: SortOption = 'None',
-  limit?: number
+  sortBy: SortOption = 'None', // sorting criteria (e.g., 'price-asc', 'size-desc', etc.)
+  limit?: number // limit to return only the first N asteroids
 ) {
   const asteroids = useAppStore(state => state.asteroids);
   return sortAsteroids(asteroids, sortBy, limit);
 }
 
-/**
- * Custom hook to get asteroids sorted by closest approach date to now
- * This performs the sorting on the frontend in real-time
- * Used specifically for the homepage
- *
- * Internally uses sortAsteroids() with 'distance-asc' for consistency
- *
- * @param limit - Optional limit to return only the first N asteroids
- * @returns Sorted array of asteroids (closest approach dates first)
- */
+// custom hook specifically for the landing/home page
 export function useAsteroidsSortedByClosestApproach(limit?: number) {
   const asteroids = useAppStore(state => state.asteroids);
   return sortAsteroids(asteroids, 'distance-asc', limit);
 }
 
+{/* Filtering */}
+export function useFilteredAsteroids(filters: FilterState) {
+  const asteroids = useAppStore(state => state.asteroids);
+  return filterAndSortAsteroids(asteroids, filters);
+}
+
+// =========================
+//  EVENT HANDLERS
+
+export function onHandleProductClick(id: string) {
+  // open the product modal component with detailed info
+  useAppStore.getState().setSelectedAsteroidId(id);
+}
+
+export function onHandleStarred(id: string) {
+  // toggle the starred status of the asteroid - and add to/remove from favorites??
+  useAppStore.setState(state => {
+    const updatedAsteroids = state.asteroids.map(asteroid =>
+      asteroid.id === id
+        ? { ...asteroid, is_starred: !asteroid.is_starred }
+        : asteroid
+    );
+    return { asteroids: updatedAsteroids };
+  });
+}
+
+
 export { useAppStore };
-export type { SortOption };
+export type { SortOption, FilterState};

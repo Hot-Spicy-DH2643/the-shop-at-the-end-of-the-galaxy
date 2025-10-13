@@ -421,3 +421,66 @@ export function sortAsteroids(
 
   return limit ? sorted.slice(0, limit) : sorted;
 }
+
+{
+  /* Filter */
+}
+export type FilterState = {
+  hazardous: 'all' | 'hazardous' | 'non-hazardous';
+  sizeRange: [number, number]; // in whatever scale your Slider uses
+  distanceRange: [number, number]; // same idea
+  orbitType: string[]; // e.g. ['APO', 'AMO']
+  sort: SortOption;
+};
+
+export function filterAsteroids(
+  asteroids: shopAsteroid[],
+  filters: FilterState
+): shopAsteroid[] {
+  return asteroids.filter(a => {
+    // ---------------------------
+    // Hazard filter
+    if (
+      filters.hazardous &&
+      filters.hazardous.length > 0 &&
+      !filters.hazardous.includes('all')
+    ) {
+      const hazardType = a.is_potentially_hazardous_asteroid
+        ? 'hazardous'
+        : 'non-hazardous';
+      if (!filters.hazardous.includes(hazardType)) return false;
+    }
+
+    // ---------------------------
+    // Orbit type filter
+    /*if (filters.orbitType && filters.orbitType.length > 0 && !filters.orbitType.includes('all')) {
+      const orbitClassType = a.orbital_data?.orbit_class?.orbit_class_type ?? '';
+      if (!filters.orbitType.includes(orbitClassType)) return false;
+    }*/
+
+    // ---------------------------
+    // Size filter
+    /*if (filters.sizeRange) {
+      const [minSize, maxSize] = filters.sizeRange;
+      if (a.size < minSize || a.size > maxSize) return false;
+    }*/
+
+    // ---------------------------
+    // Distance filter (by closest approach distance)
+    /*if (filters.distanceRange) {
+      const [minDist, maxDist] = filters.distanceRange;
+      const closestDist = getClosestApproachDistance(a);
+      if (closestDist < minDist || closestDist > maxDist) return false;
+    }*/
+
+    return true; // passes all filters
+  });
+}
+
+export function filterAndSortAsteroids(
+  asteroids: shopAsteroid[],
+  filters: FilterState
+): shopAsteroid[] {
+  const filtered = filterAsteroids(asteroids, filters);
+  return sortAsteroids(filtered, filters.sort ?? 'None');
+}
