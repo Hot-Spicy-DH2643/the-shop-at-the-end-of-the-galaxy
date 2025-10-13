@@ -25,17 +25,13 @@ services:
       - /app/node_modules
     depends_on:
       - mongo
-    command: sh -c "npm install --production && npm start"
+    command: sh -c "npm install && npm start"
     restart: unless-stopped
     healthcheck:
       test:
         [
-          "CMD",
-          "wget",
-          "--no-verbose",
-          "--tries=1",
-          "--spider",
-          "http://localhost:3001/",
+          "CMD-SHELL",
+          "wget --no-verbose --tries=1 --spider http://localhost:3001 || exit 1",
         ]
       interval: 10s
       timeout: 5s
@@ -59,22 +55,18 @@ services:
       - ./frontend:/app
       - /app/node_modules
       - /app/.next
-    command: sh -c "npm install --production && npm run build && npm start"
+    command: sh -c "npm install && npm run build && npm start"
     restart: unless-stopped
     healthcheck:
       test:
         [
-          "CMD",
-          "wget",
-          "--no-verbose",
-          "--tries=1",
-          "--spider",
-          "http://localhost:3000/",
+          "CMD-SHELL",
+          "wget --no-verbose --tries=1 --spider http://localhost:3000 || exit 1",
         ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 60s
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
     networks:
       - app-network
 
