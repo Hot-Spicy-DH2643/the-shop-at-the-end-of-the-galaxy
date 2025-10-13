@@ -5,21 +5,24 @@ import Image from 'next/image';
 import { useEffect } from 'react';
 import Navbar from '@/components/navbar';
 import AsteroidSVG from '@/components/asteroidSVG';
-import { useAppStore } from '@/store/useAppViewModel';
+import {
+  useAppStore,
+  useAsteroidsSortedByClosestApproach,
+} from '@/store/useAppViewModel';
 
 export default function Home() {
-  // MVVM: accessing asteroids from the ViewModel (Zustand store)
+  // accessing asteroids from the ViewModel (Zustand store)
   const { asteroids, setAsteroids } = useAppStore();
 
-  // Fetching asteroids on mount if not already loaded
+  // fetching asteroids on mount if not already loaded
   useEffect(() => {
     if (asteroids.length === 0) {
       setAsteroids(1); // Fetch first page
     }
   }, [asteroids.length, setAsteroids]);
 
-  // Using the 30 asteroids for the scrolling effect
-  const displayAsteroids = asteroids;
+  // get 24 asteroids sorted by closest approach date to now
+  const displayAsteroids = useAsteroidsSortedByClosestApproach(24);
   return (
     <div className="flex flex-col min-h-screen h-full font-sans">
       <Navbar />
