@@ -422,9 +422,8 @@ export function sortAsteroids(
   return limit ? sorted.slice(0, limit) : sorted;
 }
 
-{
-  /* Filter */
-}
+{/* Filter */}
+
 export type FilterState = {
   hazardous: 'all' | 'hazardous' | 'non-hazardous';
   sizeRange: [number, number]; // in whatever scale your Slider uses
@@ -483,4 +482,139 @@ export function filterAndSortAsteroids(
 ): shopAsteroid[] {
   const filtered = filterAsteroids(asteroids, filters);
   return sortAsteroids(filtered, filters.sort ?? 'None');
+}
+
+// ============================================
+// FORMATTING FUNCTIONS - Pure Presentation Logic
+// ============================================
+
+/**
+ * Format a numeric string value with specified decimal places
+ * @param value - Raw string value from API
+ * @param decimals - Number of decimal places
+ * @returns Formatted number string or 'N/A'
+ */
+export function formatNumber(
+  value: string | number | undefined,
+  decimals: number = 2
+): string {
+  if (value === undefined || value === null) return 'N/A';
+  const numValue = typeof value === 'string' ? parseFloat(value) : value;
+  if (isNaN(numValue)) return 'N/A';
+  return numValue.toFixed(decimals);
+}
+
+/**
+ * Format orbital parameter for display with unit
+ * @param value - Raw string value from API
+ * @param decimals - Number of decimal places
+ * @param unit - Unit to append (e.g., 'AU', '°')
+ * @returns Formatted string with unit
+ */
+export function formatOrbitalParameter(
+  value: string | undefined,
+  decimals: number = 3,
+  unit: string = ''
+): string {
+  const formatted = formatNumber(value, decimals);
+  if (formatted === 'N/A') return formatted;
+  // No space for degree symbol, space for other units like 'AU'
+  const separator = unit === '°' ? '' : ' ';
+  return `${formatted}${unit ? `${separator}${unit}` : ''}`;
+}
+
+/**
+ * Format distance in kilometers to millions of kilometers
+ * @param kilometers - Distance in kilometers (string)
+ * @param decimals - Number of decimal places
+ * @returns Formatted string with 'M km' unit
+ */
+export function formatMillionKilometers(
+  kilometers: string | undefined,
+  decimals: number = 2
+): string {
+  if (!kilometers) return 'N/A';
+  const km = parseFloat(kilometers);
+  if (isNaN(km)) return 'N/A';
+  return `${(km / 1000000).toFixed(decimals)} M km`;
+}
+
+/**
+ * Get formatted orbital data for an asteroid
+ * @param asteroid - The asteroid to format
+ * @returns Object with formatted orbital parameters
+ */
+export function getFormattedOrbitalData(asteroid: shopAsteroid) {
+  return {
+    semiMajorAxis: formatOrbitalParameter(
+      asteroid.orbital_data?.semi_major_axis,
+      3,
+      'AU'
+    ),
+    eccentricity: formatOrbitalParameter(
+      asteroid.orbital_data?.eccentricity,
+      3
+    ),
+    inclination: formatOrbitalParameter(
+      asteroid.orbital_data?.inclination,
+      2,
+      '°'
+    ),
+    orbitClass: asteroid.orbital_data?.orbit_class.orbit_class_type || 'N/A',
+    orbitDescription:
+      asteroid.orbital_data?.orbit_class.orbit_class_description || 'N/A',
+  };
+}
+
+/**
+ * Get formatted close approach data for an asteroid
+ * @param asteroid - The asteroid to format
+ * @returns Object with formatted approach data
+ */
+export function getFormattedApproachData(asteroid: shopAsteroid) {
+  const approach = asteroid.close_approach_data?.[0];
+
+  if (!approach) {
+    return {
+      date: 'N/A',
+      distanceAU: 'N/A',
+      distanceKm: 'N/A',
+      velocityKmPerSec: 'N/A',
+    };
+  }
+
+  return {
+    date: approach.close_approach_date_full,
+    distanceAU: formatOrbitalParameter(
+      approach.miss_distance.astronomical,
+      5,
+      'AU'
+    ),
+    distanceKm: formatMillionKilometers(approach.miss_distance.kilometers),
+    velocityKmPerSec: formatOrbitalParameter(
+      approach.relative_velocity.kilometers_per_second,
+      2,
+      'km/s'
+    ),
+  };
+}
+
+/**
+ * Get all formatted data for an asteroid modal
+ * @param asteroid - The asteroid to format
+ * @returns Complete formatted data object
+ */
+export function getFormattedAsteroidData(asteroid: shopAsteroid) {
+  return {
+    id: asteroid.id,
+    name: asteroid.name,
+    hazardous: asteroid.is_potentially_hazardous_asteroid
+      ? 'Hazardous'
+      : 'Not Hazardous',
+    diameter: formatNumber(asteroid.size, 2) + ' m',
+    price: asteroid.price.toLocaleString(),
+    orbital: getFormattedOrbitalData(asteroid),
+    approach: getFormattedApproachData(asteroid),
+    nasaUrl: asteroid.nasa_jpl_url,
+  };
 }

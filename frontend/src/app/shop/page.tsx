@@ -98,7 +98,7 @@ export default function Shop() {
   };
 
   return (
-    <div className="galaxy-bg-space">
+    <div className="galaxy-bg-space font-sans">
       <Navbar />
       {/* Banner */}
 
@@ -112,9 +112,9 @@ export default function Shop() {
             {/*Filter - Filters the results*/}
             <Accordion type="single" collapsible>
               <AccordionItem value="item-1">
-                <AccordionTrigger className="group py-4 inline-flex text-sm !font-modak text-white hover:underline justify-between gap-4 cursor-pointer">
+                <AccordionTrigger className="group py-4 inline-flex text-lg !font-modak text-white hover:underline justify-between gap-4 cursor-pointer">
                   FILTER
-                  <ChevronDownIcon className="text-muted-foreground pointer-events-none size-4  transition-transform duration-200 text-white group-hover:text-gray-400" />
+                  <ChevronDownIcon className="text-muted-foreground pointer-events-none size-4 translate-y-1.5 transition-transform duration-200 text-white group-hover:text-gray-400" />
                 </AccordionTrigger>
                 <AccordionContent className="pt-6 animate-none grid grid-cols-1 lg:grid-cols-3 gap-6">
                   {/*Hazard filter*/}
@@ -239,9 +239,9 @@ export default function Shop() {
           {/* Sort - Sorts the results */}
           <div className="flex items-center">
             <DropdownMenu>
-              <DropdownMenuTrigger className="group py-4 inline-flex text-sm font-modak text-white hover:underline justify-between gap-4 cursor-pointer">
+              <DropdownMenuTrigger className="group py-4 inline-flex text-lg font-modak text-white hover:underline justify-between gap-4 cursor-pointer">
                 SORT
-                <ChevronDownIcon className="text-muted-foreground pointer-events-none size-4 shrink-0 translate-y-0.5 transition-transform duration-200 text-white group-hover:text-gray-400" />
+                <ChevronDownIcon className="text-muted-foreground pointer-events-none size-4 shrink-0 translate-y-1.5 transition-transform duration-200 text-white group-hover:text-gray-400" />
               </DropdownMenuTrigger>
 
               <DropdownMenuContent align="end">
@@ -292,7 +292,7 @@ export default function Shop() {
                   />
                 ))}
           </ul>
-          
+
           {/* Pagination */}
           {!loading && totalPages > 1 && (
             <div className="flex flex-col items-center gap-3 py-8">
@@ -302,7 +302,7 @@ export default function Shop() {
                   disabled={currentPage === 1}
                   className="px-3 py-1.5 text-sm border border-white/30 bg-transparent text-white rounded hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
                 >
-                  Previous
+                  &lt;
                 </button>
 
                 <div className="flex gap-2">
@@ -355,7 +355,7 @@ export default function Shop() {
                   disabled={currentPage === totalPages}
                   className="px-3 py-1.5 text-sm border border-white/30 bg-transparent text-white rounded hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
                 >
-                  Next
+                  &gt;
                 </button>
               </div>
 
@@ -365,7 +365,6 @@ export default function Shop() {
               </span>
             </div>
           )}
-
         </div>
       </section>
 
