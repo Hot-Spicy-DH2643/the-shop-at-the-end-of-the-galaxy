@@ -1,12 +1,31 @@
 import { useEffect, useState } from 'react';
-import { getUser, UserType, AsteroidType } from '../users';
+// import { getUser, UserType, AsteroidType } from '../users';
+import Sun from '@/components/centralPlanet';
+import OrbitPath from '@/components/orbitingAsteroid';
+import type { UserData, Asteroid } from '@/store/AppModel';
 import AsteroidSVGMoving from '@/components/asteroidSVGMoving';
-import AstroidSVG from '@/components/asteroidSVGMoving';
+import AsteroidDetails from '@/components/asteroidDetails';
+import AsteroidSVG from '@/components/asteroidSVG';
+import '@/app/globals.css';
+const ORBIT_LANES = [
+  { radius: 60, depth: -30, duration: 15, tilt: 15 },
+  { radius: 90, depth: -15, duration: 20, tilt: 10 },
+  { radius: 120, depth: 0, duration: 25, tilt: 5 },
+  { radius: 150, depth: 15, duration: 30, tilt: -5 },
+  { radius: 180, depth: 30, duration: 35, tilt: -10 },
+];
+
+//TODO: I am gonna structure up this code, now I have just written everything
+//TODO: to make sure it works, but do not worry! :D
 
 export default function Galaxy() {
-  const [userAsteroids, setUserAsteroids] = useState<AsteroidType[]>([]);
+  const [userAsteroids, setUserAsteroids] = useState<Asteroid[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedAsteroid, setSelectedAsteroid] = useState<AsteroidType | null>(
+    null
+  );
+  const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
     const fetchUserAsteroids = async () => {
@@ -24,61 +43,203 @@ export default function Galaxy() {
   }, []);
 
   if (loading) {
-    return <div className="text-white">Loading your galaxy</div>;
+    return <div className="text-white">Loading your galaxy..</div>;
   }
 
   if (error) {
     return <div className="text-red-500">{error}</div>;
   }
 
-  return (
-    <div>
-      <h2 className="text-2xl font-extrabold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-300 bg-clip-text text-transparent drop-shadow-lg mb-6">
-        My Galaxy
-      </h2>
+  const handleAsteroidClick = (asteroid: AsteroidType) => {
+    setSelectedAsteroid(asteroid);
+  };
 
-      {userAsteroids.length > 0 ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {userAsteroids.map(asteroid => (
-            <div
-              key={asteroid.id}
-              className="bg-black/20 p-4 rounded-lg hover:bg-black/30 transition-all duration-300"
-            >
-              <div className="flex flex-col items-center">
-                <div className="w-32 h-32 relative mb-4">
-                  <AstroidSVG id={asteroid.id.toString()} size={120} />
+  const handleGalaxyClick = () => {
+    setIsExpanded(true);
+  };
+
+  return (
+    <div className="flex justify-center items-start w-full py-10 bg-transparent gap-8">
+      <div
+        className="relative flex-1 max-w-5xl h-[200px] w-[80%] bg-black text-white rounded-2xl overflow-hidden shadow-2xl perspective-3d cursor-pointer hover:shadow-blue-500/20 hover:shadow-xl transition-all duration-300"
+        onClick={handleGalaxyClick}
+      >
+        <div className="absolute inset-0 transform-gpu rotate-x-[25deg] rotate-z-[10deg] [transform-style:preserve-3d]">
+          <Sun size={16} />
+
+          {/*{ORBIT_LANES.map((lane, index) => (
+            <OrbitPath key={index} {...lane} />
+          ))}
+
+          {/* Code for the Orbiting asteroids*/}
+          {userAsteroids.map((asteroid, index) => {
+            const lane = ORBIT_LANES[index % ORBIT_LANES.length];
+            return (
+              <div
+                key={asteroid.id}
+                className="absolute top-1/2 left-1/2 [transform-style:preserve-3d]"
+                style={{
+                  width: `${lane.radius * 2}px`,
+                  height: `${lane.radius * 2}px`,
+                  marginLeft: `-${lane.radius}px`,
+                  marginTop: `-${lane.radius}px`,
+                  transform: `translateZ(${lane.depth}px) rotateX(${lane.tilt}deg)`,
+                  animation: `spin ${lane.duration}s linear infinite`,
+                }}
+              >
+                <div
+                  className="absolute inset-0 rounded-full border border-white/10"
+                  style={{ transform: 'scale(1, 0.3)' }}
+                />
+                <div
+                  className="absolute left-1/2 top-0 -translate-x-1/2 cursor-pointer transition-transform hover:scale-110"
+                  onClick={e => {
+                    e.stopPropagation();
+                    handleAsteroidClick(asteroid);
+                  }}
+                  style={{
+                    filter:
+                      asteroid.id === selectedAsteroid?.id
+                        ? 'drop-shadow(0 0 10px #fff)'
+                        : 'none',
+                  }}
+                >
+                  <AsteroidSVG id={asteroid.id.toString()} size={40} />
                 </div>
-                <h3 className="text-white font-bold">Asteroid {asteroid.id}</h3>
-                <p className="text-gray-400 text-sm">
-                  {asteroid.isMyfavotire ? '⭐ Favorite' : ''}
-                </p>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Code for the Info Panel */}
+      {/*<div className="w-[20%] min-w-[230px] bg-gray-900/80 backdrop-blur-lg p-6 rounded-xl border border-gray-700 shadow-lg">
+        <AsteroidDetails asteroid={selectedAsteroid} />
+      </div>/*}
+
+      {/* Code for Expanding the Galaxy model*/}
+      {isExpanded && (
+        <div
+          className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center"
+          onClick={() => setIsExpanded(false)}
+        >
+          <div
+            className="w-[90vw] h-[90vh] bg-black/80 rounded-3xl overflow-hidden perspective-3d"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="absolute inset-0 transform-gpu rotate-x-[25deg] rotate-z-[10deg] [transform-style:preserve-3d]">
+              <Sun size={64} />
+
+              {ORBIT_LANES.map((lane, index) => (
+                <div
+                  key={`expanded-${index}`}
+                  className="absolute top-1/2 left-1/2 [transform-style:preserve-3d]"
+                  style={{
+                    width: `${lane.radius * 6}px`,
+                    height: `${lane.radius * 6}px`,
+                    marginLeft: `-${lane.radius * 3}px`,
+                    marginTop: `-${lane.radius * 3}px`,
+                    transform: `translateZ(${lane.depth * 3}px) rotateX(${lane.tilt}deg)`,
+                    animation: `spin ${lane.duration * 2}s linear infinite`,
+                  }}
+                >
+                  <OrbitPath
+                    radius={lane.radius * 3}
+                    depth={lane.depth * 3}
+                    tilt={lane.tilt}
+                  />
+                </div>
+              ))}
+
+              {/* Orbiting asteroids in model */}
+              {userAsteroids.map((asteroid, index) => {
+                const lane = {
+                  radius: ORBIT_LANES[index % ORBIT_LANES.length].radius * 3,
+                  depth: ORBIT_LANES[index % ORBIT_LANES.length].depth * 3,
+                  duration: ORBIT_LANES[index % ORBIT_LANES.length].duration,
+                  tilt: ORBIT_LANES[index % ORBIT_LANES.length].tilt,
+                };
+
+                return (
+                  <div
+                    key={`modal-${asteroid.id}`}
+                    className="absolute top-1/2 left-1/2 [transform-style:preserve-3d]"
+                    style={{
+                      width: `${lane.radius * 2}px`,
+                      height: `${lane.radius * 2}px`,
+                      marginLeft: `-${lane.radius}px`,
+                      marginTop: `-${lane.radius}px`,
+                      transform: `translateZ(${lane.depth}px) rotateX(${lane.tilt}deg)`,
+                      animation: `spin ${lane.duration}s linear infinite`,
+                    }}
+                  >
+                    <div
+                      className="absolute left-1/2 top-0 -translate-x-1/2 cursor-pointer transition-transform hover:scale-110"
+                      onClick={() => handleAsteroidClick(asteroid)}
+                      style={{
+                        filter:
+                          asteroid.id === selectedAsteroid?.id
+                            ? 'drop-shadow(0 0 10px #fff)'
+                            : 'none',
+                      }}
+                    >
+                      <AsteroidSVG id={asteroid.id.toString()} size={80} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Asteroid Details Modal */}
+          {selectedAsteroid && (
+            <div
+              className="fixed inset-0 flex items-center justify-center z-60"
+              onClick={() => setSelectedAsteroid(null)}
+            >
+              <div
+                className="bg-gray-900/90 text-white p-6 rounded-2xl border border-gray-700 shadow-2xl w-[400px] max-w-[90vw] backdrop-blur-xl"
+                onClick={e => e.stopPropagation()}
+              >
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-xl font-bold">Asteroid Details</h3>
+                  <button
+                    className="text-gray-400 hover:text-white"
+                    onClick={() => setSelectedAsteroid(null)}
+                  >
+                    ✕
+                  </button>
+                </div>
+                <AsteroidDetails asteroid={selectedAsteroid} />
               </div>
             </div>
-          ))}
-        </div>
-      ) : (
-        <div className="text-white text-center p-8">
-          <p className="mb-4">You have not purchased any asteroids yet </p>
-          <a
-            href="/shop"
-            className="bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700 text-white px-6 py-2 rounded shadow hover:scale-105 hover:shadow-xl transition cursor-pointer inline-block"
+          )}
+
+          {/* Close button for the model */}
+          <button
+            className="absolute top-4 right-4 text-white/80 hover:text-white text-xl"
+            onClick={() => setIsExpanded(false)}
           >
-            Browse Shop
-          </a>
+            ✕
+          </button>
         </div>
       )}
-    </div>
-  );
-}
 
-/*
-  return (
-    <div>
-      <h2 className="text-2xl font-extrabold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-300 bg-clip-text text-transparent drop-shadow-lg">
-        Galaxy
-      </h2>
-      <p className="text-white mt-2">Galaxy is here.</p>
+      {/* Animations */}
+      <style jsx>{`
+        @keyframes spin {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
+        }
+
+        .perspective-3d {
+          perspective: 800px;
+        }
+      `}</style>
     </div>
   );
 }
-*/
