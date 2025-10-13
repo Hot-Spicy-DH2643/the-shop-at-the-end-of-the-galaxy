@@ -100,6 +100,7 @@ export default function AsteroidModal({
                 <td className="px-4 py-3 text-pink-100">
                   AMO (Near-Earth asteroid orbits){' '}
                   {/* TODO: These need to be updated with real values. */}
+                  {asteroid.orbital_data?.orbit_class.orbit_class_type} + ({asteroid.orbital_data?.orbit_class.orbit_class_description})
                 </td>
               </tr>
               <tr className="border-b border-gray-800 last:border-b-0">
@@ -116,13 +117,16 @@ export default function AsteroidModal({
                 </td>
                 <td className="px-4 py-3">
                   <span className="inline-block mr-2 mb-2 bg-gradient-to-r from-gray-800 via-gray-900 to-black text-purple-200 text-xs font-mono px-3 py-1 rounded-full border border-purple-900 shadow-sm tracking-tight">
-                    a = 1.458 AU
+                    a = ({asteroid.orbital_data?.semi_major_axis}).toFixed(3) AU
                   </span>
                   <span className="inline-block mr-2 mb-2 bg-gradient-to-r from-gray-800 via-gray-900 to-black text-purple-200 text-xs font-mono px-3 py-1 rounded-full border border-purple-900 shadow-sm tracking-tight">
-                    e = 0.223
+                    e = ({asteroid.orbital_data?.eccentricity}).toFixed(3)
                   </span>
                   <span className="inline-block mr-2 bg-gradient-to-r from-gray-800 via-gray-900 to-black text-purple-200 text-xs font-mono px-3 py-1 rounded-full border border-purple-900 shadow-sm tracking-tight">
-                    i = 10.83&deg;
+                    i = ({asteroid.orbital_data?.inclination}).toFixed(3)&deg;
+                  </span>
+                  <span className="inline-block mr-2 bg-gradient-to-r from-gray-800 via-gray-900 to-black text-purple-200 text-xs font-mono px-3 py-1 rounded-full border border-purple-900 shadow-sm tracking-tight">
+                    {asteroid.nasa_jpl_url}
                   </span>
                 </td>
               </tr>
@@ -153,30 +157,26 @@ export default function AsteroidModal({
                 <tr className="border-b border-gray-800 last:border-b-0">
                   <td className="px-4 py-3 font-semibold">Next Approach</td>
                   <td className="px-4 py-3">
-                    2025-11-30 02:18 <br />
+                    {asteroid.close_approach_data[0].close_approach_date_full}
+                    <br />
                     <a
                       href="#"
                       className="text-purple-400 underline hover:text-purple-200"
                     >
+                      {/*TODO add functionality for calender*/}
                       Add to calendar
                     </a>
                   </td>
                   <td className="px-4 py-3">
-                    0.39765 AU
+                    ({asteroid.close_approach_data[0].miss_distance.astronomical}).toFixed(5) AU
                     <br />
-                    <span className="text-xs text-gray-400">(-59.49M km)</span>
+                    <span className="text-xs text-gray-400">
+                      ({asteroid.close_approach_data[0].miss_distance.kilometers}/1000000).toFixed(2) M km
+                    </span>
                   </td>
-                  <td className="px-4 py-3">3.73 km/s</td>
-                </tr>
-                <tr>
-                  <td className="px-4 py-3 font-semibold">Last Approach</td>
-                  <td className="px-4 py-3">2024-11-30 02:11</td>
                   <td className="px-4 py-3">
-                    0.20860 AU
-                    <br />
-                    <span className="text-xs text-gray-400">(~31.21M km)</span>
+                    ({asteroid.close_approach_data[0].relative_velocity.kilometers_per_second}).toFixed(2) km/s
                   </td>
-                  <td className="px-4 py-3">6.04 km/s</td>
                 </tr>
               </tbody>
             </table>
