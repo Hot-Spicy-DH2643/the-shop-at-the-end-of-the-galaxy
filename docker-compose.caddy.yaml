@@ -32,8 +32,8 @@ services:
     build: ./frontend
     environment:
       - PORT=3000
-      - NEXT_PUBLIC_API_URL=http://localhost/api
-      - NEXT_PUBLIC_GRAPHQL_URI=http://localhost/graphql
+      - NEXT_PUBLIC_GRAPHQL_URI=https://the-shop-at-the-end-of-the-galaxy.lambozhuang.me/graphql
+      - NEXT_PUBLIC_BACKEND_URL=https://the-shop-at-the-end-of-the-galaxy.lambozhuang.me/api
       - WATCHPACK_POLLING=true
       - CHOKIDAR_USEPOLLING=true
       - CHOKIDAR_INTERVAL=1000
