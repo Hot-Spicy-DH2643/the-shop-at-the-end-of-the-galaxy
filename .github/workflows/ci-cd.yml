@@ -10,6 +10,16 @@ jobs:
     runs-on: self-hosted
 
     steps:
+      - name: Clean workspace
+        run: |
+          echo "Cleaning workspace..."
+          # Stop any running containers first
+          docker compose -f docker-compose.caddy.yaml down -v 2>/dev/null || true
+          # Clean node_modules and other Docker-created files
+          sudo rm -rf backend/node_modules frontend/node_modules frontend/.next 2>/dev/null || true
+          # Alternative: Use Docker to clean files with proper permissions
+          docker run --rm -v "$PWD":/workspace alpine sh -c "rm -rf /workspace/backend/node_modules /workspace/frontend/node_modules /workspace/frontend/.next" 2>/dev/null || true
+
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -60,13 +70,20 @@ jobs:
         run: |
           echo "✅ Deployment completed successfully!"
           echo ""
-          echo "🌐 Your application is now accessible through Caddy:"
-          echo "   Main Site: http://localhost"
-          echo "   GraphQL API: http://localhost/graphql"
-          echo "   Backend API: http://localhost/api"
+          echo "🌐 Your application is now accessible at:"
+          echo "   Main Site: https://the-shop-at-the-end-of-the-galaxy.lambozhuang.me"
+          echo "   GraphQL API: https://the-shop-at-the-end-of-the-galaxy.lambozhuang.me/graphql"
+          echo "   Backend API: https://the-shop-at-the-end-of-the-galaxy.lambozhuang.me/api"
           echo ""
           echo "📊 To view logs:"
           echo "   All services: docker compose -f docker-compose.caddy.yaml logs -f"
           echo "   Caddy only: docker compose -f docker-compose.caddy.yaml logs -f caddy"
           echo "   Backend only: docker compose -f docker-compose.caddy.yaml logs -f backend"
           echo "   Frontend only: docker compose -f docker-compose.caddy.yaml logs -f frontend"
+
+      - name: Cleanup on failure
+        if: failure()
+        run: |
+          echo "Cleaning up after failure..."
+          docker compose -f docker-compose.caddy.yaml down -v || true
+          docker compose -f docker-compose.caddy.yaml logs --tail=50 || true
