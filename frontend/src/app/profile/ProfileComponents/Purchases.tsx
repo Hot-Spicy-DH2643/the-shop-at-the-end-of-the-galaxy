@@ -1,21 +1,22 @@
 'use client';
 import { useEffect, useState } from 'react';
-import type { UserData, shopAsteroid } from '@/store/AppModel';
-import type { User as FirebaseUser } from 'firebase/auth';
-
-import AsteroidSVGMoving from '@/components/asteroidSVGMoving';
+import type { shopAsteroid } from '@/store/AppModel';
+import { useAuthStore } from '@/store/useAuthViewModel';
 import { useAppStore } from '@/store/useAppViewModel';
 
-export default function Purchases({
-  firebaseUser,
-  userData,
-}: {
-  firebaseUser: FirebaseUser;
-  userData: UserData;
-}) {
+import AsteroidSVGMoving from '@/components/asteroidSVGMoving';
+
+export default function Purchases() {
+  const { user: firebaseUser } = useAuthStore();
+  const { userData, setUserData } = useAppStore();
+
+  useEffect(() => {
+    setUserData();
+  }, []);
+
   // const owned_asteroids = []; // For testing no purchases
-  const owned_asteroids = userData.owned_asteroids;
-  const favoriteAsteroids = userData.favorite_asteroids;
+  const owned_asteroids = userData?.owned_asteroids;
+  const favoriteAsteroids = userData?.favorite_asteroids;
 
   const [zeroPurchaseId, setZeroPurchaseId] = useState<string>('0000000');
 
@@ -25,7 +26,7 @@ export default function Purchases({
   >([]);
 
   useEffect(() => {
-    if (owned_asteroids.length === 0) {
+    if (owned_asteroids?.length === 0) {
       const id = Math.floor(Math.random() * 10000000)
         .toString()
         .padStart(7, '0');
@@ -37,15 +38,15 @@ export default function Purchases({
   }, []);
 
   useEffect(() => {
-    if (asteroids.length > 0 && owned_asteroids.length > 0) {
+    if (asteroids.length > 0) {
       setShowOwnedAsteroids(
-        asteroids.filter(asteroid => owned_asteroids.includes(asteroid.id))
+        asteroids.filter(asteroid => owned_asteroids?.includes(asteroid.id))
       );
       console.log('Owned asteroids detail:', show_owned_asteroids);
     }
   }, [asteroids, owned_asteroids]);
 
-  if (owned_asteroids.length === 0) {
+  if (owned_asteroids?.length === 0) {
     return (
       <div className="text-white">
         <h2 className="text-2xl font-extrabold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-300 bg-clip-text text-transparent drop-shadow-lg">
@@ -64,7 +65,7 @@ export default function Purchases({
             <AsteroidSVGMoving id={zeroPurchaseId} size={100} bgsize={160} />
           </div>
           <p className="ml-10 text-lg">
-            <span className="font-bold">{firebaseUser.displayName}</span> has{' '}
+            <span className="font-bold">{firebaseUser?.displayName}</span> has{' '}
             <span className="block sm:inline"> </span>
             <span className="font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
               no{' '}
@@ -86,9 +87,9 @@ export default function Purchases({
       </h2>
 
       <p className="mt-4 text-lg">
-        <span className="font-bold">{firebaseUser.displayName}</span> has{' '}
+        <span className="font-bold">{firebaseUser?.displayName}</span> has{' '}
         <span className="font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-          {owned_asteroids.length}
+          {owned_asteroids?.length}
         </span>{' '}
         asteroids.
       </p>
@@ -100,7 +101,7 @@ export default function Purchases({
             className="relative rounded bg-[rgba(23,23,23,0.7)]1 shadow text-center cursor-pointer"
           >
             <div className="p-6">
-              {favoriteAsteroids.includes(asteroid.id) ? (
+              {favoriteAsteroids?.includes(asteroid.id) ? (
                 <p className="font-bold font-3xl mt-4 text-yellow-300 absolute top-2 left-2 z-40">
                   ⭐️
                 </p>

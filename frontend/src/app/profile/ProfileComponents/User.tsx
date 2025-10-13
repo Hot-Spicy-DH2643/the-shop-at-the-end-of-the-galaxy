@@ -1,14 +1,16 @@
 'use client';
-import type { UserData } from '@/store/AppModel';
-import type { User as FirebaseUser } from 'firebase/auth';
+import { useEffect } from 'react';
+import { useAppStore } from '@/store/useAppViewModel';
+import { useAuthStore } from '@/store/useAuthViewModel';
 
-export default function User({
-  firebaseUser,
-  userData,
-}: {
-  firebaseUser: FirebaseUser;
-  userData: UserData;
-}) {
+export default function User() {
+  const { user: firebaseUser } = useAuthStore();
+  const { userData, setUserData } = useAppStore();
+
+  useEffect(() => {
+    setUserData();
+  }, []);
+
   return (
     <div className="text-white">
       <h2 className="text-2xl font-extrabold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-300 bg-clip-text text-transparent drop-shadow-lg">
@@ -20,20 +22,20 @@ export default function User({
         <tbody>
           <tr>
             <td className="font-bold">Name:</td>
-            <td>{firebaseUser.displayName}</td>
+            <td>{firebaseUser?.displayName}</td>
           </tr>
           <tr>
             <td className="font-bold">Email:</td>
-            <td>{firebaseUser.email}</td>
+            <td>{firebaseUser?.email}</td>
           </tr>
           <tr>
             <td className="font-bold">Owned:</td>
-            <td>{userData.owned_asteroids.length} asteroids</td>
+            <td>{userData?.owned_asteroids.length} asteroids</td>
           </tr>
           <tr>
             <td className="font-bold">Have:</td>
-            {userData.friends.length !== 0 ? (
-              <td>{userData.friends.length} friends</td>
+            {userData?.friends.length !== 0 ? (
+              <td>{userData?.friends.length} friends</td>
             ) : (
               <td>0 friend</td>
             )}

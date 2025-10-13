@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import Sun from '@/components/centralPlanet';
 import OrbitPath from '@/components/orbitingAsteroid';
-import type { Asteroid, UserData } from '@/store/AppModel';
 import AsteroidDetails from '@/components/asteroidDetails';
 import AsteroidSVG from '@/components/asteroidSVG';
 import '@/app/globals.css';
@@ -17,16 +16,24 @@ const ORBIT_LANES = [
 //TODO: I am gonna structure up this code, now I have just written everything
 //TODO: to make sure it works, but do not worry! :D
 
-export default function Galaxy({ userData }: { userData: UserData }) {
+export default function Galaxy() {
   const [userAsteroids, setUserAsteroids] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedAsteroid, setSelectedAsteroid] = useState<string | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
 
+  const { userData, setUserData } = useAppStore();
+
+  useEffect(() => {
+    setUserData();
+  }, []);
+
   useEffect(() => {
     console.log('User Data in Galaxy:', userData);
-    setUserAsteroids(userData.owned_asteroids);
+    if (userData) {
+      setUserAsteroids(userData.owned_asteroids);
+    }
     setLoading(false);
   }, []);
 

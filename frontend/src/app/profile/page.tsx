@@ -4,18 +4,11 @@ import Navbar from '@/components/navbar';
 import ProfileTab from './ProfileTabs';
 
 import { useAuthStore } from '@/store/useAuthViewModel';
-import { useAppStore } from '@/store/useAppViewModel';
-import { useEffect } from 'react';
 
 export default function Profile() {
   const { user } = useAuthStore();
-  const { userData, setUserData, loading } = useAppStore();
 
-  useEffect(() => {
-    setUserData();
-  }, []);
-
-  if (!user || loading || !userData) {
+  if (!user) {
     return (
       <div className="galaxy-bg-space min-h-screen">
         <Navbar />
@@ -60,7 +53,7 @@ export default function Profile() {
         </div>
 
         {/* Buttons beside image */}
-        <ProfileTab firebaseUser={user} userData={userData} />
+        <ProfileTab />
       </div>
     </div>
   );
