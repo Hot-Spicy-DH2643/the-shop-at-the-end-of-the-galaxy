@@ -1,0 +1,20 @@
+type DailyClaimStatus {
+  isAvailable: Boolean!
+  nextClaimTime: String
+  coinsToEarn: Int!
+}
+
+type ClaimResult {
+  success: Boolean!
+  coinsEarned: Int!
+  message: String!
+  nextClaimTime: String!
+}
+
+extend type Query {
+  checkDailyClaim: DailyClaimStatus!
+}
+
+extend type Mutation {
+  claimDailyReward: ClaimResult!
+}
