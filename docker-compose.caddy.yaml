@@ -18,7 +18,6 @@ services:
       - NODE_ENV=production
     env_file:
       - ./backend/.env
-    # Remove port exposure - only accessible through Caddy
     expose:
       - "3001"
     volumes:
@@ -27,6 +26,20 @@ services:
     depends_on:
       - mongo
     command: sh -c "npm install --production && npm start"
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:3001/",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - app-network
 
@@ -37,16 +50,31 @@ services:
       - NODE_ENV=production
       - NEXT_PUBLIC_GRAPHQL_URI=https://the-shop-at-the-end-of-the-galaxy.lambozhuang.me/graphql
       - NEXT_PUBLIC_BACKEND_URL=https://the-shop-at-the-end-of-the-galaxy.lambozhuang.me/api
-    # Remove port exposure - only accessible through Caddy
     expose:
       - "3000"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     volumes:
       - ./frontend:/app
       - /app/node_modules
       - /app/.next
     command: sh -c "npm install --production && npm run build && npm start"
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:3000/",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
     networks:
       - app-network
 
@@ -54,16 +82,18 @@ services:
     image: caddy:2-alpine
     restart: unless-stopped
     ports:
-      - "80:80" # HTTP
-      - "443:443" # HTTPS
-      - "443:443/udp" # HTTP/3
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
       - caddy-data:/data
       - caddy-config:/config
     depends_on:
-      - frontend
-      - backend
+      frontend:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
     networks:
       - app-network
 
