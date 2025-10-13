@@ -47,6 +47,7 @@ services:
     environment:
       - PORT=3000
       - NODE_ENV=production
+      - CI=true
       - NEXT_PUBLIC_GRAPHQL_URI=https://the-shop-at-the-end-of-the-galaxy.lambozhuang.me/graphql
       - NEXT_PUBLIC_BACKEND_URL=https://the-shop-at-the-end-of-the-galaxy.lambozhuang.me/api
     expose:
@@ -58,7 +59,7 @@ services:
       - ./frontend:/app
       - /app/node_modules
       - /app/.next
-    command: sh -c "npm install && npm run build && npm start"
+    command: sh -c "pnpm install && pnpm run build && pnpm start"
     restart: unless-stopped
     healthcheck:
       test:
