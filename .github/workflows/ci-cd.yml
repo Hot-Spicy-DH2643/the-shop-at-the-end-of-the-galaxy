@@ -1,0 +1,61 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - production # Change this to your protected branch name
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up environment files
+        run: |
+          # Copy .env files from the runner's secure location
+          if [ -f "$HOME/.github-secrets/the-shop-at-the-end-of-the-galaxy/backend/.env" ]; then
+            cp "$HOME/.github-secrets/the-shop-at-the-end-of-the-galaxy/backend/.env" ./backend/.env
+            echo "✅ Backend .env file copied"
+          else
+            echo "⚠️  Backend .env file not found, using defaults"
+          fi
+
+          if [ -f "$HOME/.github-secrets/the-shop-at-the-end-of-the-galaxy/frontend/.env.local" ]; then
+            cp "$HOME/.github-secrets/the-shop-at-the-end-of-the-galaxy/frontend/.env.local" ./frontend/.env.local
+            echo "✅ Frontend .env.local file copied"
+          else
+            echo "⚠️  Frontend .env.local file not found, using defaults"
+          fi
+
+      - name: Stop existing containers
+        run: |
+          echo "Stopping existing containers..."
+          docker compose down -v || true
+
+      - name: Deploy Application
+        run: |
+          echo "Building and starting application with Docker Compose..."
+          docker compose up -d --build
+
+      - name: Wait for services to be ready
+        run: |
+          echo "Waiting for services to start..."
+          sleep 15
+          echo "Checking backend status..."
+          curl -f http://localhost:3001 || echo "Backend is still starting..."
+          echo "Checking frontend status..."
+          curl -f http://localhost:3000 || echo "Frontend is still starting..."
+
+      - name: Show running containers
+        run: docker compose ps
+
+      - name: Deployment Complete
+        run: |
+          echo "✅ Deployment completed successfully!"
+          echo "Backend: http://localhost:3001"
+          echo "Frontend: http://localhost:3000"
+          echo ""
+          echo "To view logs, run: docker compose logs -f"
