@@ -1,8 +1,9 @@
+'use client';
 import Image from 'next/image';
-import type { User as UserType } from '@/store/AppModel';
+import type { UserData } from '@/store/AppModel';
 import { useRouter } from 'next/navigation';
 
-export default function Friends({ user }: { user: UserType }) {
+export default function Friends({ user }: { user: UserData }) {
   // const friends = [];
   const friends = user.friends;
 
