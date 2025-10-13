@@ -5,23 +5,14 @@ import AsteroidSVG from '@/components/asteroidSVG';
 import AsteroidSVGMoving from '@/components/asteroidSVGMoving';
 import Image from 'next/image';
 import Navbar from '@/components/navbar';
-
-interface Asteroid {
-  id: string;
-  name: string;
-  price: number;
-  image?: string;
-}
+import { useAppStore } from '@/store/useAppViewModel';
 
 //TODO: Right now hardcoded with fake data. Just to be able to style it.
 // I am gonna work on the functionality
 
 export default function Checkout() {
-  const [cart, setCart] = useState<Asteroid[]>([
-    { id: '1019283', name: 'Nebula Fragment', price: 120 },
-    { id: '1022837', name: 'Crimson Rock', price: 90 },
-    { id: '1030192', name: 'Frozen Comet', price: 150 },
-  ]);
+  const cart = useAppStore(state => state.cart);
+  const clearCart = useAppStore(state => state.clearCart);
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -33,7 +24,7 @@ export default function Checkout() {
     setTimeout(() => {
       setIsProcessing(false);
       setIsSuccess(true);
-      setCart([]);
+      clearCart();
     }, 1500);
   };
 
@@ -46,8 +37,9 @@ export default function Checkout() {
             Your new asteroids are now orbiting in your galaxy
           </p>
           <button
+            //Need to navigate back to shop
             onClick={() => setIsSuccess(false)}
-            className="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 transition text-lg font-semibold"
+            className="px-6 py-3 rounded-xl transition text-lg font-semibold bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700 cursor-pointer hover:scale-102 hover:shadow-[0_0_20px_4px_rgba(236,72,255,0.6)] hover:brightness-110"
           >
             Back to Shop
           </button>
