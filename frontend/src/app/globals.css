@@ -14,12 +14,13 @@
   --font-modak: 'Modak', cursive;
 }
 
-@media (prefers-color-scheme: dark) {
+/* Automatic dark mode disabled */
+/* @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
   }
-}
+} */
 
 body {
   background: var(--background);
