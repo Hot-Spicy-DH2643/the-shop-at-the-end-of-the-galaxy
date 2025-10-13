@@ -1,6 +1,8 @@
-# Caddyfile - Production Configuration with Cloudflare
+# Caddyfile - Production Configuration with Cloudflare Flexible SSL
 
-the-shop-at-the-end-of-the-galaxy.lambozhuang.me { # Frontend - serve the main site
+# Cloudflare handles HTTPS, Caddy serves HTTP only (no certificate needed)
+
+http://the-shop-at-the-end-of-the-galaxy.lambozhuang.me { # Frontend - serve the main site
 reverse_proxy frontend:3000 { # Forward Cloudflare headers
 header_up X-Real-IP {http.request.header.Cf-Connecting-Ip}
 }
