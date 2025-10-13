@@ -195,7 +195,8 @@ export default function Shop() {
                   />
                 ))}
           </ul>
-
+          
+          {/* Pagination */}
           {!loading && totalPages > 1 && (
             <div className="flex flex-col items-center gap-3 py-8">
               <div className="flex justify-center items-center gap-2">
@@ -267,6 +268,7 @@ export default function Shop() {
               </span>
             </div>
           )}
+
         </div>
       </section>
 
