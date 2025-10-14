@@ -20,24 +20,26 @@ export async function getUserById(userId) {
     }
 
     const owned_asteroids = await Asteroid.find(
-      { uid: { $in: user.followers } },
+      { id: { $in: user.owned_asteroids } },
       {
         id: 1,
         name: 1,
         is_potentially_hazardous_asteroid: 1,
         price: 1,
         size: 1,
+        _id: 0,
       }
     );
 
     const starred_asteroids = await Asteroid.find(
-      { uid: { $in: user.followers } },
+      { id: { $in: user.starred_asteroids } },
       {
         id: 1,
         name: 1,
         is_potentially_hazardous_asteroid: 1,
         price: 1,
         size: 1,
+        _id: 0,
       }
     );
 
