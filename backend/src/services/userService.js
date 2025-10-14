@@ -1,4 +1,5 @@
 import { User } from '../models/User.js';
+import { Asteroid } from '../models/Asteroid.js';
 
 export async function getAllUsers() {
   try {
@@ -18,21 +19,45 @@ export async function getUserById(userId) {
       return null;
     }
 
+    const owned_asteroids = await Asteroid.find(
+      { uid: { $in: user.followers } },
+      {
+        id: 1,
+        name: 1,
+        is_potentially_hazardous_asteroid: 1,
+        price: 1,
+        size: 1,
+      }
+    );
+
+    const starred_asteroids = await Asteroid.find(
+      { uid: { $in: user.followers } },
+      {
+        id: 1,
+        name: 1,
+        is_potentially_hazardous_asteroid: 1,
+        price: 1,
+        size: 1,
+      }
+    );
+
     // Fetch followers' details
     const followers = await User.find(
-      { uid: { $in: user.follower_ids } },
+      { uid: { $in: user.followers } },
       { uid: 1, name: 1, _id: 0 }
     );
 
     // Fetch following users' details
     const following = await User.find(
-      { uid: { $in: user.following_ids } },
+      { uid: { $in: user.following } },
       { uid: 1, name: 1, _id: 0 }
     );
 
     // Transform the user object to include followers and following
     return {
       ...user.toObject(),
+      starred_asteroids,
+      owned_asteroids,
       followers,
       following,
     };

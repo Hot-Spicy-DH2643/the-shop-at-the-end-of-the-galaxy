@@ -89,15 +89,23 @@ type Friend = {
   name: string;
 };
 
+type UserAsteriod = {
+  id: string;
+  name: string;
+  is_potentially_hazardous_asteroid: boolean;
+  price: number;
+  size: number;
+};
+
 export type UserData = {
   uid: string;
   name: string;
   coins: number;
-  owned_asteroid_ids: string[];
-  starred_asteroid_ids: string[];
+  owned_asteroids: UserAsteriod[];
+  starred_asteroids: UserAsteriod[];
   followers: Friend[];
   following: Friend[];
-  cart_asteroid_ids: string[];
+  cart_asteroids: UserAsteriod[];
 };
 
 export type AppState = {
@@ -278,8 +286,20 @@ const GET_USER_BY_ID = gql`
       uid
       name
       coins
-      owned_asteroid_ids
-      starred_asteroid_ids
+      owned_asteroids {
+        id
+        name
+        is_potentially_hazardous_asteroid
+        price
+        size
+      }
+      starred_asteroids {
+        id
+        name
+        is_potentially_hazardous_asteroid
+        price
+        size
+      }
       followers {
         uid
         name
@@ -288,7 +308,12 @@ const GET_USER_BY_ID = gql`
         uid
         name
       }
-      cart_asteroid_ids
+      cart_asteroids {
+        id
+        name
+        price
+        size
+      }
     }
   }
 `;

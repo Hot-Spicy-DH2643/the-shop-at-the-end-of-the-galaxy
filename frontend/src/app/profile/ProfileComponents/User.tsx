@@ -30,7 +30,7 @@ export default function User() {
           </tr>
           <tr>
             <td className="font-bold">Owned:</td>
-            <td>{userData?.owned_asteroid_ids.length} asteroids</td>
+            <td>{userData?.owned_asteroids.length} asteroids</td>
           </tr>
           <tr>
             <td className="font-bold">Have:</td>
