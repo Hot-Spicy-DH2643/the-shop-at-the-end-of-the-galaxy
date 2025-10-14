@@ -34,8 +34,8 @@ export default function User() {
           </tr>
           <tr>
             <td className="font-bold">Have:</td>
-            {userData?.following_ids.length !== 0 ? (
-              <td>{userData?.following_ids.length} friends</td>
+            {userData?.following.length !== 0 ? (
+              <td>{userData?.following.length} friends</td>
             ) : (
               <td>0 friend</td>
             )}

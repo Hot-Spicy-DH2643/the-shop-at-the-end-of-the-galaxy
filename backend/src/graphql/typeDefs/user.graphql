@@ -1,11 +1,16 @@
+type Friend {
+  uid: String!
+  name: String!
+}
+
 type User {
   uid: String!
   name: String!
   coins: Int!
   owned_asteroid_ids: [String!]!
   starred_asteroid_ids: [String!]!
-  follower_ids: [String!]!
-  following_ids: [String!]!
+  followers: [Friend!]!
+  following: [Friend!]!
   cart_asteroid_ids: [String!]!
 }
 

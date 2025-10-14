@@ -84,14 +84,19 @@ export type shopAsteroid = Asteroid & {
   };
 };
 
+type Friend = {
+  uid: string;
+  name: string;
+};
+
 export type UserData = {
   uid: string;
   name: string;
   coins: number;
   owned_asteroid_ids: string[];
   starred_asteroid_ids: string[];
-  follower_ids: string[];
-  following_ids: string[];
+  followers: Friend[];
+  following: Friend[];
   cart_asteroid_ids: string[];
 };
 
@@ -275,8 +280,14 @@ const GET_USER_BY_ID = gql`
       coins
       owned_asteroid_ids
       starred_asteroid_ids
-      follower_ids
-      following_ids
+      followers {
+        uid
+        name
+      }
+      following {
+        uid
+        name
+      }
       cart_asteroid_ids
     }
   }

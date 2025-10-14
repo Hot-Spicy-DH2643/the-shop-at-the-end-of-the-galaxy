@@ -96,12 +96,6 @@ export const loginHandler = async (req, res) => {
           uid: user.uid,
           name: user.name || 'Unnamed User',
           // All other fields will use their default values from the schema
-          // coins: 200 (default)
-          // owned_asteroid_ids: [] (default)
-          // starred_asteroid_ids: [] (default)
-          // follower_ids: [] (default)
-          // following_ids: [] (default)
-          // cart_asteroid_ids: [] (default)
         });
 
         await dbUser.save();
