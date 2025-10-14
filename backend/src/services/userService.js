@@ -1,4 +1,4 @@
-import { User } from '../models/User';
+import { User } from '../models/User.js';
 
 export async function getAllUsers() {
   try {
@@ -12,7 +12,7 @@ export async function getAllUsers() {
 
 export async function getUserById(userId) {
   try {
-    const user = await User.findOne({ id: userId });
+    const user = await User.findOne({ uid: userId });
     return user;
   } catch (error) {
     console.error(`Error getting users by ${userId}:`, error.message);

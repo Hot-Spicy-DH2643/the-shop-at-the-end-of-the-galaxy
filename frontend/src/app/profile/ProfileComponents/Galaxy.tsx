@@ -32,7 +32,7 @@ export default function Galaxy() {
   useEffect(() => {
     console.log('User Data in Galaxy:', userData);
     if (userData) {
-      setUserAsteroids(userData.owned_asteroids);
+      setUserAsteroids(userData.owned_asteroid_ids);
     }
     setLoading(false);
   }, []);

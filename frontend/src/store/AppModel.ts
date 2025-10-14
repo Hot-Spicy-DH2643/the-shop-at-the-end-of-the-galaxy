@@ -51,7 +51,7 @@ export interface Asteroid {
 export type shopAsteroid = Asteroid & {
   price: number;
   ownership_id: string | null;
-  is_starred: boolean;
+  starred_asteroid_ids: boolean;
   size: number;
   orbital_data?: {
     orbit_id: string;
@@ -84,26 +84,20 @@ export type shopAsteroid = Asteroid & {
   };
 };
 
-type Friend = {
-  id: string;
-  name: string;
-  username: string;
-  email: string;
-};
-
 export type UserData = {
-  id: number;
+  uid: string;
   name: string;
-  username: string;
-  email: string;
   coins: number;
-  owned_asteroids: string[];
-  favorite_asteroids: string[];
-  friends: Friend[];
+  owned_asteroid_ids: string[];
+  starred_asteroid_ids: string[];
+  follower_ids: string[];
+  following_ids: string[];
+  cart_asteroid_ids: string[];
 };
 
 export type AppState = {
   userData: UserData | null;
+  viewedProfile: UserData | null;
   asteroids: shopAsteroid[];
   loading: boolean;
   error: string | null;
@@ -117,6 +111,7 @@ export type AppState = {
   setAsteroids: (page?: number) => Promise<void>;
   setSelectedAsteroidId: (id: string | null) => void;
   setUserData: () => Promise<void>;
+  setViewedProfile: (uid: string) => Promise<void>;
 };
 
 // GraphQL query to fetch asteroids with pagination
@@ -251,7 +246,7 @@ export async function fetchAsteroids(
       asteroid => ({
         ...asteroid,
         ownership_id: null, // TODO: Get from user data
-        is_starred: false, // TODO: Get from user data
+        starred_asteroid_ids: false, // TODO: Get from user data
       })
     );
 
@@ -271,24 +266,27 @@ export async function fetchAsteroids(
     };
   }
 }
+
 const GET_USER_BY_ID = gql`
-  query GetUserById($id: ID!) {
-    user(id: $id) {
-      id
+  query GetUserById($uid: String!) {
+    user(uid: $uid) {
+      uid
+      name
       coins
-      owned_asteroids
-      is_starred
-      followers
-      followings
-      cart
+      owned_asteroid_ids
+      starred_asteroid_ids
+      follower_ids
+      following_ids
+      cart_asteroid_ids
     }
   }
 `;
-export async function fetchUserData(id: string): Promise<UserData | null> {
+
+export async function fetchUserData(uid: string): Promise<UserData | null> {
   try {
     const { data } = await client.query<{ user: UserData }>({
       query: GET_USER_BY_ID,
-      variables: { id },
+      variables: { uid },
       fetchPolicy: 'network-only',
     });
 

@@ -14,19 +14,19 @@ export default function Purchases() {
     setUserData();
   }, []);
 
-  // const owned_asteroids = []; // For testing no purchases
-  const owned_asteroids = userData?.owned_asteroids;
+  // const owned_asteroid_ids = []; // For testing no purchases
+  const owned_asteroid_ids = userData?.owned_asteroid_ids;
   const favoriteAsteroids = userData?.favorite_asteroids;
 
   const [zeroPurchaseId, setZeroPurchaseId] = useState<string>('0000000');
 
   const { asteroids, setAsteroids } = useAppStore();
-  const [show_owned_asteroids, setShowOwnedAsteroids] = useState<
+  const [show_owned_asteroid_ids, setShowOwnedAsteroids] = useState<
     shopAsteroid[]
   >([]);
 
   useEffect(() => {
-    if (owned_asteroids?.length === 0) {
+    if (owned_asteroid_ids?.length === 0) {
       const id = Math.floor(Math.random() * 10000000)
         .toString()
         .padStart(7, '0');
@@ -40,13 +40,13 @@ export default function Purchases() {
   useEffect(() => {
     if (asteroids.length > 0) {
       setShowOwnedAsteroids(
-        asteroids.filter(asteroid => owned_asteroids?.includes(asteroid.id))
+        asteroids.filter(asteroid => owned_asteroid_ids?.includes(asteroid.id))
       );
-      console.log('Owned asteroids detail:', show_owned_asteroids);
+      console.log('Owned asteroids detail:', show_owned_asteroid_ids);
     }
-  }, [asteroids, owned_asteroids]);
+  }, [asteroids, owned_asteroid_ids]);
 
-  if (owned_asteroids?.length === 0) {
+  if (owned_asteroid_ids?.length === 0) {
     return (
       <div className="text-white">
         <h2 className="text-2xl font-extrabold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-300 bg-clip-text text-transparent drop-shadow-lg">
@@ -89,13 +89,13 @@ export default function Purchases() {
       <p className="mt-4 text-lg">
         <span className="font-bold">{firebaseUser?.displayName}</span> has{' '}
         <span className="font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-          {owned_asteroids?.length}
+          {owned_asteroid_ids?.length}
         </span>{' '}
         asteroids.
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2">
-        {show_owned_asteroids.map((asteroid, idx) => (
+        {show_owned_asteroid_ids.map((asteroid, idx) => (
           <div
             key={asteroid.id}
             className="relative rounded bg-[rgba(23,23,23,0.7)]1 shadow text-center cursor-pointer"

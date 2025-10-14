@@ -1,9 +1,15 @@
 type User {
-  id: ID!
+  uid: String!
+  name: String!
   coins: Int!
-  owned_asteroids: [String!]!
-  is_starred: [String!]!
-  followers: [String!]!
-  followings: [String!]!
-  cart: [String!]!
+  owned_asteroid_ids: [String!]!
+  starred_asteroid_ids: [String!]!
+  follower_ids: [String!]!
+  following_ids: [String!]!
+  cart_asteroid_ids: [String!]!
+}
+
+extend type Query {
+  user(uid: String!): User
+  allUsers: [User!]!
 }

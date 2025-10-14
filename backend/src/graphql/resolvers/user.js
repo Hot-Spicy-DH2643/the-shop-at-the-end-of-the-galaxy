@@ -1,4 +1,4 @@
-import { getAllUsers, getUserById } from '../../services/userService';
+import { getAllUsers, getUserById } from '../../services/userService.js';
 
 export const userResolvers = {
   Query: {
@@ -13,12 +13,13 @@ export const userResolvers = {
     },
 
     // Get a specific user by ID
-    user: async (parent, { id }) => {
+    user: async (parent, { uid }) => {
       try {
-        return await getUserById(id);
+        console.log('Fetching user with ID:', uid);
+        return await getUserById(uid);
       } catch (error) {
         console.error('Error in user resolver:', error);
-        throw new Error(`Failed to fetch a user with ID: ${id}`);
+        throw new Error(`Failed to fetch a user with ID: ${uid}`);
       }
     },
   },

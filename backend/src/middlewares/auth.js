@@ -1,4 +1,5 @@
 import admin from 'firebase-admin';
+import { User } from '../models/User.js';
 
 // Initialize Firebase Admin
 if (!admin.apps.length) {
@@ -75,6 +76,7 @@ export const verifySession = async req => {
 
 /**
  * Login endpoint handler - verifies Firebase token and creates session
+ * Also creates a new user in the database if this is their first login
  */
 export const loginHandler = async (req, res) => {
   try {
@@ -82,6 +84,35 @@ export const loginHandler = async (req, res) => {
 
     if (error || !user) {
       return res.status(401).json({ error: error || 'Authentication failed' });
+    }
+
+    // Check if user exists in database, create if not
+    try {
+      let dbUser = await User.findOne({ uid: user.uid });
+
+      if (!dbUser) {
+        // First time user - create new user in database
+        dbUser = new User({
+          uid: user.uid,
+          name: user.name || 'Unnamed User',
+          // All other fields will use their default values from the schema
+          // coins: 200 (default)
+          // owned_asteroid_ids: [] (default)
+          // starred_asteroid_ids: [] (default)
+          // follower_ids: [] (default)
+          // following_ids: [] (default)
+          // cart_asteroid_ids: [] (default)
+        });
+
+        await dbUser.save();
+        console.log('✅ New user created in database:', user.uid);
+      } else {
+        console.log('👤 Existing user logged in:', user.uid);
+      }
+    } catch (dbError) {
+      console.error('Database error during user creation/lookup:', dbError);
+      // Continue with login even if database operation fails
+      // This prevents auth from breaking if DB is temporarily unavailable
     }
 
     // Store user data in session

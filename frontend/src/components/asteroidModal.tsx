@@ -48,7 +48,7 @@ export default function AsteroidModal({
                 onClick={() => onHandleStarred(asteroid.id)}
                 className="cursor-pointer"
               >
-                {asteroid.is_starred ? (
+                {asteroid.starred_asteroid_ids ? (
                   <Star
                     size={22}
                     className="hover:scale-[1.08] transition duration-300 text-yellow-300"

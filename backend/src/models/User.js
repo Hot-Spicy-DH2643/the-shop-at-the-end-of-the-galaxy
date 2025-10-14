@@ -1,13 +1,14 @@
 import mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema({
-  id: { type: String, required: true, unique: true },
+  uid: { type: String, required: true, unique: true },
+  name: { type: String, required: true },
   coins: { type: Number, default: 200 },
-  owned_asteroids: { type: [String], default: [] },
-  is_starred: { type: [String], default: [] },
-  followers: { type: [String], default: [] },
-  followings: { type: [String], default: [] },
-  cart: { type: [String], default: [] },
+  owned_asteroid_ids: { type: [String], default: [] },
+  starred_asteroid_ids: { type: [String], default: [] },
+  follower_ids: { type: [String], default: [] },
+  following_ids: { type: [String], default: [] },
+  cart_asteroid_ids: { type: [String], default: [] },
 });
 
 export const User = mongoose.model('User', userSchema);

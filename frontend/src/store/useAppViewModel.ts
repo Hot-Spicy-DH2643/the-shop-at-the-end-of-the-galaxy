@@ -9,6 +9,7 @@ import {
   sortAsteroids,
   type SortOption,
 } from './AppModel';
+import { useAuthStore } from './useAuthViewModel';
 
 export function onHandleProductClick(id: string) {
   // open the product modal component with detailed info
@@ -30,7 +31,7 @@ export function onHandleStarred(id: string) {
   useAppStore.setState(state => {
     const updatedAsteroids = state.asteroids.map(asteroid =>
       asteroid.id === id
-        ? { ...asteroid, is_starred: !asteroid.is_starred }
+        ? { ...asteroid, starred_asteroid_ids: !asteroid.starred_asteroid_ids }
         : asteroid
     );
     return { asteroids: updatedAsteroids };
@@ -46,6 +47,7 @@ const useAppStore = create<AppState>(set => ({
   currentPage: 1,
   totalPages: 0,
   totalCount: 0,
+  viewedProfile: null,
   setSelectedAsteroidId: (id: string | null) => set({ selectedAsteroidId: id }),
   setLoading: (loading: boolean) => set({ loading }),
   setError: (error: string | null) => set({ error }),
@@ -73,13 +75,38 @@ const useAppStore = create<AppState>(set => ({
   setUserData: async () => {
     try {
       set({ loading: true, error: null });
-      const userData = await fetchUserData('123');
+      const currentUser = useAuthStore.getState().user;
+      const userId = currentUser?.uid;
+
+      if (!userId) {
+        set({ error: 'No authenticated user', loading: false });
+        return;
+      }
+
+      const userData = await fetchUserData(userId);
       if (userData) {
         set({ userData, loading: false });
       }
     } catch (error) {
       set({
         error: error instanceof Error ? error.message : 'Failed to fetch user',
+        loading: false,
+      });
+    }
+  },
+  setViewedProfile: async (uid: string) => {
+    try {
+      set({ loading: true, error: null });
+      const viewedProfile = await fetchUserData(uid);
+      if (viewedProfile) {
+        set({ viewedProfile, loading: false });
+      } else {
+        set({ error: 'User not found', loading: false });
+      }
+    } catch (error) {
+      set({
+        error:
+          error instanceof Error ? error.message : 'Failed to fetch profile',
         loading: false,
       });
     }

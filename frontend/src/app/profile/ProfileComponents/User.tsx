@@ -30,19 +30,19 @@ export default function User() {
           </tr>
           <tr>
             <td className="font-bold">Owned:</td>
-            <td>{userData?.owned_asteroids.length} asteroids</td>
+            <td>{userData?.owned_asteroid_ids.length} asteroids</td>
           </tr>
           <tr>
             <td className="font-bold">Have:</td>
-            {userData?.friends.length !== 0 ? (
-              <td>{userData?.friends.length} friends</td>
+            {userData?.following_ids.length !== 0 ? (
+              <td>{userData?.following_ids.length} friends</td>
             ) : (
               <td>0 friend</td>
             )}
           </tr>
           <tr className="font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-            <td>Conins:</td>
-            <td>0</td>
+            <td>Coins:</td>
+            <td>{userData?.coins}</td>
           </tr>
         </tbody>
       </table>
