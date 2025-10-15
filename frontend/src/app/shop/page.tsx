@@ -47,8 +47,14 @@ const HAZARD_FILTER = {
 
 export default function Shop() {
   // Get state and actions from Zustand store
-  const { loading, setAsteroids, currentPage, totalPages, totalCount } =
-    useAppStore();
+  const {
+    loading,
+    setAsteroids,
+    setUserData,
+    currentPage,
+    totalPages,
+    totalCount,
+  } = useAppStore();
 
   // Keep filter state local as it's UI-specific
   const [filter, setFilter] = useState<{
@@ -73,6 +79,7 @@ export default function Shop() {
   // Fetch asteroids on mount
   useEffect(() => {
     setAsteroids(1);
+    setUserData();
   }, [setAsteroids]);
 
   // Handler for page changes

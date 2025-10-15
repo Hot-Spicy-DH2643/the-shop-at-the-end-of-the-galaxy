@@ -12,21 +12,19 @@ import AsteroidModal from '@/components/asteroidModal';
 
 export default function Purchases() {
   const { user: firebaseUser } = useAuthStore();
-  const { userData, setUserData } = useAppStore();
+  const { userData, setUserData, asteroids, setAsteroids } = useAppStore();
 
-  useEffect(() => {
-    setUserData();
-  }, []);
+  const [zeroPurchaseId, setZeroPurchaseId] = useState<string>('0000000');
 
   const user_owned_asteroids = userData?.owned_asteroids;
   const user_starred_asteroids = userData?.starred_asteroids;
 
-  const [zeroPurchaseId, setZeroPurchaseId] = useState<string>('0000000');
-
-  const { asteroids, setAsteroids } = useAppStore();
-
   const selectedAsteroidId = useAppStore(state => state.selectedAsteroidId);
   const selectedAsteroid = asteroids.find(a => a.id === selectedAsteroidId);
+
+  useEffect(() => {
+    setUserData();
+  }, []);
 
   useEffect(() => {
     if (user_owned_asteroids?.length === 0) {

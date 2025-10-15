@@ -21,7 +21,7 @@ export default function Product({
         onClick={() => onHandleStarred(asteroid.id)}
         className="p-1 absolute top-1 right-2 z-10 cursor-pointer"
       >
-        {asteroid.starred_asteroid_ids ? (
+        {asteroid.is_starred ? (
           <Star
             className="hover:scale-[1.08] transition duration-300 text-yellow-300"
             fill="yellow"

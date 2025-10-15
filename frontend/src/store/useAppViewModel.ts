@@ -31,10 +31,19 @@ export function onHandleStarred(id: string) {
   useAppStore.setState(state => {
     const updatedAsteroids = state.asteroids.map(asteroid =>
       asteroid.id === id
-        ? { ...asteroid, starred_asteroid_ids: !asteroid.starred_asteroid_ids }
+        ? { ...asteroid, is_starred: !asteroid.is_starred }
         : asteroid
     );
-    return { asteroids: updatedAsteroids };
+
+    const starredAsteroids = updatedAsteroids.filter(a => a.is_starred);
+    console.log(starredAsteroids);
+
+    const updatedUserData = state.userData
+      ? { ...state.userData, starred_asteroids: starredAsteroids }
+      : state.userData;
+    console.log(updatedUserData);
+
+    return { asteroids: updatedAsteroids, userData: updatedUserData };
   });
 }
 
@@ -77,6 +86,7 @@ const useAppStore = create<AppState>(set => ({
       set({ loading: true, error: null });
       const currentUser = useAuthStore.getState().user;
       const userId = currentUser?.uid;
+      console.log('setUserData called, userId:', userId);
 
       if (!userId) {
         set({ error: 'No authenticated user', loading: false });

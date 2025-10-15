@@ -51,7 +51,7 @@ export interface Asteroid {
 export type shopAsteroid = Asteroid & {
   price: number;
   ownership_id: string | null;
-  starred_asteroid_ids: boolean;
+  is_starred: boolean;
   size: number;
   orbital_data?: {
     orbit_id: string;
@@ -259,7 +259,7 @@ export async function fetchAsteroids(
       asteroid => ({
         ...asteroid,
         ownership_id: null, // TODO: Get from user data
-        starred_asteroid_ids: false, // TODO: Get from user data
+        is_starred: false, // TODO: Get from user data
       })
     );
 
