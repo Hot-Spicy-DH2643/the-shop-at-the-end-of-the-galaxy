@@ -3,23 +3,15 @@ type Friend {
   name: String!
 }
 
-type UserAsteriod {
-  id: String!
-  name: String!
-  is_potentially_hazardous_asteroid: Boolean!
-  price: Int!
-  size: Int!
-}
-
 type User {
   uid: String!
   name: String!
   coins: Int!
-  owned_asteroids: [UserAsteriod!]!
-  starred_asteroids: [UserAsteriod!]!
+  owned_asteroids: [Asteroid!]!
+  starred_asteroids: [Asteroid!]!
   followers: [Friend!]!
   following: [Friend!]!
-  cart_asteroids: [UserAsteriod!]!
+  cart_asteroids: [Asteroid!]!
 }
 
 extend type Query {
