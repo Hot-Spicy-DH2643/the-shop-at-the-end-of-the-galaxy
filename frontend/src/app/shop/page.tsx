@@ -57,7 +57,7 @@ const ORBIT_FILTER = {
     { value: 'AMO', label: 'Amor (AMO)', checked: false },
     {
       value: 'IEO',
-      label: 'Atira/Interior Earth Object (IEO)',
+      label: 'Atira (IEO)',
       checked: false,
     },
   ] as const,
@@ -126,159 +126,159 @@ export default function Shop() {
                   FILTER
                   <ChevronDownIcon className="text-muted-foreground pointer-events-none size-4 translate-y-1.5 transition-transform duration-200 text-white group-hover:text-gray-400" />
                 </AccordionTrigger>
-                <AccordionContent className="pt-6 animate-none grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  {/*Hazard filter*/}
-                  <div>
-                    <h3 className="text-sm font-modak text-white mb-4">
-                      Hazard Level
-                    </h3>
-                    <ul className="space-y-4">
-                      {HAZARD_FILTER.options.map((option, index) => (
-                        <li key={option.value} className="flex items-center">
-                          <input
-                            type="radio"
-                            name="hazard-level"
-                            id={`hazard-${index}`}
-                            className="h-4 w-4 border-gray-300 text-purple-400 accent-purple-500 focus:ring-purple-500 cursor-pointer"
-                            checked={filter.hazardous === option.value} // controlled by state
-                            onChange={() => {
-                              setFilter(prev => ({
-                                ...prev,
-                                hazardous: option.value, // update selected value
-                              }));
-                            }}
-                          />
-                          <label
-                            htmlFor={`hazard-${index}`}
-                            className="ml-3 text-sm font-medium text-white cursor-pointer"
-                          >
-                            {option.label}
-                          </label>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+                <AccordionContent className="pt-2 animate-none grid grid-cols-1 lg:grid-cols-4 md:grid-cols-2 gap-9">
+                    {/*Hazard filter*/}
+                    <div className='lg:col-span-1 px-4'>
+                      <h3 className="text-m font-modak text-white mb-4">
+                        Hazard Level
+                      </h3>
+                      <ul className="space-y-4">
+                        {HAZARD_FILTER.options.map((option, index) => (
+                          <li key={option.value} className="flex items-center">
+                            <input
+                              type="radio"
+                              name="hazard-level"
+                              id={`hazard-${index}`}
+                              className="h-4 w-4 border-gray-300 text-purple-400 accent-purple-500 focus:ring-purple-500 cursor-pointer"
+                              checked={filter.hazardous === option.value} // controlled by state
+                              onChange={() => {
+                                setFilter(prev => ({
+                                  ...prev,
+                                  hazardous: option.value, // update selected value
+                                }));
+                              }}
+                            />
+                            <label
+                              htmlFor={`hazard-${index}`}
+                              className="ml-3 text-sm font-medium text-white cursor-pointer"
+                            >
+                              {option.label}
+                            </label>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
 
-                  {/* Orbit Type Filter */}
-                  <div>
-                    <h3 className="text-sm font-modak text-white mb-4">
-                      Orbit Type
-                    </h3>
-                    <ul className="space-y-4">
-                      {ORBIT_FILTER.options.map((option, index) => (
-                        <li key={option.value} className="flex items-center">
-                          <input
-                            type="checkbox"
-                            id={`orbit-${index}`}
-                            className="h-4 w-4 rounded border-gray-300 text-purple-400 accent-purple-500 focus:ring-purple-500 cursor-pointer"
-                            checked={
-                              option.value === 'all'
-                                ? filter.orbitTypes?.length === 0
-                                : filter.orbitTypes?.includes(option.value)
-                            }
-                            onChange={e => {
-                              if (option.value === 'all') {
-                                // "All" clears any specific selections
-                                setFilter(prev => ({
-                                  ...prev,
-                                  orbitTypes: [],
-                                }));
-                              } else {
-                                setFilter(prev => ({
-                                  ...prev,
-                                  orbitTypes: e.target.checked
-                                    ? [...(prev.orbitTypes ?? []), option.value]
-                                    : prev.orbitTypes?.filter(
-                                        o => o !== option.value
-                                      ),
-                                }));
+                    {/* Orbit Type Filter */}
+                    <div className='lg:col-span-1 px-4'>
+                      <h3 className="text-m font-modak text-white mb-4">
+                        Orbit Type
+                      </h3>
+                      <ul className="space-y-4">
+                        {ORBIT_FILTER.options.map((option, index) => (
+                          <li key={option.value} className="flex items-center">
+                            <input
+                              type="checkbox"
+                              id={`orbit-${index}`}
+                              className="h-4 w-4 rounded border-gray-300 text-purple-400 accent-purple-500 focus:ring-purple-500 cursor-pointer"
+                              checked={
+                                option.value === 'all'
+                                  ? filter.orbitTypes?.length === 0
+                                  : filter.orbitTypes?.includes(option.value)
                               }
-                            }}
-                          />
-                          <label
-                            htmlFor={`orbit-${index}`}
-                            className="ml-3 text-sm font-medium text-white cursor-pointer"
-                          >
-                            {option.label}
-                          </label>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  {/*Size and distance sliders*/}
-                  <div>
-                    <div className="mb-8">
-                      <div className="flex justify-between items-center mb-2">
-                        <h3 className="text-sm font-modak text-white">Size</h3>
-                        <span className="text-xs text-gray-300">
-                          {filter.sizeMin} - {filter.sizeMax} meters
-                        </span>
-                      </div>
-                      <Slider
-                        min={0}
-                        max={3000}
-                        step={50}
-                        value={[filter.sizeMin ?? 0, filter.sizeMax ?? 3000]}
-                        onValueChange={(value: [number, number]) =>
-                          setFilter(prev => ({
-                            ...prev,
-                            sizeMin: value[0],
-                            sizeMax: value[1],
-                          }))
-                        }
-                      />
+                              onChange={e => {
+                                if (option.value === 'all') {
+                                  // "All" clears any specific selections
+                                  setFilter(prev => ({
+                                    ...prev,
+                                    orbitTypes: [],
+                                  }));
+                                } else {
+                                  setFilter(prev => ({
+                                    ...prev,
+                                    orbitTypes: e.target.checked
+                                      ? [...(prev.orbitTypes ?? []), option.value]
+                                      : prev.orbitTypes?.filter(
+                                          o => o !== option.value
+                                        ),
+                                  }));
+                                }
+                              }}
+                            />
+                            <label
+                              htmlFor={`orbit-${index}`}
+                              className="ml-3 text-sm font-medium text-white cursor-pointer "
+                            >
+                              {option.label}
+                            </label>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
 
-                    <div className="mb-8">
-                      <div className="flex justify-between items-center mb-2">
-                        <h3 className="text-sm font-modak text-white">
-                          Miss Distance
-                        </h3>
-                        <span className="text-xs text-gray-300">
-                          {filter.distanceMin} - {filter.distanceMax} million km
-                        </span>
+                    {/*Size, distance, price sliders*/}
+                    <div className='lg:col-span-2 px-4'>
+                      <div className="mb-8">
+                        <div className="flex justify-between items-center mb-2">
+                          <h3 className="text-m font-modak text-white">Size</h3>
+                          <span className="text-xs text-gray-300">
+                            {filter.sizeMin} - {filter.sizeMax} meters
+                          </span>
+                        </div>
+                        <Slider
+                          min={0}
+                          max={3000}
+                          step={50}
+                          value={[filter.sizeMin ?? 0, filter.sizeMax ?? 3000]}
+                          onValueChange={(value: [number, number]) =>
+                            setFilter(prev => ({
+                              ...prev,
+                              sizeMin: value[0],
+                              sizeMax: value[1],
+                            }))
+                          }
+                        />
                       </div>
-                      <Slider
-                        min={0}
-                        max={100}
-                        step={1}
-                        value={[
-                          filter.distanceMin ?? 0,
-                          filter.distanceMax ?? 100,
-                        ]}
-                        onValueChange={(value: [number, number]) =>
-                          setFilter(prev => ({
-                            ...prev,
-                            distanceMin: value[0],
-                            distanceMax: value[1],
-                          }))
-                        }
-                      />
-                    </div>
 
-                    <div>
-                      <div className="flex justify-between items-center mb-2">
-                        <h3 className="text-sm font-modak text-white">Price</h3>
-                        <span className="text-xs text-gray-300">
-                          {filter.priceMin} - {filter.priceMax} CosmoCoins
-                        </span>
+                      <div className="mb-8">
+                        <div className="flex justify-between items-center mb-2">
+                          <h3 className="text-m font-modak text-white">
+                            Miss Distance
+                          </h3>
+                          <span className="text-xs text-gray-300">
+                            {filter.distanceMin} - {filter.distanceMax} million km
+                          </span>
+                        </div>
+                        <Slider
+                          min={0}
+                          max={100}
+                          step={1}
+                          value={[
+                            filter.distanceMin ?? 0,
+                            filter.distanceMax ?? 100,
+                          ]}
+                          onValueChange={(value: [number, number]) =>
+                            setFilter(prev => ({
+                              ...prev,
+                              distanceMin: value[0],
+                              distanceMax: value[1],
+                            }))
+                          }
+                        />
                       </div>
-                      <Slider
-                        min={100}
-                        max={900}
-                        step={10}
-                        value={[filter.priceMin ?? 100, filter.priceMax ?? 900]}
-                        onValueChange={(value: [number, number]) =>
-                          setFilter(prev => ({
-                            ...prev,
-                            priceMin: value[0],
-                            priceMax: value[1],
-                          }))
-                        }
-                      />
+
+                      <div className='pb-2'>
+                        <div className="flex justify-between items-center mb-2">
+                          <h3 className="text-m font-modak text-white">Price</h3>
+                          <span className="text-xs text-gray-300">
+                            {filter.priceMin} - {filter.priceMax} CosmoCoins
+                          </span>
+                        </div>
+                        <Slider
+                          min={100}
+                          max={900}
+                          step={10}
+                          value={[filter.priceMin ?? 100, filter.priceMax ?? 900]}
+                          onValueChange={(value: [number, number]) =>
+                            setFilter(prev => ({
+                              ...prev,
+                              priceMin: value[0],
+                              priceMax: value[1],
+                            }))
+                          }
+                        />
+                      </div>
                     </div>
-                  </div>
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
@@ -288,10 +288,9 @@ export default function Shop() {
           <div className="flex items-center">
             <DropdownMenu>
               <DropdownMenuTrigger className="group py-4 inline-flex text-lg font-modak text-white hover:underline justify-between gap-4 cursor-pointer">
-                SORT
-                <ChevronDownIcon className="text-muted-foreground pointer-events-none size-4 shrink-0 translate-y-1.5 transition-transform duration-200 text-white group-hover:text-gray-400" />
+                  SORT
+                  <ChevronDownIcon className="text-muted-foreground pointer-events-none size-4 shrink-0 translate-y-1.5 transition-transform duration-200 text-white group-hover:text-gray-400" />
               </DropdownMenuTrigger>
-
               <DropdownMenuContent align="end">
                 {SORT_OPTIONS.map(option => (
                   <DropdownMenuItem
@@ -314,14 +313,11 @@ export default function Shop() {
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
-            <button className="-m-2 ml-4 p-2 text-white hover:text-gray-400 sm:ml-6 lg:hidden">
-              <Filter className="h-5 w-5" />
-            </button>
           </div>
         </div>
       </main>
 
-      <section>
+      <section className='max-w-8xl mx-auto'>
         <div>
           {/* Product Grid */}
           <ul className="bg-transparent grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6 gap-4 p-4 flex-grow">
