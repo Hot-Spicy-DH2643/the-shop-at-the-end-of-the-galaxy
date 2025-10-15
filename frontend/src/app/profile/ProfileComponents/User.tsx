@@ -1,15 +1,19 @@
 'use client';
-import { useEffect } from 'react';
-import { useAppStore } from '@/store/useAppViewModel';
 import { useAuthStore } from '@/store/useAuthViewModel';
+import type { UserData } from '@/store/AppModel';
 
-export default function User() {
+interface UserProps {
+  profileData: UserData | null;
+  isOwnProfile: boolean;
+}
+
+export default function User({ profileData, isOwnProfile }: UserProps) {
   const { user: firebaseUser } = useAuthStore();
-  const { userData, setUserData } = useAppStore();
 
-  useEffect(() => {
-    setUserData();
-  }, []);
+  const displayName = isOwnProfile
+    ? firebaseUser?.displayName
+    : profileData?.name;
+  const displayEmail = isOwnProfile ? firebaseUser?.email : 'Hidden';
 
   return (
     <div className="text-white">
@@ -22,33 +26,39 @@ export default function User() {
         <tbody>
           <tr>
             <td className="font-bold">Name:</td>
-            <td>{firebaseUser?.displayName}</td>
+            <td>{displayName}</td>
           </tr>
-          <tr>
-            <td className="font-bold">Email:</td>
-            <td>{firebaseUser?.email}</td>
-          </tr>
+          {isOwnProfile && (
+            <tr>
+              <td className="font-bold">Email:</td>
+              <td>{displayEmail}</td>
+            </tr>
+          )}
           <tr>
             <td className="font-bold">Owned:</td>
-            <td>{userData?.owned_asteroid_ids.length} asteroids</td>
+            <td>{profileData?.owned_asteroid_ids.length || 0} asteroids</td>
           </tr>
           <tr>
             <td className="font-bold">Have:</td>
-            {userData?.following.length !== 0 ? (
-              <td>{userData?.following.length} friends</td>
+            {profileData?.following.length !== 0 ? (
+              <td>{profileData?.following.length} friends</td>
             ) : (
               <td>0 friend</td>
             )}
           </tr>
-          <tr className="font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-            <td>Coins:</td>
-            <td>{userData?.coins}</td>
-          </tr>
+          {isOwnProfile && (
+            <tr className="font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+              <td>Coins:</td>
+              <td>{profileData?.coins || 0}</td>
+            </tr>
+          )}
         </tbody>
       </table>
-      <button className="bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700 text-white px-6 py-2 rounded shadow hover:scale-105 hover:shadow-xl transition cursor-pointer text-center m-1 my-2 md:w-autor">
-        Change Infomation
-      </button>
+      {isOwnProfile && (
+        <button className="bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700 text-white px-6 py-2 rounded shadow hover:scale-105 hover:shadow-xl transition cursor-pointer text-center m-1 my-2 md:w-autor">
+          Change Infomation
+        </button>
+      )}
     </div>
   );
 }

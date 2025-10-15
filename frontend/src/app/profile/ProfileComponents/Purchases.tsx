@@ -1,22 +1,25 @@
 'use client';
 import { useEffect, useState } from 'react';
-import type { shopAsteroid } from '@/store/AppModel';
+import type { shopAsteroid, UserData } from '@/store/AppModel';
 import { useAuthStore } from '@/store/useAuthViewModel';
 import { useAppStore } from '@/store/useAppViewModel';
 
 import AsteroidSVGMoving from '@/components/asteroidSVGMoving';
 
-export default function Purchases() {
-  const { user: firebaseUser } = useAuthStore();
-  const { userData, setUserData } = useAppStore();
+interface PurchasesProps {
+  profileData: UserData | null;
+  isOwnProfile: boolean;
+}
 
-  useEffect(() => {
-    setUserData();
-  }, []);
+export default function Purchases({
+  profileData,
+  isOwnProfile,
+}: PurchasesProps) {
+  const { user: firebaseUser } = useAuthStore();
 
   // const owned_asteroid_ids = []; // For testing no purchases
-  const owned_asteroid_ids = userData?.owned_asteroid_ids;
-  const favoriteAsteroids = userData?.favorite_asteroids;
+  const owned_asteroid_ids = profileData?.owned_asteroid_ids;
+  const favoriteAsteroids = profileData?.starred_asteroid_ids;
 
   const [zeroPurchaseId, setZeroPurchaseId] = useState<string>('0000000');
 
@@ -65,7 +68,7 @@ export default function Purchases() {
             <AsteroidSVGMoving id={zeroPurchaseId} size={100} bgsize={160} />
           </div>
           <p className="ml-10 text-lg">
-            <span className="font-bold">{firebaseUser?.displayName}</span> has{' '}
+            <span className="font-bold">{profileData?.name}</span> has{' '}
             <span className="block sm:inline"> </span>
             <span className="font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
               no{' '}
@@ -87,7 +90,7 @@ export default function Purchases() {
       </h2>
 
       <p className="mt-4 text-lg">
-        <span className="font-bold">{firebaseUser?.displayName}</span> has{' '}
+        <span className="font-bold">{profileData?.name}</span> has{' '}
         <span className="font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
           {owned_asteroid_ids?.length}
         </span>{' '}

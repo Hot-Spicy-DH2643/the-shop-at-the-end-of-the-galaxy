@@ -4,7 +4,8 @@ import OrbitPath from '@/components/orbitingAsteroid';
 import AsteroidDetails from '@/components/asteroidDetails';
 import AsteroidSVG from '@/components/asteroidSVG';
 import '@/app/globals.css';
-import { useAppStore } from '@/store/useAppViewModel';
+import type { UserData } from '@/store/AppModel';
+
 const ORBIT_LANES = [
   { radius: 60, depth: -30, duration: 15, tilt: 15 },
   { radius: 90, depth: -15, duration: 20, tilt: 10 },
@@ -16,26 +17,24 @@ const ORBIT_LANES = [
 //TODO: I am gonna structure up this code, now I have just written everything
 //TODO: to make sure it works, but do not worry! :D
 
-export default function Galaxy() {
+interface GalaxyProps {
+  profileData: UserData | null;
+  isOwnProfile: boolean;
+}
+
+export default function Galaxy({ profileData, isOwnProfile }: GalaxyProps) {
   const [userAsteroids, setUserAsteroids] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedAsteroid, setSelectedAsteroid] = useState<string | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const { userData, setUserData } = useAppStore();
-
   useEffect(() => {
-    setUserData();
-  }, []);
-
-  useEffect(() => {
-    console.log('User Data in Galaxy:', userData);
-    if (userData) {
-      setUserAsteroids(userData.owned_asteroid_ids);
+    if (profileData) {
+      setUserAsteroids(profileData.owned_asteroid_ids);
     }
     setLoading(false);
-  }, []);
+  }, [profileData]);
 
   if (loading) {
     return <div className="text-white">Loading your galaxy..</div>;

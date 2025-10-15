@@ -4,11 +4,28 @@ import Navbar from '@/components/navbar';
 import ProfileTab from './ProfileTabs';
 
 import { useAuthStore } from '@/store/useAuthViewModel';
+import { useAppStore } from '@/store/useAppViewModel';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 export default function Profile() {
   const { user } = useAuthStore();
+  const { userData, viewedProfile, setUserData, loading } = useAppStore();
+  const router = useRouter();
 
-  if (!user) {
+  // Fetch user data on mount
+  useEffect(() => {
+    // console.log('Fetching user data, user:', user);
+    if (user?.uid) {
+      setUserData();
+    }
+  }, [setUserData, user]);
+
+  // Determine which profile to display
+  const profileData = viewedProfile || userData;
+  const isOwnProfile = !viewedProfile;
+
+  if (!user || loading || !profileData) {
     return (
       <div className="galaxy-bg-space min-h-screen">
         <Navbar />
@@ -28,32 +45,51 @@ export default function Profile() {
         PROFILE
       </div>
 
-      {/* Profile content */}
-      <div className="flex flex-col lg:flex-row flex-wrap justify-center items-center lg:items-start px-8 mt-4 md:mt-20 md:gap-8 lg:gap-12">
-        {/* Profile Image */}
-        <div className="flex flex-row lg:flex-col justify-center items-center gap-4">
-          {/* <div className="w-20 h-20 md:w-40 md:h-40"></div> */}
-          <Image
-            src="/default-user-img.png"
-            alt="Profile"
-            width={160}
-            height={160}
-            className="w-20 h-20 md:w-40 md:h-40 rounded-full object-contain"
-          />
-          <div className="text-white text-center leading-8">
-            {/* user information */}
-            <h4 className="text-2xl md:text-4xl lg:text-3xl font-extrabold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-300 bg-clip-text text-transparent drop-shadow-lg">
-              Hello,
-            </h4>
+      {/* Container for back button and profile content */}
+      <div className="px-8 mt-4 md:mt-20 max-w-5xl mx-auto">
+        {/* Profile content */}
+        <div className="flex-col">
+          {/* Back button when viewing other profile */}
+          {!isOwnProfile && (
+            <div className="mb-6">
+              <button
+                onClick={() => {
+                  useAppStore.setState({ viewedProfile: null });
+                  router.push('/profile');
+                }}
+                className="text-purple-400 hover:text-pink-400 transition flex items-center gap-3 text-xl font-semibold cursor-pointer px-4 py-2 hover:bg-purple-400/10 rounded-lg"
+              >
+                <span className="text-2xl">◄</span> Back to My Profile
+              </button>
+            </div>
+          )}
+          <div className="flex flex-col lg:flex-row flex-wrap lg:items-start md:gap-8 lg:gap-12">
+            {/* Profile Image */}
+            <div className="flex flex-row lg:flex-col justify-center items-center gap-4">
+              {/* <div className="w-20 h-20 md:w-40 md:h-40"></div> */}
+              <Image
+                src="/default-user-img.png"
+                alt="Profile"
+                width={160}
+                height={160}
+                className="w-20 h-20 md:w-40 md:h-40 rounded-full object-contain"
+              />
+              <div className="text-white text-center leading-8">
+                {/* user information */}
+                <h4 className="text-2xl md:text-4xl lg:text-3xl font-extrabold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-300 bg-clip-text text-transparent drop-shadow-lg">
+                  {isOwnProfile ? 'Hello,' : ''}
+                </h4>
 
-            <h4 className="text-2xl font-semibold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-300 bg-clip-text text-transparent drop-shadow-lg">
-              {user.displayName}
-            </h4>
+                <h4 className="text-2xl font-semibold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-300 bg-clip-text text-transparent drop-shadow-lg">
+                  {isOwnProfile ? user?.displayName : profileData?.name}
+                </h4>
+              </div>
+            </div>
+
+            {/* Buttons beside image */}
+            <ProfileTab profileData={profileData} isOwnProfile={isOwnProfile} />
           </div>
         </div>
-
-        {/* Buttons beside image */}
-        <ProfileTab />
       </div>
     </div>
   );
