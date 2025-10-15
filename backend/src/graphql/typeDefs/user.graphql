@@ -18,3 +18,11 @@ extend type Query {
   user(uid: String!): User
   allUsers: [User!]!
 }
+
+extend type Mutation {
+  addToCart(asteroidId: String!): Boolean
+  removeFromCart(asteroidId: String!): Boolean
+  purchaseCart: Boolean
+  addToStarredAsteroids(asteroidId: String!): Boolean
+  deleteFromStarredAsteroids(asteroidId: String!): Boolean
+}

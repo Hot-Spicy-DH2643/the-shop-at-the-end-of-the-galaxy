@@ -130,6 +130,9 @@ export type AppState = {
   removeFromCart: (id: string) => void;
   clearCart: () => void;
   setViewedProfile: (uid: string) => Promise<void>;
+
+  addToStarredAsteroids: (asteroid_id: string) => void;
+  deleteFromStarredAsteroids: (asteroid_id: string) => void;
 };
 
 // GraphQL query to fetch asteroids with pagination
@@ -391,6 +394,48 @@ export async function fetchUserData(uid: string): Promise<UserData | null> {
     console.error('Error fetching user from GraphQL:', error);
     return null;
   }
+}
+
+const ADD_TO_STARRED = gql`
+  mutation AddToStarredAsteroids($asteroidId: String!) {
+    addToStarredAsteroids(asteroidId: $asteroidId)
+  }
+`;
+
+const DELETE_FROM_STARRED = gql`
+  mutation DeleteFromStarredAsteroids($asteroidId: String!) {
+    deleteFromStarredAsteroids(asteroidId: $asteroidId)
+  }
+`;
+
+export function addToStarredAsteroids(asteroidId: string) {
+  console.log('Adding to starred:', asteroidId);
+  client
+    .mutate({
+      mutation: ADD_TO_STARRED,
+      variables: { asteroidId },
+    })
+    .then(response => {
+      console.log('Add to starred response:', response);
+    })
+    .catch(error => {
+      console.error('Error adding to starred asteroids:', error);
+    });
+}
+
+export function deleteFromStarredAsteroids(asteroidId: string) {
+  console.log('Removing from starred:', asteroidId);
+  client
+    .mutate({
+      mutation: DELETE_FROM_STARRED,
+      variables: { asteroidId },
+    })
+    .then(response => {
+      console.log('Remove from starred response:', response);
+    })
+    .catch(error => {
+      console.error('Error removing from starred asteroids:', error);
+    });
 }
 
 // ============================================

@@ -13,6 +13,8 @@ import {
   shopAsteroid,
   getFormattedAsteroidData,
   sortAsteroids,
+  addToStarredAsteroids,
+  deleteFromStarredAsteroids,
 } from './AppModel';
 import { useAsteroidViewers } from '@/hooks/useAsteroidViewers';
 import { useAuthStore } from './useAuthViewModel';
@@ -31,6 +33,12 @@ const useAppStore = create<AppState>(set => ({
   removeFromCart: id =>
     set(state => ({ cart: state.cart.filter(a => a.id !== id) })),
   clearCart: () => set({ cart: [] }),
+  addToStarredAsteroids: async asteroidId => {
+    addToStarredAsteroids(asteroidId);
+  },
+  deleteFromStarredAsteroids: async asteroidId => {
+    deleteFromStarredAsteroids(asteroidId);
+  },
 
   viewedProfile: null,
   setSelectedAsteroidId: (id: string | null) => set({ selectedAsteroidId: id }),
@@ -133,28 +141,16 @@ export function onHandleStarred(id: string) {
         : asteroid
     );
 
-    const starredAsteroids = updatedAsteroids.filter(a => a.is_starred);
-    console.log(starredAsteroids);
+    const foundAsteroid = state.asteroids.find(a => a.id === id);
+    console.log(foundAsteroid);
 
-    const updatedUserData = state.userData
-      ? {
-          ...state.userData,
-          starred_asteroids: starredAsteroids.map(a => ({
-            id: a.id,
-            name: a.name,
-            is_potentially_hazardous_asteroid:
-              a.is_potentially_hazardous_asteroid,
-            price: a.price,
-            size: a.size,
-          })),
-        }
-      : state.userData;
-    console.log(
-      '⭐️ lucky comment ⭐️ Userdata from viewModel: ',
-      updatedUserData
-    );
+    if (!foundAsteroid?.is_starred) {
+      addToStarredAsteroids(id);
+    } else {
+      deleteFromStarredAsteroids(id);
+    }
 
-    return { asteroids: updatedAsteroids, userData: updatedUserData };
+    return { asteroids: updatedAsteroids };
   });
 }
 
