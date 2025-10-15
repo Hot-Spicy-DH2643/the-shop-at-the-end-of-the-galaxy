@@ -127,7 +127,7 @@ export type AppState = {
 
   cart: shopAsteroid[];
   addToCart: (asteroid_id: string) => void;
-  removeFromCart: (id: string) => void;
+  removeFromCart: (asteroid_id: string) => void;
   clearCart: () => void;
   setViewedProfile: (uid: string) => Promise<void>;
 };
@@ -714,5 +714,27 @@ export function addToCart(asteroid_id: string) {
     })
     .catch(error => {
       console.error('Error adding to cart:', error);
+    });
+}
+
+const REMOVE_FROM_CART = gql`
+  mutation AddToCart($asteroidId: String!) {
+    addToCart(asteroidId: $asteroidId)
+  }
+`;
+
+export function removeFromCart(asteroid_id: string) {
+  // call the backend using graphql mutation to remove from cart
+  console.log('Removing from cart:', asteroid_id);
+  client
+    .mutate({
+      mutation: REMOVE_FROM_CART,
+      variables: { asteroidId: asteroid_id },
+    })
+    .then(response => {
+      console.log('Remove from cart response:', response);
+    })
+    .catch(error => {
+      console.error('Error removing from cart:', error);
     });
 }

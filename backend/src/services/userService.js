@@ -85,3 +85,31 @@ export async function addToCart(userId, asteroidId) {
     throw error;
   }
 }
+
+export async function removeFromCart(userId, asteroidId) {
+  try {
+    const user = await User.findOne({ uid: userId });
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    // Check if the asteroid is in the cart
+    const index = user.cart_asteroid_ids.indexOf(asteroidId);
+    if (index === -1) {
+      throw new Error('Asteroid not found in cart');
+    }
+
+    // Remove the asteroid from the cart
+    user.cart_asteroid_ids.splice(index, 1);
+
+    await user.save();
+    console.log(`Asteroid ${asteroidId} removed from cart for user ${userId}`);
+    return user;
+  } catch (error) {
+    console.error(
+      `Error removing asteroid ${asteroidId} from cart for user ${userId}:`,
+      error.message
+    );
+    throw error;
+  }
+}

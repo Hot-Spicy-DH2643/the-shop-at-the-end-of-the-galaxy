@@ -1,12 +1,8 @@
 'use client';
 
-import AsteroidSVGMoving from '@/components/asteroidSVGMoving';
 import Image from 'next/image';
 import { useAppStore } from '@/store/useAppViewModel';
-import { X } from 'lucide-react';
-
-//TODO: Right now hardcoded with fake data. Just to be able to style it.
-// I am gonna work on the functionality
+import CartItem from './cartItem';
 
 // Temporary fake data (for styling)
 const fakeCart = [
@@ -16,10 +12,9 @@ const fakeCart = [
   { id: 4102937, name: 'Galaxy Watch', price: 300 },
   { id: 5293847, name: 'Moonlight Bag', price: 180 },
 ];
-export default function Cart() {
-  //const cart = useAppStore(state => state.cart);
-  //const clearCart = useAppStore(state => state.clearCart);
 
+export default function Cart() {
+  // const cart = useAppStore(state => state.cart);
   const cart = fakeCart; // using fake data for now
 
   const total = cart.reduce((sum, item) => sum + item.price, 0);
@@ -39,41 +34,13 @@ export default function Cart() {
         ) : (
           <table className="w-full text-left border-collapse">
             <tbody>
-              {cart.map((item, index) => (
-                <tr
+              {cart.map(item => (
+                <CartItem
                   key={item.id}
-                  className="border-b border-white/10 last:border-none"
-                >
-                  <td className="py-3">
-                    <div className="flex items-center gap-3">
-                      <AsteroidSVGMoving
-                        id={item.id.toString()}
-                        size={42}
-                        bgsize={36}
-                      />
-                      <span className="text-base">{item.name}</span>
-                    </div>
-                  </td>
-                  <td className="py-3 text-right text-gray-400">
-                    <div className="inline-flex items-center gap-1">
-                      <Image
-                        src="/cosmocoin-tiny.png"
-                        alt="coin"
-                        width={16}
-                        height={16}
-                      />
-                      <span>{item.price}</span>
-                    </div>
-                  </td>
-                  <td className="py-3 text-right">
-                    <button
-                      className="p-1 text-gray-500 hover:text-pink-500 transition"
-                      aria-label="Remove item"
-                    >
-                      <X size={18} />
-                    </button>
-                  </td>
-                </tr>
+                  id={item.id}
+                  name={item.name}
+                  price={item.price}
+                />
               ))}
             </tbody>
           </table>

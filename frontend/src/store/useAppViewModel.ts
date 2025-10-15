@@ -16,6 +16,7 @@ import {
   filterAndSortAsteroids,
   type FilterState,
   addToCart,
+  removeFromCart,
 } from './AppModel';
 import { useAsteroidViewers } from '@/hooks/useAsteroidViewers';
 import { useAuthStore } from './useAuthViewModel';
@@ -34,8 +35,10 @@ const useAppStore = create<AppState>(set => ({
     addToCart(asteroid_id);
     useAppStore.getState().setUserData();
   },
-  removeFromCart: id =>
-    set(state => ({ cart: state.cart.filter(a => a.id !== id) })),
+  removeFromCart: async asteroid_id => {
+    removeFromCart(asteroid_id);
+    useAppStore.getState().setUserData();
+  },
   clearCart: () => set({ cart: [] }),
 
   viewedProfile: null,

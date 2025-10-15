@@ -36,37 +36,6 @@ export default function AsteroidModal({
     onClose(); // optional: close modal after adding
   };
 
-  const handleAddToCalendar = () => {
-    const approach = asteroid.close_approach_data?.[0];
-    if (!approach) return;
-
-    // Create a Google Calendar URL with the asteroid approach details
-    const startDate = new Date(approach.close_approach_date_full);
-    const endDate = new Date(startDate.getTime() + 60 * 60 * 1000); // 1 hour duration
-
-    const formatDateForCalendar = (date: Date) => {
-      return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-    };
-
-    const calendarUrl = new URL('https://calendar.google.com/calendar/render');
-    calendarUrl.searchParams.append('action', 'TEMPLATE');
-    calendarUrl.searchParams.append(
-      'text',
-      `Asteroid ${asteroid.name} Close Approach`
-    );
-    calendarUrl.searchParams.append(
-      'details',
-      `Asteroid ${asteroid.name} will pass Earth at a distance of ${formatted.approach.distanceAU} (${formatted.approach.distanceKm}) traveling at ${formatted.approach.velocityKmPerSec}.\n\nMore info: ${asteroid.nasa_jpl_url}`
-    );
-    calendarUrl.searchParams.append(
-      'dates',
-      `${formatDateForCalendar(startDate)}/${formatDateForCalendar(endDate)}`
-    );
-
-    // Open in new tab
-    window.open(calendarUrl.toString(), '_blank', 'noopener,noreferrer');
-  };
-
   const { userData } = useAppStore();
   const user_owned_asteroids = userData?.owned_asteroids.map(a => a.id);
   console.log('asteroidModal.tsx file : ', user_owned_asteroids);
