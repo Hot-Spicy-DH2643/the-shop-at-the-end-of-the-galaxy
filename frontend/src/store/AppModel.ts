@@ -336,6 +336,59 @@ export async function fetchAsteroids(
   }
 }
 
+// GraphQL query to fetch a single asteroid by ID
+const GET_ASTEROID_BY_ID = gql`
+  query GetAsteroid($id: String!) {
+    asteroid(id: $id) {
+      id
+      neo_reference_id
+      name
+      nasa_jpl_url
+      absolute_magnitude_h
+      estimated_diameter {
+        kilometers {
+          estimated_diameter_min
+          estimated_diameter_max
+        }
+        meters {
+          estimated_diameter_min
+          estimated_diameter_max
+        }
+      }
+      is_potentially_hazardous_asteroid
+      close_approach_data {
+        close_approach_date
+        close_approach_date_full
+        epoch_date_close_approach
+        relative_velocity {
+          kilometers_per_second
+          kilometers_per_hour
+        }
+        miss_distance {
+          astronomical
+          kilometers
+        }
+        orbiting_body
+      }
+      is_sentry_object
+      orbital_data {
+        orbit_id
+        eccentricity
+        semi_major_axis
+        inclination
+        orbital_period
+        orbit_class {
+          orbit_class_type
+          orbit_class_description
+          orbit_class_range
+        }
+      }
+      price
+      size
+    }
+  }
+`;
+
 const GET_USER_BY_ID = gql`
   query GetUserById($uid: String!) {
     user(uid: $uid) {
@@ -373,6 +426,33 @@ const GET_USER_BY_ID = gql`
     }
   }
 `;
+
+export async function fetchAsteroidById(
+  id: string
+): Promise<shopAsteroid | null> {
+  try {
+    const { data } = await client.query<{ asteroid: shopAsteroid }>({
+      query: GET_ASTEROID_BY_ID,
+      variables: { id },
+      fetchPolicy: 'network-only',
+    });
+
+    if (!data || !data.asteroid) {
+      console.error('No asteroid data returned from GraphQL query');
+      return null;
+    }
+
+    // Transform to include frontend-specific fields
+    return {
+      ...data.asteroid,
+      ownership_id: null, // TODO: Get from user data
+      is_starred: false, // TODO: Get from user data
+    };
+  } catch (error) {
+    console.error('Error fetching asteroid by ID from GraphQL:', error);
+    return null;
+  }
+}
 
 export async function fetchUserData(uid: string): Promise<UserData | null> {
   try {

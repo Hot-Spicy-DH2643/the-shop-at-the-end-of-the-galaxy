@@ -5,6 +5,7 @@ import type { AppState } from './AppModel';
 import {
   fetchAsteroids,
   fetchUserData,
+  fetchAsteroidById,
   DEFAULT_PAGE_SIZE,
   type SortOption,
   type BackendFilters,
@@ -13,9 +14,11 @@ import {
   shopAsteroid,
   getFormattedAsteroidData,
   sortAsteroids,
+  UserData,
 } from './AppModel';
 import { useAsteroidViewers } from '@/hooks/useAsteroidViewers';
 import { useAuthStore } from './useAuthViewModel';
+import { useState, useCallback } from 'react';
 
 const useAppStore = create<AppState>(set => ({
   loading: false,
@@ -229,6 +232,54 @@ export function useAsteroidModalViewModel(asteroid: shopAsteroid) {
     isLoading,
     viewerText,
     handleAddToCalendar,
+  };
+}
+
+// =========================
+//  GALAXY VIEWMODEL
+
+/**
+ * Custom hook for Galaxy component - handles asteroid fetching and modal state
+ */
+export function useGalaxyViewModel(profileData: UserData | null) {
+  const [modalAsteroid, setModalAsteroid] = useState<shopAsteroid | null>(null);
+  const [isLoadingModal, setIsLoadingModal] = useState(false);
+
+  const handleAsteroidClick = useCallback(
+    async (asteroidId: string) => {
+      setIsLoadingModal(true);
+
+      try {
+        const asteroidData = await fetchAsteroidById(asteroidId);
+
+        if (asteroidData) {
+          // Enhance with user-specific data
+          const enhancedAsteroid: shopAsteroid = {
+            ...asteroidData,
+            is_starred:
+              profileData?.starred_asteroids.some(a => a.id === asteroidId) ||
+              false,
+          };
+          setModalAsteroid(enhancedAsteroid);
+        }
+      } catch (error) {
+        console.error('Error fetching asteroid details:', error);
+      } finally {
+        setIsLoadingModal(false);
+      }
+    },
+    [profileData]
+  );
+
+  const closeModal = useCallback(() => {
+    setModalAsteroid(null);
+  }, []);
+
+  return {
+    modalAsteroid,
+    isLoadingModal,
+    handleAsteroidClick,
+    closeModal,
   };
 }
 
