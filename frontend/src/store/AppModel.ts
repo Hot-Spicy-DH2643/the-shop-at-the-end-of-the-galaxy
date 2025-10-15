@@ -85,25 +85,32 @@ export type shopAsteroid = Asteroid & {
 };
 
 type Friend = {
+  uid: string;
+  name: string;
+};
+
+type UserAsteriod = {
   id: string;
   name: string;
-  username: string;
-  email: string;
+  is_potentially_hazardous_asteroid: boolean;
+  price: number;
+  size: number;
 };
 
 export type UserData = {
-  id: number;
+  uid: string;
   name: string;
-  username: string;
-  email: string;
   coins: number;
-  owned_asteroids: string[];
-  favorite_asteroids: string[];
-  friends: Friend[];
+  owned_asteroids: UserAsteriod[];
+  starred_asteroids: UserAsteriod[];
+  followers: Friend[];
+  following: Friend[];
+  cart_asteroids: UserAsteriod[];
 };
 
 export type AppState = {
   userData: UserData | null;
+  viewedProfile: UserData | null;
   asteroids: shopAsteroid[];
   loading: boolean;
   error: string | null;
@@ -122,6 +129,7 @@ export type AppState = {
   addToCart: (asteroid: shopAsteroid) => void;
   removeFromCart: (id: string) => void;
   clearCart: () => void;
+  setViewedProfile: (uid: string) => Promise<void>;
 };
 
 // GraphQL query to fetch asteroids with pagination
@@ -328,23 +336,60 @@ export async function fetchAsteroids(
   }
 }
 
-export async function fetchUserData(): Promise<UserData | null> {
-  // will auto carry cookie when using graphql
+const GET_USER_BY_ID = gql`
+  query GetUserById($uid: String!) {
+    user(uid: $uid) {
+      uid
+      name
+      coins
+      owned_asteroids {
+        id
+        name
+        is_potentially_hazardous_asteroid
+        price
+        size
+      }
+      starred_asteroids {
+        id
+        name
+        is_potentially_hazardous_asteroid
+        price
+        size
+      }
+      followers {
+        uid
+        name
+      }
+      following {
+        uid
+        name
+      }
+      cart_asteroids {
+        id
+        name
+        price
+        size
+      }
+    }
+  }
+`;
 
-  //using fake user data for now
-  const baseUrl = 'http://localhost:3000';
-
+export async function fetchUserData(uid: string): Promise<UserData | null> {
   try {
-    const response = await fetch(`${baseUrl}/userFakeData.json`);
-    if (!response.ok) throw new Error('Failed to fetch');
+    const { data } = await client.query<{ user: UserData }>({
+      query: GET_USER_BY_ID,
+      variables: { uid },
+      fetchPolicy: 'network-only',
+    });
 
-    const userData: UserData = await response.json();
-
-    console.log(userData);
-
-    return userData;
+    if (!data || !data.user) {
+      console.error('No data returned from GraphQL query');
+      return null;
+    }
+    return data.user;
   } catch (error) {
-    throw error;
+    console.error('Error fetching user from GraphQL:', error);
+    return null;
   }
 }
 

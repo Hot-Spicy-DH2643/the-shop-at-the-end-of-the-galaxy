@@ -1,7 +1,7 @@
 {
   "id": 1,
   "coins": 0,
-  "owned_asteroids": [
+  "owned_asteroid_ids": [
     "2465633",
     "3426410",
     "3553060",
