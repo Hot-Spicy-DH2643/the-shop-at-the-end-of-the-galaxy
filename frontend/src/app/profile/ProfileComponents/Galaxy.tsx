@@ -299,7 +299,7 @@ export default function Galaxy({ profileData }: GalaxyProps) {
       >
         {/* Earth image - positioned at top-left with natural rotation */}
         <div
-          className="absolute rounded-full shadow-2xl shadow-blue-500/30 overflow-hidden"
+          className="absolute rounded-full overflow-hidden"
           style={{
             width: `${BASE_CONTAINER_SIZE * scaleFactor}px`,
             height: `${BASE_CONTAINER_SIZE * scaleFactor}px`,
@@ -307,6 +307,11 @@ export default function Galaxy({ profileData }: GalaxyProps) {
             top: `${(ORBITAL_CENTER_Y - BASE_CONTAINER_SIZE / 2) * scaleFactor}px`,
             transform: `rotate(${earthRotation}deg)`,
             transition: isDragging ? 'none' : 'transform 50ms linear',
+            boxShadow: `
+              0 0 40px 15px rgba(59, 130, 246, 0.4),
+              0 0 70px 25px rgba(59, 130, 246, 0.25),
+              0 0 100px 35px rgba(59, 130, 246, 0.15)
+            `,
           }}
         >
           <Image
