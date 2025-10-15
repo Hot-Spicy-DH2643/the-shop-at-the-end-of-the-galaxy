@@ -1,4 +1,5 @@
 import { User } from '../models/User.js';
+import { getAsteroidById } from './externalApiService.js';
 
 export async function getAllUsers() {
   try {
@@ -18,6 +19,16 @@ export async function getUserById(userId) {
       return null;
     }
 
+    const owned_asteroid_ids = user.owned_asteroid_ids;
+    const owned_asteroids = await Promise.all(
+      owned_asteroid_ids.map(id => getAsteroidById(id))
+    );
+
+    const starred_asteroid_ids = user.starred_asteroid_ids;
+    const starred_asteroids = await Promise.all(
+      starred_asteroid_ids.map(id => getAsteroidById(id))
+    );
+
     // Fetch followers' details
     const followers = await User.find(
       { uid: { $in: user.follower_ids } },
@@ -30,9 +41,17 @@ export async function getUserById(userId) {
       { uid: 1, name: 1, _id: 0 }
     );
 
+    const cart_asteroid_ids = user.cart_asteroid_ids;
+    const cart_asteroids = await Promise.all(
+      cart_asteroid_ids.map(id => getAsteroidById(id))
+    );
+
     // Transform the user object to include followers and following
     return {
       ...user.toObject(),
+      starred_asteroids,
+      owned_asteroids,
+      cart_asteroids,
       followers,
       following,
     };

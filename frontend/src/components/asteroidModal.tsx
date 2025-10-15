@@ -2,7 +2,11 @@
 import AsteroidSVGMoving from './asteroidSVGMoving';
 import Image from 'next/image';
 import { shopAsteroid } from '@/store/AppModel';
-import { Star, ShoppingBasket } from 'lucide-react';
+import { Star, ShoppingBasket, CalendarPlus, Eye } from 'lucide-react';
+import {
+  useAsteroidModalViewModel,
+  useAppStore,
+} from '@/store/useAppViewModel';
 
 interface modalProps {
   asteroid: shopAsteroid;
@@ -15,11 +19,26 @@ export default function AsteroidModal({
   onClose,
   onHandleStarred,
 }: modalProps) {
+  // MVVM: Use ViewModel to manage all business logic and state
+  const { formatted, isConnected, isLoading, viewerText, handleAddToCalendar } =
+    useAsteroidModalViewModel(asteroid);
+
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {
       onClose();
     }
   };
+
+  const addToCart = useAppStore(state => state.addToCart);
+
+  const handleAddToCart = () => {
+    addToCart(asteroid);
+    onClose(); // optional: close modal after adding
+  };
+
+  const { userData } = useAppStore();
+  const user_owned_asteroids = userData?.owned_asteroids.map(a => a.id);
+  console.log('asteroidModal.tsx file : ', user_owned_asteroids);
 
   return (
     <div
@@ -28,7 +47,7 @@ export default function AsteroidModal({
     >
       <div className="relative w-[90vw] max-w-xl m-2 bg-black p-4 rounded-lg shadow-2xl">
         <button
-          className="absolute top-4 right-5 text-3xl text-gray-400 hover:text-white transition-colors"
+          className="absolute top-4 left-4 text-3xl text-gray-400 hover:text-white transition-colors"
           aria-label="Close"
           onClick={onClose}
         >
@@ -40,54 +59,63 @@ export default function AsteroidModal({
             <AsteroidSVGMoving size={100} id={asteroid.id} bgsize={160} />
           </div>
 
-          <div className="w-100 mx-auto px-8 mt-4">
-            <div className="flex flex-row mb-4 justify-between items-center">
-              <h2 className="text-xl md:text-2xl font-mono">{asteroid.name}</h2>
+          <div className="w-full mx-auto px-4 md:px-8 mt-4 !text-white">
+            <div className="flex flex-row mb-4 justify-between items-center gap-2">
+              <h2 className="text-lg md:text-xl lg:text-2xl font-mono break-words flex-1 min-w-0">
+                {asteroid.name}
+              </h2>
 
               <button
                 onClick={() => onHandleStarred(asteroid.id)}
-                className="cursor-pointer"
+                className="cursor-pointer flex-shrink-0"
               >
-                {asteroid.starred_asteroid_ids ? (
+                {asteroid.is_starred ? (
                   <Star
-                    size={22}
+                    size={20}
                     className="hover:scale-[1.08] transition duration-300 text-yellow-300"
                     fill="yellow"
                   />
                 ) : (
                   <Star
-                    size={22}
-                    className="hover:scale-[1.08] transition duration-300 text-grey-600"
+                    size={20}
+                    className="hover:scale-[1.08] transition duration-300 text-white"
                   />
                 )}
               </button>
             </div>
 
-            <p>ID: {asteroid.id}</p>
-            <p>
-              {asteroid.is_potentially_hazardous_asteroid
-                ? 'Hazardous'
-                : 'Not Hazardous'}
-            </p>
-            <p>Diameter: {asteroid.size.toFixed(2)} m</p>
-            <p className="mt-4 text-lg font-bold text-purple-400 mr-8 mb-4">
+            <p>ID: {formatted.id}</p>
+            <p>{formatted.hazardous}</p>
+            <p>Diameter: {formatted.diameter}</p>
+            <p className="mt-4 text-xl font-bold text-purple-400 mr-8 mb-4">
               <Image
                 src="/cosmocoin-tiny.png"
                 alt="coin icon"
                 className="inline-block mr-1"
-                width={18}
-                height={18}
+                width={20}
+                height={20}
               />
-              {asteroid.price}
+              {formatted.price}
             </p>
           </div>
         </div>
 
         <div className="mb-6 text-sm font-bold mx-auto px-8 mt-2 items-center flex flex-col md:flex-row justify-center">
-          <button className="bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700 text-white px-6 py-2 rounded shadow hover:scale-105 hover:shadow-xl transition cursor-pointer text-center m-1 my-2 w-full md:w-auto">
-            <ShoppingBasket className="inline-block mr-2 mb-1" size={22} />
-            Add to basket
-          </button>
+          {user_owned_asteroids?.find(a => a === asteroid.id) ? (
+            <p className="bg-gradient-to-r bg-gray-400 text-white px-6 py-2 rounded shadow text-center m-1 my-2 w-full md:w-auto">
+              Already Purchased 🪐 {asteroid.name}
+            </p>
+          ) : (
+            <div>
+              <button
+                onClick={handleAddToCart}
+                className="bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700 text-white px-6 py-2 rounded shadow hover:scale-105 hover:shadow-xl transition cursor-pointer text-center m-1 my-2 w-full md:w-auto"
+              >
+                <ShoppingBasket className="inline-block mr-2 mb-1" size={22} />
+                Add to basket
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="overflow-hidden rounded-lg shadow bg-gradient-to-br from-gray-900 via-gray-950 to-black mb-6">
@@ -98,8 +126,8 @@ export default function AsteroidModal({
                   Orbit class type:
                 </td>
                 <td className="px-4 py-3 text-pink-100">
-                  AMO (Near-Earth asteroid orbits){' '}
-                  {/* TODO: These need to be updated with real values. */}
+                  {formatted.orbital.orbitClass} (
+                  {formatted.orbital.orbitDescription})
                 </td>
               </tr>
               <tr className="border-b border-gray-800 last:border-b-0">
@@ -107,80 +135,94 @@ export default function AsteroidModal({
                   Interest:
                 </td>
                 <td className="px-4 py-3 text-pink-100">
-                  👀 7 explorers eyeing this right now
+                  <Eye className="inline-block mr-2 mb-1" size={16} />
+                  {isLoading ? (
+                    <span className="text-gray-400 italic">{viewerText}</span>
+                  ) : (
+                    viewerText
+                  )}
+                  {!isConnected && !isLoading && (
+                    <span className="text-xs text-gray-500 ml-2">
+                      (offline)
+                    </span>
+                  )}
                 </td>
               </tr>
-              <tr>
+              <tr className="border-b border-gray-800 last:border-b-0">
                 <td className="px-4 py-3 text-purple-200 font-semibold align-top">
                   Parameters:
                 </td>
                 <td className="px-4 py-3">
                   <span className="inline-block mr-2 mb-2 bg-gradient-to-r from-gray-800 via-gray-900 to-black text-purple-200 text-xs font-mono px-3 py-1 rounded-full border border-purple-900 shadow-sm tracking-tight">
-                    a = 1.458 AU
+                    a = {formatted.orbital.semiMajorAxis}
                   </span>
                   <span className="inline-block mr-2 mb-2 bg-gradient-to-r from-gray-800 via-gray-900 to-black text-purple-200 text-xs font-mono px-3 py-1 rounded-full border border-purple-900 shadow-sm tracking-tight">
-                    e = 0.223
+                    e = {formatted.orbital.eccentricity}
                   </span>
                   <span className="inline-block mr-2 bg-gradient-to-r from-gray-800 via-gray-900 to-black text-purple-200 text-xs font-mono px-3 py-1 rounded-full border border-purple-900 shadow-sm tracking-tight">
-                    i = 10.83&deg;
+                    i = {formatted.orbital.inclination}
                   </span>
+                </td>
+              </tr>
+              <tr>
+                <td className="px-4 py-3 text-purple-200 font-semibold">
+                  More details:
+                </td>
+                <td className="px-4 py-3 text-pink-100">
+                  <a
+                    href={formatted.nasaUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-purple-400 underline hover:text-purple-200 break-all inline-flex items-center gap-1"
+                  >
+                    View in NASA Database
+                    <span className="text-xs">↗</span>
+                  </a>
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
 
-        <div className="overflow-x-auto rounded-lg shadow mt-6">
-          <div className="overflow-hidden rounded-lg shadow bg-gradient-to-br from-gray-900 via-gray-950 to-black mb-6">
-            <table className="w-full text-left text-white">
-              <thead>
-                <tr>
-                  <th className="px-4 py-3 text-purple-200 font-bold rounded-tl-lg">
-                    Event
-                  </th>
-                  <th className="px-4 py-3 text-purple-200 font-bold">
-                    Date & Time (UTC)
-                  </th>
-                  <th className="px-4 py-3 text-purple-200 font-bold">
-                    Miss Distance
-                  </th>
-                  <th className="px-4 py-3 text-purple-200 font-bold rounded-tr-lg">
-                    Speed
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr className="border-b border-gray-800 last:border-b-0">
-                  <td className="px-4 py-3 font-semibold">Next Approach</td>
-                  <td className="px-4 py-3">
-                    2025-11-30 02:18 <br />
-                    <a
-                      href="#"
-                      className="text-purple-400 underline hover:text-purple-200"
-                    >
-                      Add to calendar
-                    </a>
-                  </td>
-                  <td className="px-4 py-3">
-                    0.39765 AU
-                    <br />
-                    <span className="text-xs text-gray-400">(-59.49M km)</span>
-                  </td>
-                  <td className="px-4 py-3">3.73 km/s</td>
-                </tr>
-                <tr>
-                  <td className="px-4 py-3 font-semibold">Last Approach</td>
-                  <td className="px-4 py-3">2024-11-30 02:11</td>
-                  <td className="px-4 py-3">
-                    0.20860 AU
-                    <br />
-                    <span className="text-xs text-gray-400">(~31.21M km)</span>
-                  </td>
-                  <td className="px-4 py-3">6.04 km/s</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+        <div className="overflow-hidden rounded-lg shadow bg-gradient-to-br from-gray-900 via-gray-950 to-black mb-6">
+          <table className="w-full text-left">
+            <tbody>
+              <tr className="border-b border-gray-800 last:border-b-0">
+                <td className="px-4 py-3 text-purple-200 font-semibold w-1/3">
+                  Next approach:
+                </td>
+                <td className="px-4 py-3 text-pink-100">
+                  {formatted.approach.date} &nbsp;{' '}
+                  <button
+                    onClick={handleAddToCalendar}
+                    className="text-purple-400 underline hover:text-purple-200 cursor-pointer"
+                  >
+                    Add to calendar{' '}
+                    <CalendarPlus className="inline-block mb-1" size={14} />
+                  </button>
+                </td>
+              </tr>
+              <tr className="border-b border-gray-800 last:border-b-0">
+                <td className="px-4 py-3 text-purple-200 font-semibold">
+                  Miss distance:
+                </td>
+                <td className="px-4 py-3 text-pink-100">
+                  {formatted.approach.distanceAU} &nbsp;{' '}
+                  <span className="text-xs text-gray-400">
+                    {formatted.approach.distanceKm}
+                  </span>
+                </td>
+              </tr>
+              <tr className="border-b border-gray-800 last:border-b-0">
+                <td className="px-4 py-3 text-purple-200 font-semibold align-top">
+                  Speed:
+                </td>
+                <td className="px-4 py-3 text-purple-200">
+                  {formatted.approach.velocityKmPerSec}
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
         <div>

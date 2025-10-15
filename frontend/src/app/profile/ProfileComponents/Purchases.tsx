@@ -2,9 +2,14 @@
 import { useEffect, useState } from 'react';
 import type { shopAsteroid, UserData } from '@/store/AppModel';
 import { useAuthStore } from '@/store/useAuthViewModel';
-import { useAppStore } from '@/store/useAppViewModel';
+import {
+  useAppStore,
+  onHandleProductClick,
+  onHandleStarred,
+} from '@/store/useAppViewModel';
 
 import AsteroidSVGMoving from '@/components/asteroidSVGMoving';
+import AsteroidModal from '@/components/asteroidModal';
 
 interface PurchasesProps {
   profileData: UserData | null;
@@ -18,18 +23,18 @@ export default function Purchases({
   const { user: firebaseUser } = useAuthStore();
 
   // const owned_asteroid_ids = []; // For testing no purchases
-  const owned_asteroid_ids = profileData?.owned_asteroid_ids;
-  const favoriteAsteroids = profileData?.starred_asteroid_ids;
+  const owned_asteroids = profileData?.owned_asteroids;
+  const starred_asteroids = profileData?.starred_asteroids;
 
   const [zeroPurchaseId, setZeroPurchaseId] = useState<string>('0000000');
 
   const { asteroids, setAsteroids } = useAppStore();
-  const [show_owned_asteroid_ids, setShowOwnedAsteroids] = useState<
-    shopAsteroid[]
-  >([]);
+
+  const selectedAsteroidId = useAppStore(state => state.selectedAsteroidId);
+  const selectedAsteroid = asteroids.find(a => a.id === selectedAsteroidId);
 
   useEffect(() => {
-    if (owned_asteroid_ids?.length === 0) {
+    if (owned_asteroids?.length === 0) {
       const id = Math.floor(Math.random() * 10000000)
         .toString()
         .padStart(7, '0');
@@ -40,16 +45,7 @@ export default function Purchases({
     }
   }, []);
 
-  useEffect(() => {
-    if (asteroids.length > 0) {
-      setShowOwnedAsteroids(
-        asteroids.filter(asteroid => owned_asteroid_ids?.includes(asteroid.id))
-      );
-      console.log('Owned asteroids detail:', show_owned_asteroid_ids);
-    }
-  }, [asteroids, owned_asteroid_ids]);
-
-  if (owned_asteroid_ids?.length === 0) {
+  if (owned_asteroids?.length === 0) {
     return (
       <div className="text-white">
         <h2 className="text-2xl font-extrabold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-300 bg-clip-text text-transparent drop-shadow-lg">
@@ -92,24 +88,18 @@ export default function Purchases({
       <p className="mt-4 text-lg">
         <span className="font-bold">{profileData?.name}</span> has{' '}
         <span className="font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-          {owned_asteroid_ids?.length}
+          {owned_asteroids?.length}
         </span>{' '}
         asteroids.
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2">
-        {show_owned_asteroid_ids.map((asteroid, idx) => (
+        {owned_asteroids?.map((asteroid, idx) => (
           <div
             key={asteroid.id}
             className="relative rounded bg-[rgba(23,23,23,0.7)]1 shadow text-center cursor-pointer"
           >
             <div className="p-6">
-              {favoriteAsteroids?.includes(asteroid.id) ? (
-                <p className="font-bold font-3xl mt-4 text-yellow-300 absolute top-2 left-2 z-40">
-                  ⭐️
-                </p>
-              ) : null}
-
               <div className="flex flex-col text-sm justify-center items-center hover:scale-[1.08] transition duration-300">
                 <AsteroidSVGMoving
                   id={`${asteroid.id}-${idx}`}
@@ -124,8 +114,11 @@ export default function Purchases({
                     : 'Not Hazardous'}
                 </p>
                 <p>Diameter: {asteroid.size.toFixed(2)} m</p>
-                <p>Price</p>
-                <button className="bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700 text-white px-6 py-2 rounded shadow hover:scale-105 hover:shadow-xl transition cursor-pointer text-center m-1 my-2 md:w-auto">
+                <p>Price: {asteroid.price}</p>
+                <button
+                  className="bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700 text-white px-6 py-2 rounded shadow hover:scale-105 hover:shadow-xl transition cursor-pointer text-center m-1 my-2 md:w-auto"
+                  onClick={() => onHandleProductClick(asteroid.id)}
+                >
                   Show Details
                 </button>
               </div>
@@ -133,6 +126,14 @@ export default function Purchases({
           </div>
         ))}
       </div>
+
+      {selectedAsteroidId && selectedAsteroid && (
+        <AsteroidModal
+          asteroid={selectedAsteroid}
+          onClose={() => useAppStore.getState().setSelectedAsteroidId(null)}
+          onHandleStarred={() => onHandleStarred(selectedAsteroid.id)}
+        />
+      )}
     </div>
   );
 }

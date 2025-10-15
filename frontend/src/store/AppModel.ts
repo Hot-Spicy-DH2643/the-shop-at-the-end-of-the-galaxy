@@ -51,7 +51,7 @@ export interface Asteroid {
 export type shopAsteroid = Asteroid & {
   price: number;
   ownership_id: string | null;
-  starred_asteroid_ids: boolean;
+  is_starred: boolean;
   size: number;
   orbital_data?: {
     orbit_id: string;
@@ -89,15 +89,23 @@ type Friend = {
   name: string;
 };
 
+type UserAsteriod = {
+  id: string;
+  name: string;
+  is_potentially_hazardous_asteroid: boolean;
+  price: number;
+  size: number;
+};
+
 export type UserData = {
   uid: string;
   name: string;
   coins: number;
-  owned_asteroid_ids: string[];
-  starred_asteroid_ids: string[];
+  owned_asteroids: UserAsteriod[];
+  starred_asteroids: UserAsteriod[];
   followers: Friend[];
   following: Friend[];
-  cart_asteroid_ids: string[];
+  cart_asteroids: UserAsteriod[];
 };
 
 export type AppState = {
@@ -113,16 +121,21 @@ export type AppState = {
   totalCount: number;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
-  setAsteroids: (page?: number) => Promise<void>;
+  setAsteroids: (page?: number, filters?: BackendFilters) => Promise<void>;
   setSelectedAsteroidId: (id: string | null) => void;
   setUserData: () => Promise<void>;
+
+  cart: shopAsteroid[];
+  addToCart: (asteroid: shopAsteroid) => void;
+  removeFromCart: (id: string) => void;
+  clearCart: () => void;
   setViewedProfile: (uid: string) => Promise<void>;
 };
 
 // GraphQL query to fetch asteroids with pagination
 const GET_ASTEROIDS = gql`
-  query GetAsteroids($page: Int, $pageSize: Int) {
-    asteroids(page: $page, pageSize: $pageSize) {
+  query GetAsteroids($page: Int, $pageSize: Int, $filters: AsteroidFilters) {
+    asteroids(page: $page, pageSize: $pageSize, filters: $filters) {
       asteroids {
         id
         neo_reference_id
@@ -225,14 +238,65 @@ export interface AsteroidsResult {
   currentPage: number;
 }
 
+// UI filter type - stores values in user-friendly ranges
+export interface UIFilters {
+  hazardous?: string;
+  sizeMin?: number;
+  sizeMax?: number;
+  distanceMin?: number; // 0-100 range
+  distanceMax?: number; // 0-100 range
+  priceMin?: number;
+  priceMax?: number;
+  orbitTypes?: string[];
+  sortBy?: string;
+}
+
+// Backend filter input type
+export interface BackendFilters {
+  hazardous?: string;
+  sizeMin?: number;
+  sizeMax?: number;
+  distanceMin?: number;
+  distanceMax?: number;
+  priceMin?: number;
+  priceMax?: number;
+  orbitTypes?: string[];
+  sortBy?: string;
+}
+
+// Converter function: UI filters -> Backend filters
+export function convertUIFiltersToBackend(
+  uiFilters: UIFilters
+): BackendFilters {
+  const DISTANCE_MAX = 100000000; // 100 million km
+
+  return {
+    ...uiFilters,
+    // Convert distance from 0-100 range to actual kilometers
+    distanceMin:
+      uiFilters.distanceMin !== undefined
+        ? (uiFilters.distanceMin / 100) * DISTANCE_MAX
+        : undefined,
+    distanceMax:
+      uiFilters.distanceMax !== undefined
+        ? (uiFilters.distanceMax / 100) * DISTANCE_MAX
+        : undefined,
+  };
+}
+
 export async function fetchAsteroids(
   page: number = 1,
-  pageSize: number = DEFAULT_PAGE_SIZE
+  pageSize: number = DEFAULT_PAGE_SIZE,
+  filters?: BackendFilters
 ): Promise<AsteroidsResult> {
   try {
     const { data } = await client.query<AsteroidsResponse>({
       query: GET_ASTEROIDS,
-      variables: { page, pageSize },
+      variables: {
+        page,
+        pageSize,
+        filters,
+      },
       fetchPolicy: 'network-only', // Always fetch fresh data from server
     });
 
@@ -251,7 +315,7 @@ export async function fetchAsteroids(
       asteroid => ({
         ...asteroid,
         ownership_id: null, // TODO: Get from user data
-        starred_asteroid_ids: false, // TODO: Get from user data
+        is_starred: false, // TODO: Get from user data
       })
     );
 
@@ -278,8 +342,20 @@ const GET_USER_BY_ID = gql`
       uid
       name
       coins
-      owned_asteroid_ids
-      starred_asteroid_ids
+      owned_asteroids {
+        id
+        name
+        is_potentially_hazardous_asteroid
+        price
+        size
+      }
+      starred_asteroids {
+        id
+        name
+        is_potentially_hazardous_asteroid
+        price
+        size
+      }
       followers {
         uid
         name
@@ -288,7 +364,12 @@ const GET_USER_BY_ID = gql`
         uid
         name
       }
-      cart_asteroid_ids
+      cart_asteroids {
+        id
+        name
+        price
+        size
+      }
     }
   }
 `;
@@ -315,33 +396,6 @@ export async function fetchUserData(uid: string): Promise<UserData | null> {
 // ============================================
 // SORTING FUNCTIONS - Pure Business Logic
 // ============================================
-
-/**
- * Helper function to get the closest approach distance from Earth for an asteroid
- * Currently unused, but kept for future reference if physical distance sorting is needed
- * @param asteroid - The asteroid to analyze
- * @returns Distance in kilometers, or Infinity if no data
- */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function getClosestApproachDistance(asteroid: shopAsteroid): number {
-  if (
-    !asteroid.close_approach_data ||
-    asteroid.close_approach_data.length === 0
-  ) {
-    return Infinity;
-  }
-
-  // Find the approach with minimum distance to Earth
-  const closestApproach = asteroid.close_approach_data.reduce(
-    (closest, current) => {
-      const currentDist = parseFloat(current.miss_distance.kilometers);
-      const closestDist = parseFloat(closest.miss_distance.kilometers);
-      return currentDist < closestDist ? current : closest;
-    }
-  );
-
-  return parseFloat(closestApproach.miss_distance.kilometers);
-}
 
 /**
  * Helper function to get the time difference from now to closest approach date
@@ -440,4 +494,139 @@ export function sortAsteroids(
   });
 
   return limit ? sorted.slice(0, limit) : sorted;
+}
+
+// ============================================
+// FORMATTING FUNCTIONS - Pure Presentation Logic
+// ============================================
+
+/**
+ * Format a numeric string value with specified decimal places
+ * @param value - Raw string value from API
+ * @param decimals - Number of decimal places
+ * @returns Formatted number string or 'N/A'
+ */
+export function formatNumber(
+  value: string | number | undefined,
+  decimals: number = 2
+): string {
+  if (value === undefined || value === null) return 'N/A';
+  const numValue = typeof value === 'string' ? parseFloat(value) : value;
+  if (isNaN(numValue)) return 'N/A';
+  return numValue.toFixed(decimals);
+}
+
+/**
+ * Format orbital parameter for display with unit
+ * @param value - Raw string value from API
+ * @param decimals - Number of decimal places
+ * @param unit - Unit to append (e.g., 'AU', '°')
+ * @returns Formatted string with unit
+ */
+export function formatOrbitalParameter(
+  value: string | undefined,
+  decimals: number = 3,
+  unit: string = ''
+): string {
+  const formatted = formatNumber(value, decimals);
+  if (formatted === 'N/A') return formatted;
+  // No space for degree symbol, space for other units like 'AU'
+  const separator = unit === '°' ? '' : ' ';
+  return `${formatted}${unit ? `${separator}${unit}` : ''}`;
+}
+
+/**
+ * Format distance in kilometers to millions of kilometers
+ * @param kilometers - Distance in kilometers (string)
+ * @param decimals - Number of decimal places
+ * @returns Formatted string with 'M km' unit
+ */
+export function formatMillionKilometers(
+  kilometers: string | undefined,
+  decimals: number = 2
+): string {
+  if (!kilometers) return 'N/A';
+  const km = parseFloat(kilometers);
+  if (isNaN(km)) return 'N/A';
+  return `${(km / 1000000).toFixed(decimals)} M km`;
+}
+
+/**
+ * Get formatted orbital data for an asteroid
+ * @param asteroid - The asteroid to format
+ * @returns Object with formatted orbital parameters
+ */
+export function getFormattedOrbitalData(asteroid: shopAsteroid) {
+  return {
+    semiMajorAxis: formatOrbitalParameter(
+      asteroid.orbital_data?.semi_major_axis,
+      3,
+      'AU'
+    ),
+    eccentricity: formatOrbitalParameter(
+      asteroid.orbital_data?.eccentricity,
+      3
+    ),
+    inclination: formatOrbitalParameter(
+      asteroid.orbital_data?.inclination,
+      2,
+      '°'
+    ),
+    orbitClass: asteroid.orbital_data?.orbit_class.orbit_class_type || 'N/A',
+    orbitDescription:
+      asteroid.orbital_data?.orbit_class.orbit_class_description || 'N/A',
+  };
+}
+
+/**
+ * Get formatted close approach data for an asteroid
+ * @param asteroid - The asteroid to format
+ * @returns Object with formatted approach data
+ */
+export function getFormattedApproachData(asteroid: shopAsteroid) {
+  const approach = asteroid.close_approach_data?.[0];
+
+  if (!approach) {
+    return {
+      date: 'N/A',
+      distanceAU: 'N/A',
+      distanceKm: 'N/A',
+      velocityKmPerSec: 'N/A',
+    };
+  }
+
+  return {
+    date: approach.close_approach_date_full,
+    distanceAU: formatOrbitalParameter(
+      approach.miss_distance.astronomical,
+      5,
+      'AU'
+    ),
+    distanceKm: formatMillionKilometers(approach.miss_distance.kilometers),
+    velocityKmPerSec: formatOrbitalParameter(
+      approach.relative_velocity.kilometers_per_second,
+      2,
+      'km/s'
+    ),
+  };
+}
+
+/**
+ * Get all formatted data for an asteroid modal
+ * @param asteroid - The asteroid to format
+ * @returns Complete formatted data object
+ */
+export function getFormattedAsteroidData(asteroid: shopAsteroid) {
+  return {
+    id: asteroid.id,
+    name: asteroid.name,
+    hazardous: asteroid.is_potentially_hazardous_asteroid
+      ? 'Hazardous'
+      : 'Not Hazardous',
+    diameter: formatNumber(asteroid.size, 2) + ' m',
+    price: asteroid.price.toLocaleString(),
+    orbital: getFormattedOrbitalData(asteroid),
+    approach: getFormattedApproachData(asteroid),
+    nasaUrl: asteroid.nasa_jpl_url,
+  };
 }

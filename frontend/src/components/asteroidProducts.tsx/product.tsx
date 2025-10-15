@@ -21,19 +21,19 @@ export default function Product({
         onClick={() => onHandleStarred(asteroid.id)}
         className="p-1 absolute top-1 right-2 z-10 cursor-pointer"
       >
-        {asteroid.starred_asteroid_ids ? (
+        {asteroid.is_starred ? (
           <Star
             className="hover:scale-[1.08] transition duration-300 text-yellow-300"
             fill="yellow"
           />
         ) : (
-          <Star className="hover:scale-[1.08] transition duration-300 text-grey-600" />
+          <Star className="hover:scale-[1.08] transition duration-300 text-white" />
         )}
       </button>
 
       <div
         onClick={() => onHandleProductClick(asteroid.id)}
-        className="group animate-fade-in rounded flex flex-col items-center overflow-hidden m-4 cursor-pointer"
+        className="group animate-fade-in rounded flex flex-col items-center m-4 cursor-pointer"
       >
         {/* Asteroid Image */}
         <div className="group-hover:scale-[1.08] transition duration-300 p-1 pb-2">
@@ -44,7 +44,9 @@ export default function Product({
         <div className="flex flex-col items-center text-center space-y-1 group-hover:scale-[1.08] transition duration-300">
           {/* Name */}
           <h3 className="text-white font-bold text-lg truncate">
-            {asteroid.name}
+            {asteroid.name.length > 18
+              ? `${asteroid.name.substring(0, 15)}...`
+              : asteroid.name}
           </h3>
 
           {/* Hazardous / Diameter */}

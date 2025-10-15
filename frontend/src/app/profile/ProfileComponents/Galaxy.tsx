@@ -6,6 +6,8 @@ import AsteroidSVG from '@/components/asteroidSVG';
 import '@/app/globals.css';
 import type { UserData } from '@/store/AppModel';
 
+import { Maximize } from 'lucide-react';
+
 const ORBIT_LANES = [
   { radius: 60, depth: -30, duration: 15, tilt: 15 },
   { radius: 90, depth: -15, duration: 20, tilt: 10 },
@@ -31,7 +33,7 @@ export default function Galaxy({ profileData, isOwnProfile }: GalaxyProps) {
 
   useEffect(() => {
     if (profileData) {
-      setUserAsteroids(profileData.owned_asteroid_ids);
+      setUserAsteroids(profileData.owned_asteroids.map(a => a.id));
     }
     setLoading(false);
   }, [profileData]);
@@ -48,16 +50,23 @@ export default function Galaxy({ profileData, isOwnProfile }: GalaxyProps) {
     setSelectedAsteroid(asteroid);
   };
 
+  /*
   const handleGalaxyClick = () => {
     setIsExpanded(true);
-  };
+  };*/
 
   return (
     <div className="flex justify-center items-start w-full py-10 bg-transparent gap-8">
-      <div
-        className="relative flex-1 max-w-5xl h-[200px] w-[80%] bg-black text-white rounded-2xl overflow-hidden shadow-2xl perspective-3d cursor-pointer hover:shadow-blue-500/20 hover:shadow-xl transition-all duration-300"
-        onClick={handleGalaxyClick}
-      >
+      <div className="relative flex-1 max-w-5xl h-[200px] w-[80%] bg-black text-white rounded-2xl overflow-hidden shadow-2xl perspective-3d hover:shadow-blue-500/20 hover:shadow-xl transition-all duration-300">
+        <button
+          className="absolute top-4 right-4 z-10 text-white/80 hover:text-white transition-colors"
+          onClick={e => {
+            e.stopPropagation();
+            setIsExpanded(true);
+          }}
+        >
+          <Maximize size={20} />
+        </button>
         <div className="absolute inset-0 transform-gpu rotate-x-[25deg] rotate-z-[10deg] [transform-style:preserve-3d]">
           <Sun size={16} />
 
@@ -98,7 +107,7 @@ export default function Galaxy({ profileData, isOwnProfile }: GalaxyProps) {
                         : 'none',
                   }}
                 >
-                  <AsteroidSVG id={asteroid.toString()} size={40} />
+                  <AsteroidSVG id={asteroid.toString()} size={50} />
                 </div>
               </div>
             );
@@ -107,9 +116,11 @@ export default function Galaxy({ profileData, isOwnProfile }: GalaxyProps) {
       </div>
 
       {/* Code for the Info Panel */}
-      {/*<div className="w-[20%] min-w-[230px] bg-gray-900/80 backdrop-blur-lg p-6 rounded-xl border border-gray-700 shadow-lg">
-        <AsteroidDetails asteroid={selectedAsteroid} />
-      </div>/*}
+      {!isExpanded && (
+        <div className="w-[20%] min-w-[230px] bg-gray-900/80 backdrop-blur-lg p-6 rounded-xl border border-gray-700 shadow-lg text-white">
+          <AsteroidDetails asteroid={selectedAsteroid} />
+        </div>
+      )}
 
       {/* Code for Expanding the Galaxy model*/}
       {isExpanded && (
@@ -185,36 +196,12 @@ export default function Galaxy({ profileData, isOwnProfile }: GalaxyProps) {
             </div>
           </div>
 
-          {/* Asteroid Details Modal */}
-          {selectedAsteroid && (
-            <div
-              className="fixed inset-0 flex items-center justify-center z-60"
-              onClick={() => setSelectedAsteroid(null)}
-            >
-              <div
-                className="bg-gray-900/90 text-white p-6 rounded-2xl border border-gray-700 shadow-2xl w-[400px] max-w-[90vw] backdrop-blur-xl"
-                onClick={e => e.stopPropagation()}
-              >
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-xl font-bold">Asteroid Details</h3>
-                  <button
-                    className="text-gray-400 hover:text-white"
-                    onClick={() => setSelectedAsteroid(null)}
-                  >
-                    ✕
-                  </button>
-                </div>
-                <AsteroidDetails asteroid={selectedAsteroid} />
-              </div>
-            </div>
-          )}
-
           {/* Close button for the model */}
           <button
             className="absolute top-4 right-4 text-white/80 hover:text-white text-xl"
             onClick={() => setIsExpanded(false)}
           >
-            ✕
+            <Minimize size={20} />
           </button>
         </div>
       )}

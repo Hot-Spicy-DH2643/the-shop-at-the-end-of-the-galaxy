@@ -73,8 +73,9 @@ export default function User({ profileData, isOwnProfile }: UserProps) {
           )}
           <tr>
             <td className="font-bold pr-10">Owned:</td>
-            <td>{profileData?.owned_asteroid_ids.length || 0} asteroids</td>
+            <td>{profileData?.owned_asteroids.length || 0} asteroids</td>
           </tr>
+          <tr></tr>
           <tr>
             <td className="font-bold pr-10">Have:</td>
             {profileData?.following.length !== 0 ? (
