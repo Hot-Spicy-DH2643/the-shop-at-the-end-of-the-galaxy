@@ -2,9 +2,9 @@ import { queryResolvers } from './query.js';
 import { mutationResolvers } from './mutation.js';
 import { exampleResolvers } from './example.js';
 import { asteroidResolvers } from './asteroid.js';
+import { dailyClaimResolvers } from './dailyClaim.js';
 import { userResolvers } from './user.js';
 
-// Merge all resolvers
 export const resolvers = {
   ...exampleResolvers,
   ...queryResolvers,
@@ -13,10 +13,12 @@ export const resolvers = {
   Query: {
     ...queryResolvers.Query,
     ...asteroidResolvers.Query,
+    ...dailyClaimResolvers.Query,
     ...userResolvers.Query,
   },
   Mutation: {
     ...mutationResolvers.Mutation,
     ...asteroidResolvers.Mutation,
+    ...dailyClaimResolvers.Mutation,
   },
 };
