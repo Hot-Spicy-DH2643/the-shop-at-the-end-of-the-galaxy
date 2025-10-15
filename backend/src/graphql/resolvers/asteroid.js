@@ -3,18 +3,17 @@ import {
   getAsteroidById,
   cacheAsteroidsData,
 } from '../../services/externalApiService.js';
-import { Asteroid } from '../../models/Asteroid.js';
 import { CacheMetadata } from '../../models/CacheMetadata.js';
 
 export const asteroidResolvers = {
   Query: {
     // Get all asteroids with pagination
-    asteroids: async (parent, { page = 1, pageSize = 20 }) => {
+    asteroids: async (parent, {page = 1, pageSize = 20, filters = null}) => {
       try {
-        return await getAsteroids(page, pageSize);
+        return await getAsteroids(page, pageSize, filters);
       } catch (error) {
-        console.error('Error in asteroids resolver:', error);
-        throw new Error('Failed to fetch asteroids');
+        console.error("Error in asteroids resolver:", error);
+        throw new Error("Failed to fetch filtered asteroids");
       }
     },
 
@@ -53,32 +52,6 @@ export const asteroidResolvers = {
       } catch (error) {
         console.error('Error in cacheStatus resolver:', error);
         throw new Error('Failed to fetch cache status');
-      }
-    },
-
-    // TODO: Might delete, using frontend filter
-    // Get asteroids filtered by hazard status
-    asteroidsByHazard: async (parent, { isHazardous, page = 1, pageSize = 20 }) => {
-      try {
-        const asteroids = await Asteroid.find({
-          is_potentially_hazardous_asteroid: isHazardous,
-        }).lean();
-        return asteroids;
-      } catch (error) {
-        console.error('Error in asteroidsByHazard resolver:', error);
-        throw new Error('Failed to fetch asteroids by hazard status');
-      }
-    },
-
-    // TODO: Might delete, using frontend filter
-    // Get asteroids by size category
-    asteroidsBySize: async (parent, { size }) => {
-      try {
-        const asteroids = await Asteroid.find({ size }).lean();
-        return asteroids;
-      } catch (error) {
-        console.error('Error in asteroidsBySize resolver:', error);
-        throw new Error('Failed to fetch asteroids by size');
       }
     },
   },

@@ -6,10 +6,8 @@ import {
   fetchAsteroids,
   fetchUserData,
   DEFAULT_PAGE_SIZE,
-  sortAsteroids,
   type SortOption,
-  filterAndSortAsteroids,
-  type FilterState
+  type BackendFilters,
 } from './AppModel';
 
 const useAppStore = create<AppState>(set => ({
@@ -24,12 +22,13 @@ const useAppStore = create<AppState>(set => ({
   setSelectedAsteroidId: (id: string | null) => set({ selectedAsteroidId: id }),
   setLoading: (loading: boolean) => set({ loading }),
   setError: (error: string | null) => set({ error }),
-  setAsteroids: async (page: number = 1) => {
+  setAsteroids: async (page: number = 1, filters?: BackendFilters) => {
     try {
       set({ loading: true, error: null });
       // Fetch asteroids from GraphQL backend with pagination
       // Price and size are now calculated server-side
-      const result = await fetchAsteroids(page, DEFAULT_PAGE_SIZE);
+      console.log(filters);
+      const result = await fetchAsteroids(page, DEFAULT_PAGE_SIZE, filters);
       set({
         asteroids: result.asteroids,
         currentPage: result.currentPage,
@@ -61,11 +60,11 @@ const useAppStore = create<AppState>(set => ({
   },
 }));
 
-
 // =========================
 //  CUSTOM HOOKS
 
-{/* Sorting */}
+{
+  /* Sorting 
 export function useSortedAsteroids(
   sortBy: SortOption = 'None', // sorting criteria (e.g., 'price-asc', 'size-desc', etc.)
   limit?: number // limit to return only the first N asteroids
@@ -79,13 +78,8 @@ export function useAsteroidsSortedByClosestApproach(limit?: number) {
   const asteroids = useAppStore(state => state.asteroids);
   return sortAsteroids(asteroids, 'distance-asc', limit);
 }
-
-{/* Filtering */}
-export function useFilteredAsteroids(filters: FilterState) {
-  const asteroids = useAppStore(state => state.asteroids);
-  return filterAndSortAsteroids(asteroids, filters);
+*/
 }
-
 // =========================
 //  EVENT HANDLERS
 
@@ -106,6 +100,5 @@ export function onHandleStarred(id: string) {
   });
 }
 
-
 export { useAppStore };
-export type { SortOption, FilterState};
+export type { SortOption, BackendFilters };

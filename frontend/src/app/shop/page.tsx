@@ -20,10 +20,9 @@ import Product from '@/components/asteroidProducts.tsx/product';
 import ProductSkeleton from '@/components/asteroidProducts.tsx/productSkeleton';
 import {
   useAppStore,
-  useSortedAsteroids,
-  useFilteredAsteroids,
+  //useSortedAsteroids,
   type SortOption,
-  type FilterState
+  type BackendFilters
 } from '@/store/useAppViewModel';
 import { onHandleProductClick, onHandleStarred } from '@/store/useAppViewModel';
 import AsteroidModal from '@/components/asteroidModal';
@@ -42,9 +41,9 @@ const HAZARD_FILTER = {
   id: 'hazardous',
   name: 'Hazard Level',
   options: [
-    { value: 'all', label: 'All', checked: true },
-    { value: 'hazardous', label: 'Hazardous', checked: false },
-    { value: 'non-hazardous', label: 'Non-Hazardous', checked: false },
+    { id: 0, value: "all", label: 'All', checked: true },
+    { id: 1, value: "hazardous", label: 'Hazardous', checked: false },
+    { id: 2, value: "non-hazardous", label: 'Non-Hazardous', checked: false },
   ] as const,
 };
 
@@ -56,40 +55,54 @@ const ORBIT_FILTER = {
     { value: 'APO', label: 'Apollo (APO)', checked: false },
     { value: 'ATE', label: 'Aten (ATE)', checked: false },
     { value: 'AMO', label: 'Amor (AMO)', checked: false },
-    { value: 'IEO', label: 'Atira/Interior Earth Object (IEO)', checked: false },
+    {
+      value: 'IEO',
+      label: 'Atira/Interior Earth Object (IEO)',
+      checked: false,
+    },
   ] as const,
 };
 
 export default function Shop() {
   // Get state and actions from Zustand store
-  const { loading, setAsteroids, currentPage, totalPages, totalCount } =
-    useAppStore();
+  const {
+    loading,
+    setAsteroids,
+    asteroids,
+    currentPage,
+    totalPages,
+    totalCount,
+  } = useAppStore();
 
   // Keep filter state local as it's UI-specific
-  const [filter, setFilter] = useState<FilterState>({
-    hazardous: 'all',
-    sizeRange: [0, 100],
-    distanceRange: [0, 100],
-    orbitType: [],
-    sort: 'None',
-  });
+  const [filter, setFilter] = useState<BackendFilters>({
+      hazardous: "all",
+      sizeMin:  0,
+      sizeMax: 3000,
+      distanceMin: 0,
+      distanceMax: 1000000,
+      priceMin: 100,
+      priceMax: 900,
+      orbitTypes: [],
+      sortBy: "None",
+    }
+  );
+
+  const [sort, setSort] = useState<SortOption>('None');
 
   // MVVM: Get sorted asteroids based on current filter
   // This automatically re-sorts when filter.sort changes
-  const filteredAsteroids = useFilteredAsteroids(filter);
-
+  /*const filteredAsteroids = useFilteredAsteroids(filter);*/
 
   const selectedAsteroidId = useAppStore(state => state.selectedAsteroidId);
-  const selectedAsteroid = filteredAsteroids.find(
-    a => a.id === selectedAsteroidId
-  );
+  const selectedAsteroid = asteroids.find(a => a.id === selectedAsteroidId);
 
   console.log('Current filter state:', filter);
 
   // Fetch asteroids on mount
   useEffect(() => {
-    setAsteroids(1);
-  }, [setAsteroids]);
+    setAsteroids(1, sort, filter); // send current filter to backend
+  }, [filter, setAsteroids]);
 
   // Handler for page changes
   const handlePageChange = (newPage: number) => {
@@ -124,7 +137,7 @@ export default function Shop() {
                     </h3>
                     <ul className="space-y-4">
                       {HAZARD_FILTER.options.map((option, index) => (
-                        <li key={option.value} className="flex items-center">
+                        <li key={option.id} className="flex items-center">
                           <input
                             type="checkbox"
                             id={`hazard-${index}`}
@@ -162,19 +175,21 @@ export default function Shop() {
                             className="h-4 w-4 rounded border-gray-300 text-purple-400 focus:ring-purple-500"
                             checked={
                               option.value === 'all'
-                                ? filter.orbitType.length === 0
-                                : filter.orbitType.includes(option.value)
+                                ? filter.orbitTypes?.length === 0
+                                : filter.orbitTypes?.includes(option.value)
                             }
                             onChange={e => {
                               if (option.value === 'all') {
                                 // "All" clears any specific selections
-                                setFilter(prev => ({ ...prev, orbitTypes: [] }));
+                                setFilter(prev => ({ ...prev, orbitType: [] }));
                               } else {
                                 setFilter(prev => ({
                                   ...prev,
-                                  orbitTypes: e.target.checked
-                                    ? [...prev.orbitType, option.value]
-                                    : prev.orbitType.filter(o => o !== option.value),
+                                  orbitType: e.target.checked
+                                    ? [...(prev.orbitTypes ?? []), option.value]
+                                    : prev.orbitTypes?.filter(
+                                        o => o !== option.value
+                                      ),
                                 }));
                               }
                             }}
@@ -189,7 +204,7 @@ export default function Shop() {
                       ))}
                     </ul>
                   </div>
-                  
+
                   {/*Size and distance sliders*/}
                   <div>
                     <div>
@@ -200,7 +215,7 @@ export default function Shop() {
                         min={0}
                         max={100}
                         step={1}
-                        value={filter.sizeRange}
+                        value={[filter.sizeMin ?? 0, filter.sizeMax ?? 100]}
                         onValueChange={(value: [number, number]) =>
                           setFilter(prev => ({ ...prev, sizeRange: value }))
                         }
@@ -215,19 +230,16 @@ export default function Shop() {
                         min={0}
                         max={100}
                         step={1}
-                        value={filter.distanceRange}
+                        value={[
+                          filter.distanceMin ?? 0,
+                          filter.distanceMax ?? 100,
+                        ]}
                         onValueChange={(value: [number, number]) =>
                           setFilter(prev => ({ ...prev, distanceRange: value }))
                         }
                       />
                     </div>
                   </div>
-
-
-                  
-
-
-                  
 
                   {/*Orbit class type filter - same type as HAZARDOUS*/}
                   {/*Approaches - what type of filter??*/}
@@ -250,15 +262,14 @@ export default function Shop() {
                     key={option.name}
                     className={`cursor-pointer ml-4 py-2 px-4 text-sm rounded-none
                             ${
-                              option.value === filter.sort
+                              option.value === sort
                                 ? 'bg-gray-800 text-white' // Selected style
                                 : 'bg-black hover:bg-gray-800 text-white' // Default style
                             }`}
                     onClick={() => {
-                      setFilter(prev => ({
-                        ...prev, // keep other filter properties unchanged
-                        sort: option.value, // update only the sort property
-                      }));
+                      setSort(
+                        option.value // update only the sort property
+                      );
                     }}
                   >
                     {option.name}
@@ -281,7 +292,7 @@ export default function Shop() {
               ? new Array(20) // loading state with 20 skeletons
                   .fill(null)
                   .map((_, index) => <ProductSkeleton key={index} />)
-              : filteredAsteroids.map(asteroid => (
+              : asteroids.map(asteroid => (
                   <Product
                     key={asteroid.id}
                     asteroid={asteroid}
