@@ -6,12 +6,11 @@ import {
   fetchAsteroids,
   fetchUserData,
   DEFAULT_PAGE_SIZE,
-  sortAsteroids,
   type SortOption,
-  filterAndSortAsteroids,
-  type FilterState,
+  type BackendFilters,
   shopAsteroid,
   getFormattedAsteroidData,
+  sortAsteroids
 } from './AppModel';
 import { useAsteroidViewers } from '@/hooks/useAsteroidViewers';
 
@@ -33,12 +32,13 @@ const useAppStore = create<AppState>(set => ({
   setSelectedAsteroidId: (id: string | null) => set({ selectedAsteroidId: id }),
   setLoading: (loading: boolean) => set({ loading }),
   setError: (error: string | null) => set({ error }),
-  setAsteroids: async (page: number = 1) => {
+  setAsteroids: async (page: number = 1, filters?: BackendFilters) => {
     try {
       set({ loading: true, error: null });
       // Fetch asteroids from GraphQL backend with pagination
       // Price and size are now calculated server-side
-      const result = await fetchAsteroids(page, DEFAULT_PAGE_SIZE);
+      console.log(filters);
+      const result = await fetchAsteroids(page, DEFAULT_PAGE_SIZE, filters);
       set({
         asteroids: result.asteroids,
         currentPage: result.currentPage,
@@ -88,14 +88,6 @@ export function useSortedAsteroids(
 export function useAsteroidsSortedByClosestApproach(limit?: number) {
   const asteroids = useAppStore(state => state.asteroids);
   return sortAsteroids(asteroids, 'distance-asc', limit);
-}
-
-{
-  /* Filtering */
-}
-export function useFilteredAsteroids(filters: FilterState) {
-  const asteroids = useAppStore(state => state.asteroids);
-  return filterAndSortAsteroids(asteroids, filters);
 }
 
 // =========================
@@ -215,4 +207,4 @@ export function useAsteroidModalViewModel(asteroid: shopAsteroid) {
 }
 
 export { useAppStore };
-export type { SortOption, FilterState };
+export type { SortOption, BackendFilters};

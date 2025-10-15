@@ -20,10 +20,8 @@ import Product from '@/components/asteroidProducts.tsx/product';
 import ProductSkeleton from '@/components/asteroidProducts.tsx/productSkeleton';
 import {
   useAppStore,
-  useSortedAsteroids,
-  useFilteredAsteroids,
   type SortOption,
-  type FilterState
+  type BackendFilters
 } from '@/store/useAppViewModel';
 import { onHandleProductClick, onHandleStarred } from '@/store/useAppViewModel';
 import AsteroidModal from '@/components/asteroidModal';
@@ -34,17 +32,17 @@ const SORT_OPTIONS: Array<{ name: string; value: SortOption }> = [
   { name: 'Size: Big to Small', value: 'size-desc' },
   { name: 'Price: Low to High', value: 'price-asc' },
   { name: 'Price: High to Low', value: 'price-desc' },
-  { name: 'Distance: Near to Far', value: 'distance-asc' },
-  { name: 'Distance: Far to Near', value: 'distance-desc' },
+  { name: 'Approaching: Soon to Later', value: 'distance-asc' },
+  { name: 'Approaching: Later to Soon', value: 'distance-desc' },
 ];
 
 const HAZARD_FILTER = {
   id: 'hazardous',
   name: 'Hazard Level',
   options: [
-    { value: 'all', label: 'All', checked: true },
-    { value: 'hazardous', label: 'Hazardous', checked: false },
-    { value: 'non-hazardous', label: 'Non-Hazardous', checked: false },
+    { id: 0, value: "all", label: 'All', checked: true },
+    { id: 1, value: "hazardous", label: 'Hazardous', checked: false },
+    { id: 2, value: "non-hazardous", label: 'Non-Hazardous', checked: false },
   ] as const,
 };
 
@@ -56,40 +54,48 @@ const ORBIT_FILTER = {
     { value: 'APO', label: 'Apollo (APO)', checked: false },
     { value: 'ATE', label: 'Aten (ATE)', checked: false },
     { value: 'AMO', label: 'Amor (AMO)', checked: false },
-    { value: 'IEO', label: 'Atira/Interior Earth Object (IEO)', checked: false },
+    {
+      value: 'IEO',
+      label: 'Atira/Interior Earth Object (IEO)',
+      checked: false,
+    },
   ] as const,
 };
 
 export default function Shop() {
   // Get state and actions from Zustand store
-  const { loading, setAsteroids, currentPage, totalPages, totalCount } =
-    useAppStore();
+  const {
+    loading,
+    setAsteroids,
+    asteroids,
+    currentPage,
+    totalPages,
+    totalCount,
+  } = useAppStore();
 
   // Keep filter state local as it's UI-specific
-  const [filter, setFilter] = useState<FilterState>({
-    hazardous: 'all',
-    sizeRange: [0, 100],
-    distanceRange: [0, 100],
-    orbitType: [],
-    sort: 'None',
-  });
-
-  // MVVM: Get sorted asteroids based on current filter
-  // This automatically re-sorts when filter.sort changes
-  const filteredAsteroids = useFilteredAsteroids(filter);
-
+  const [filter, setFilter] = useState<BackendFilters>({
+      hazardous: "all",
+      sizeMin:  0,
+      sizeMax: 3000,
+      distanceMin: 0,
+      distanceMax: 100000000,
+      priceMin: 100,
+      priceMax: 900,
+      orbitTypes: [],
+      sortBy: "None",
+    }
+  );
 
   const selectedAsteroidId = useAppStore(state => state.selectedAsteroidId);
-  const selectedAsteroid = filteredAsteroids.find(
-    a => a.id === selectedAsteroidId
-  );
+  const selectedAsteroid = asteroids.find(a => a.id === selectedAsteroidId);
 
   console.log('Current filter state:', filter);
 
   // Fetch asteroids on mount
   useEffect(() => {
-    setAsteroids(1);
-  }, [setAsteroids]);
+    setAsteroids(1, filter); // send current filter to backend
+  }, [filter, setAsteroids]);
 
   // Handler for page changes
   const handlePageChange = (newPage: number) => {
@@ -148,7 +154,7 @@ export default function Shop() {
                     </ul>
                   </div>
 
-                  {/* Orbit Type Filter */}
+                 {/* Orbit Type Filter */}
                   <div>
                     <h3 className="text-sm font-modak text-white mb-4">
                       Orbit Type
@@ -162,8 +168,8 @@ export default function Shop() {
                             className="h-4 w-4 rounded border-gray-300 text-purple-400 focus:ring-purple-500"
                             checked={
                               option.value === 'all'
-                                ? filter.orbitType.length === 0
-                                : filter.orbitType.includes(option.value)
+                                ? filter.orbitTypes?.length === 0
+                                : filter.orbitTypes?.includes(option.value)
                             }
                             onChange={e => {
                               if (option.value === 'all') {
@@ -173,8 +179,10 @@ export default function Shop() {
                                 setFilter(prev => ({
                                   ...prev,
                                   orbitTypes: e.target.checked
-                                    ? [...prev.orbitType, option.value]
-                                    : prev.orbitType.filter(o => o !== option.value),
+                                    ? [...prev.orbitTypes?? [], option.value]
+                                    : prev.orbitTypes?.filter(
+                                        o => o !== option.value
+                                      ),
                                 }));
                               }
                             }}
@@ -189,48 +197,67 @@ export default function Shop() {
                       ))}
                     </ul>
                   </div>
-                  
+
                   {/*Size and distance sliders*/}
                   <div>
-                    <div>
-                      <h3 className="text-sm font-modak text-white mb-4">
-                        Size
-                      </h3>
+                    <div className="mb-8">
+                      <div className="flex justify-between items-center mb-2">
+                        <h3 className="text-sm font-modak text-white">Size</h3>
+                        <span className="text-xs text-gray-300">
+                          {filter.sizeMin} - {filter.sizeMax} meters
+                        </span>
+                      </div>
+                      <Slider
+                        min={0}
+                        max={3000}
+                        step={50}
+                        value={[filter.sizeMin?? 0, filter.sizeMax?? 3000]}
+                        onValueChange={(value: [number, number]) =>
+                          setFilter(prev => ({ ...prev, sizeMin: value[0], sizeMax: value[1] }))
+                        }
+                      />
+                    </div>
+
+                    <div className="mb-8">
+                      <div className="flex justify-between items-center mb-2">
+                        <h3 className="text-sm font-modak text-white">
+                          Distance Away
+                        </h3>
+                        <span className="text-xs text-gray-300">
+                          {filter.distanceMin} - {filter.distanceMax}
+                          million km
+                        </span>
+                      </div>
                       <Slider
                         min={0}
                         max={100}
                         step={1}
-                        value={filter.sizeRange}
+                        value={[filter.distanceMin?? 0, filter.distanceMax?? 100000000]}
                         onValueChange={(value: [number, number]) =>
-                          setFilter(prev => ({ ...prev, sizeRange: value }))
+                          setFilter(prev => ({ ...prev, distanceMin: value[0], distanceMax: value[1] }))
                         }
                       />
                     </div>
 
                     <div>
-                      <h3 className="text-sm font-modak text-white mb-4">
-                        Distance Away
-                      </h3>
+                      <div className="flex justify-between items-center mb-2">
+                        <h3 className="text-sm font-modak text-white">Price</h3>
+                        <span className="text-xs text-gray-300">
+                          {filter.priceMin} - {filter.priceMax}
+                          CosmoCoins
+                        </span>
+                      </div>
                       <Slider
-                        min={0}
-                        max={100}
-                        step={1}
-                        value={filter.distanceRange}
+                        min={100}
+                        max={900}
+                        step={10}
+                        value={[filter.priceMin?? 100, filter.priceMax?? 900]}
                         onValueChange={(value: [number, number]) =>
-                          setFilter(prev => ({ ...prev, distanceRange: value }))
+                          setFilter(prev => ({ ...prev, priceMin: value[0], priceMax: value[1]}))
                         }
                       />
                     </div>
                   </div>
-
-
-                  
-
-
-                  
-
-                  {/*Orbit class type filter - same type as HAZARDOUS*/}
-                  {/*Approaches - what type of filter??*/}
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
@@ -250,14 +277,14 @@ export default function Shop() {
                     key={option.name}
                     className={`cursor-pointer ml-4 py-2 px-4 text-sm rounded-none
                             ${
-                              option.value === filter.sort
+                              option.value === filter.sortBy
                                 ? 'bg-gray-800 text-white' // Selected style
                                 : 'bg-black hover:bg-gray-800 text-white' // Default style
                             }`}
                     onClick={() => {
                       setFilter(prev => ({
                         ...prev, // keep other filter properties unchanged
-                        sort: option.value, // update only the sort property
+                        sortBy: option.value, // update only the sort property
                       }));
                     }}
                   >
@@ -281,7 +308,17 @@ export default function Shop() {
               ? new Array(20) // loading state with 20 skeletons
                   .fill(null)
                   .map((_, index) => <ProductSkeleton key={index} />)
-              : filteredAsteroids.map(asteroid => (
+              : asteroids.length === 0 ? (
+              <li className="col-span-full flex flex-col items-center justify-center py-16 text-white">
+                <div className="text-6xl mb-4">🔍</div>
+                <h3 className="text-2xl font-modak mb-2">No Asteroids Found</h3>
+                <p className="text-gray-400 text-center max-w-md">
+                  Try adjusting your filters to see more results. You may need
+                  to increase the size or distance ranges, or change your hazard
+                  level selection.
+                </p>
+              </li>
+              ) : asteroids.map(asteroid => (
                   <Product
                     key={asteroid.id}
                     asteroid={asteroid}
