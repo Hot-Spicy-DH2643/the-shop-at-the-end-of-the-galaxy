@@ -75,15 +75,6 @@ export default function User({ profileData, isOwnProfile }: UserProps) {
             <td className="font-bold pr-10">Owned:</td>
             <td>{profileData?.owned_asteroids.length || 0} asteroids</td>
           </tr>
-          <tr></tr>
-          <tr>
-            <td className="font-bold pr-10">Have:</td>
-            {profileData?.following.length !== 0 ? (
-              <td>{profileData?.following.length} friends</td>
-            ) : (
-              <td>0 friend</td>
-            )}
-          </tr>
           {isOwnProfile && (
             <tr className="font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
               <td className="pr-10">Coins:</td>
