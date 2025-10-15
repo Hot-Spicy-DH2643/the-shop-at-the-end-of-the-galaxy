@@ -8,9 +8,11 @@ import {
   DEFAULT_PAGE_SIZE,
   type SortOption,
   type BackendFilters,
+  type UIFilters,
+  convertUIFiltersToBackend,
   shopAsteroid,
   getFormattedAsteroidData,
-  sortAsteroids
+  sortAsteroids,
 } from './AppModel';
 import { useAsteroidViewers } from '@/hooks/useAsteroidViewers';
 
@@ -206,5 +208,5 @@ export function useAsteroidModalViewModel(asteroid: shopAsteroid) {
   };
 }
 
-export { useAppStore };
-export type { SortOption, BackendFilters};
+export { useAppStore, convertUIFiltersToBackend };
+export type { SortOption, BackendFilters, UIFilters };
