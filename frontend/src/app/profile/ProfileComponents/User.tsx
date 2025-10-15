@@ -9,6 +9,7 @@ import { useAuthStore } from '@/store/useAuthViewModel';
 
 import AsteroidSVGMoving from '@/components/asteroidSVGMoving';
 import AsteroidModal from '@/components/asteroidModal';
+import { Star } from 'lucide-react';
 
 export default function User() {
   const { user: firebaseUser } = useAuthStore();
@@ -83,13 +84,22 @@ export default function User() {
       {user_starred_asteroids && user_starred_asteroids.length > 0 ? (
         <div className="text-white">
           <div className="grid grid-cols-1 md:grid-cols-2">
-            {user_starred_asteroids?.map((asteroid, idx) => (
+            {user_starred_asteroids?.map(asteroid => (
               <div
                 key={asteroid.id}
                 className="relative rounded bg-[rgba(23,23,23,0.7)]1 shadow text-center cursor-pointer"
               >
                 <div className="p-6">
-                  <div className="flex flex-col text-sm justify-center items-center hover:scale-[1.08] transition duration-300">
+                  <div className="relative flex flex-col text-sm justify-center items-center hover:scale-[1.08] transition duration-300">
+                    <button
+                      onClick={() => onHandleStarred(asteroid.id)}
+                      className="p-1 absolute top-1 right-2 z-10 cursor-pointer"
+                    >
+                      <Star
+                        className="transition duration-300 text-yellow-300"
+                        fill="yellow"
+                      />
+                    </button>
                     <AsteroidSVGMoving
                       id={asteroid.id}
                       size={100}
