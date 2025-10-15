@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useAuthStore } from '@/store/useAuthViewModel';
+import { ShoppingBasket } from 'lucide-react';
+import Cart from './cart';
 
 const navLinks = [
   { label: 'Home', href: '/' },
@@ -14,6 +16,7 @@ const navLinks = [
 export default function Navbar() {
   const { user, logout } = useAuthStore();
   const [open, setOpen] = useState(false);
+  const [showCart, setShowCart] = useState(false);
 
   return (
     <nav className="w-full text-white bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700">
@@ -70,6 +73,16 @@ export default function Navbar() {
               </li>
             )}
           </ul>
+
+          {user && (
+            <button
+              onClick={() => setShowCart(v => !v)}
+              className="ml-4 p-2 rounded-full hover:bg-white/20 transition"
+              aria-label="View cart"
+            >
+              <ShoppingBasket size={24} />
+            </button>
+          )}
         </div>
       </div>
       {/* Mobile nav */}
@@ -94,8 +107,35 @@ export default function Navbar() {
               </button>
             </li>
           )}
+
+          <li className="px-6 py-2">
+            {user && (
+              <button
+                onClick={() => setShowCart(v => !v)}
+                className="ml-4 p-2 rounded-full hover:bg-white/20 transition"
+                aria-label="View cart"
+              >
+                <ShoppingBasket size={24} />
+              </button>
+            )}
+          </li>
         </ul>
       </div>
+
+      {user && showCart && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center">
+          <div className="relative bg-gray-950 text-white w-[90%] max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl border border-fuchsia-700 shadow-2xl p-6">
+            <button
+              onClick={() => setShowCart(false)}
+              className="absolute top-3 right-4 text-gray-400 hover:text-white text-2xl"
+              aria-label="Close cart"
+            >
+              ✕
+            </button>
+            <Cart />
+          </div>
+        </div>
+      )}
     </nav>
   );
 }

@@ -13,33 +13,6 @@ import {
 } from './AppModel';
 import { useAuthStore } from './useAuthViewModel';
 
-export function onHandleProductClick(id: string) {
-  // open the product modal component with detailed info
-  useAppStore.getState().setSelectedAsteroidId(id);
-
-  // also get the orbital data using the fetch
-  /*fetchOrbitalData(id).then(orbitalData => {
-    useAppStore.setState(state => ({
-      asteroids: state.asteroids.map(asteroid =>
-        asteroid.id === id ?
-          { ...asteroid, orbital_data: orbitalData } : asteroid
-      ),
-    }));
-  });*/
-}
-
-export function onHandleStarred(id: string) {
-  // toggle the starred status of the asteroid - and add to/remove from favorites??
-  useAppStore.setState(state => {
-    const updatedAsteroids = state.asteroids.map(asteroid =>
-      asteroid.id === id
-        ? { ...asteroid, starred_asteroid_ids: !asteroid.starred_asteroid_ids }
-        : asteroid
-    );
-    return { asteroids: updatedAsteroids };
-  });
-}
-
 const useAppStore = create<AppState>(set => ({
   loading: false,
   error: null,

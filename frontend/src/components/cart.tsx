@@ -4,7 +4,6 @@ import AsteroidSVGMoving from '@/components/asteroidSVGMoving';
 import Image from 'next/image';
 import { useAppStore } from '@/store/useAppViewModel';
 import { X } from 'lucide-react';
-import Link from 'next/link';
 
 //TODO: Right now hardcoded with fake data. Just to be able to style it.
 // I am gonna work on the functionality
@@ -33,7 +32,7 @@ export default function Cart() {
         <span className="text-sm text-gray-400">{cart.length} items</span>
       </div>
 
-      {/* Items in Cart */}
+      {/* Scrollable items */}
       <div className="flex-1 overflow-y-auto px-6 py-4">
         {cart.length === 0 ? (
           <p className="text-center text-gray-400 mt-10">Your cart is empty.</p>
@@ -47,7 +46,11 @@ export default function Cart() {
                 >
                   <td className="py-3">
                     <div className="flex items-center gap-3">
-                      <AsteroidSVGMoving id={item.id} size={42} bgsize={36} />
+                      <AsteroidSVGMoving
+                        id={item.id.toString()}
+                        size={42}
+                        bgsize={36}
+                      />
                       <span className="text-base">{item.name}</span>
                     </div>
                   </td>
@@ -77,6 +80,7 @@ export default function Cart() {
         )}
       </div>
 
+      {/* Footer */}
       <div className="border-t border-white/10 px-6 py-4">
         <div className="flex justify-between items-center">
           <span className="text-lg font-semibold">Total:</span>
@@ -91,12 +95,9 @@ export default function Cart() {
           </div>
         </div>
 
-        <Link
-          href="/checkout"
-          className="block w-full mt-4 text-center bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 transition-all py-3 rounded-lg font-semibold text-white"
-        >
+        <button className="w-full mt-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 transition-all py-3 rounded-lg font-semibold text-white">
           Go to Checkout
-        </Link>
+        </button>
       </div>
     </div>
   );
