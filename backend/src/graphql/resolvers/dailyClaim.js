@@ -74,7 +74,7 @@ function processClaim(userId) {
   return {
     success: true,
     coinsEarned: DAILY_REWARD_AMOUNT,
-    message: `Successfully claimed ${DAILY_REWARD_AMOUNT} CosmoCoins!`,
+    message: `Congratulations!`,
     nextClaimTime: tomorrow.toISOString(),
   };
 }
