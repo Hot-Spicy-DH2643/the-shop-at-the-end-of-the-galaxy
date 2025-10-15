@@ -374,6 +374,141 @@ export async function cacheAsteroidsData() {
 }
 
 /**
+ * Build MongoDB query from filters
+ * @param {Object} filters - Filter parameters
+ * @returns {Object} MongoDB query object
+ */
+function buildFilterQuery(filters) {
+  const query = {};
+
+  if (!filters) return query;
+
+  // Hazard filter
+  if (filters.hazardous && filters.hazardous !== 'all') {
+    query.is_potentially_hazardous_asteroid = filters.hazardous === 'hazardous';
+  }
+
+  // Size range filter
+  if (filters.sizeMin !== undefined || filters.sizeMax !== undefined) {
+    query.size = {};
+    if (filters.sizeMin !== undefined) {
+      query.size.$gte = filters.sizeMin;
+    }
+    if (filters.sizeMax !== undefined) {
+      query.size.$lte = filters.sizeMax;
+    }
+  }
+
+  // Price range filter
+  if (filters.priceMin !== undefined || filters.priceMax !== undefined) {
+    query.price = {};
+    if (filters.priceMin !== undefined) {
+      query.price.$gte = filters.priceMin;
+    }
+    if (filters.priceMax !== undefined) {
+      query.price.$lte = filters.priceMax;
+    }
+  }
+
+  // Distance range filter (closest approach distance)
+  if (filters.distanceMin !== undefined || filters.distanceMax !== undefined) {
+    // We'll need to filter this in-memory or use aggregation pipeline
+    // For now, let's mark it for post-query filtering
+  }
+
+  // Orbit type filter
+  if (filters.orbitTypes && filters.orbitTypes.length > 0) {
+    query['orbital_data.orbit_class.orbit_class_type'] = {
+      $in: filters.orbitTypes,
+    };
+  }
+
+  return query;
+}
+
+/**
+ * Get closest approach distance for an asteroid
+ * @param {Object} asteroid - Asteroid object
+ * @returns {number} Distance in kilometers
+ */
+function getClosestApproachDistance(asteroid) {
+  if (
+    !asteroid.close_approach_data ||
+    asteroid.close_approach_data.length === 0
+  ) {
+    return Infinity;
+  }
+
+  const distances = asteroid.close_approach_data.map(approach =>
+    parseFloat(approach.miss_distance.kilometers)
+  );
+
+  return Math.min(...distances);
+}
+
+/**
+ * Apply distance filtering and sorting to asteroids
+ * @param {Array} asteroids - Array of asteroid objects
+ * @param {Object} filters - Filter parameters
+ * @returns {Array} Filtered and sorted asteroids
+ */
+function applyDistanceFilterAndSort(asteroids, filters) {
+  let filtered = [...asteroids];
+
+  // Apply distance filter if specified
+  if (
+    filters &&
+    (filters.distanceMin !== undefined || filters.distanceMax !== undefined)
+  ) {
+    filtered = filtered.filter(asteroid => {
+      const distance = getClosestApproachDistance(asteroid);
+      if (filters.distanceMin !== undefined && distance < filters.distanceMin) {
+        return false;
+      }
+      if (filters.distanceMax !== undefined && distance > filters.distanceMax) {
+        return false;
+      }
+      return true;
+    });
+  }
+
+  // Apply sorting if specified
+  if (filters && filters.sortBy && filters.sortBy !== 'None') {
+    filtered.sort((a, b) => {
+      switch (filters.sortBy) {
+        case 'size-asc':
+          return a.size - b.size;
+        case 'size-desc':
+          return b.size - a.size;
+        case 'price-asc':
+          return a.price - b.price;
+        case 'price-desc':
+          return b.price - a.price;
+        case 'distance-asc': {
+          const distA = getClosestApproachDistance(a);
+          const distB = getClosestApproachDistance(b);
+          return distA - distB;
+        }
+        case 'distance-desc': {
+          const distA = getClosestApproachDistance(a);
+          const distB = getClosestApproachDistance(b);
+          return distB - distA;
+        }
+        default:
+          return 0;
+      }
+    });
+  }
+
+  return filtered;
+}
+
+
+
+
+
+
+/**
  * Get asteroids from database or fetch from API if cache is empty
  * @param {number} page - Page number (1-indexed)
  * @param {number} pageSize - Number of items per page
@@ -381,31 +516,48 @@ export async function cacheAsteroidsData() {
  */
 export async function getAsteroids(page = 1, pageSize = 20) {
   try {
-    // Check if we have cached data
-    let totalCount = await Asteroid.countDocuments();
+      // Check if we have cached data
+      let totalCount = await Asteroid.countDocuments();
+  
+      if (totalCount === 0) {
+        console.log('⚠️  No cached data found. Fetching from NASA API...');
+        await cacheAsteroidsData();
+        // Recount after caching
+        totalCount = await Asteroid.countDocuments();
+      }
+  
+      // Build MongoDB query from filters
+      const query = buildFilterQuery(filters);
 
-    if (totalCount === 0) {
-      console.log('⚠️  No cached data found. Fetching from NASA API...');
-      await cacheAsteroidsData();
-      // Recount after caching
-      totalCount = await Asteroid.countDocuments();
-    }
-
-    // Calculate pagination
-    const skip = (page - 1) * pageSize;
-    const totalPages = Math.ceil(totalCount / pageSize);
-
-    // Return paginated asteroids from database
-    const asteroids = await Asteroid.find().skip(skip).limit(pageSize).lean();
-
-    return {
-      asteroids,
-      totalCount,
-      page,
-      pageSize,
-      totalPages,
-    };
-  } catch (error) {
+      // Get filtered count
+      const filteredCount = await Asteroid.countDocuments(query);
+  
+      // Fetch all matching documents (we need to sort/filter by distance in-memory)
+      let asteroids = await Asteroid.find(query).lean();
+  
+      // Apply distance filtering and sorting
+      asteroids = applyDistanceFilterAndSort(asteroids, filters);
+  
+      // Update total count after distance filtering
+      const finalCount = asteroids.length;
+      const totalPages = Math.ceil(finalCount / pageSize);
+  
+      // Apply pagination after filtering and sorting
+      const skip = (page - 1) * pageSize;
+      const paginatedAsteroids = asteroids.slice(skip, skip + pageSize);
+  
+      console.log(
+        `📊 Results: ${paginatedAsteroids.length} asteroids (page ${page}/${totalPages}, total: ${finalCount})`
+      );
+  
+      return {
+        asteroids: paginatedAsteroids,
+        totalCount: finalCount,
+        page,
+        pageSize,
+        totalPages,
+      };
+    } catch (error) {
     console.error('❌ Error getting asteroids:', error.message);
     throw error;
   }
