@@ -63,7 +63,6 @@ const useAppStore = create<AppState>(set => ({
       set({ loading: true, error: null });
       const currentUser = useAuthStore.getState().user;
       const userId = currentUser?.uid;
-      console.log('setUserData called, userId:', userId);
 
       if (!userId) {
         set({ error: 'No authenticated user', loading: false });
@@ -138,9 +137,22 @@ export function onHandleStarred(id: string) {
     console.log(starredAsteroids);
 
     const updatedUserData = state.userData
-      ? { ...state.userData, starred_asteroids: starredAsteroids }
+      ? {
+          ...state.userData,
+          starred_asteroids: starredAsteroids.map(a => ({
+            id: a.id,
+            name: a.name,
+            is_potentially_hazardous_asteroid:
+              a.is_potentially_hazardous_asteroid,
+            price: a.price,
+            size: a.size,
+          })),
+        }
       : state.userData;
-    console.log(updatedUserData);
+    console.log(
+      '⭐️ lucky comment ⭐️ Userdata from viewModel: ',
+      updatedUserData
+    );
 
     return { asteroids: updatedAsteroids, userData: updatedUserData };
   });

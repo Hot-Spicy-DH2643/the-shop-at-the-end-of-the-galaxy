@@ -100,7 +100,7 @@ export default function Shop() {
     const backendFilters = convertUIFiltersToBackend(filter);
     setAsteroids(1, backendFilters);
     setUserData();
-  }, [filter, setAsteroids]);
+  }, [filter, setAsteroids, setUserData]);
 
   // Handler for page changes
   const handlePageChange = (newPage: number) => {
