@@ -127,8 +127,7 @@ export type AppState = {
 // GraphQL query to fetch asteroids with pagination
 const GET_ASTEROIDS = gql`
   query GetAsteroids($page: Int, $pageSize: Int, $filters: AsteroidFilters) {
-    asteroids(page: $page, pageSize: $pageSize, filters: $filters
-    ) {
+    asteroids(page: $page, pageSize: $pageSize, filters: $filters) {
       asteroids {
         id
         neo_reference_id
@@ -231,6 +230,19 @@ export interface AsteroidsResult {
   currentPage: number;
 }
 
+// UI filter type - stores values in user-friendly ranges
+export interface UIFilters {
+  hazardous?: string;
+  sizeMin?: number;
+  sizeMax?: number;
+  distanceMin?: number; // 0-100 range
+  distanceMax?: number; // 0-100 range
+  priceMin?: number;
+  priceMax?: number;
+  orbitTypes?: string[];
+  sortBy?: string;
+}
+
 // Backend filter input type
 export interface BackendFilters {
   hazardous?: string;
@@ -244,6 +256,26 @@ export interface BackendFilters {
   sortBy?: string;
 }
 
+// Converter function: UI filters -> Backend filters
+export function convertUIFiltersToBackend(
+  uiFilters: UIFilters
+): BackendFilters {
+  const DISTANCE_MAX = 100000000; // 100 million km
+
+  return {
+    ...uiFilters,
+    // Convert distance from 0-100 range to actual kilometers
+    distanceMin:
+      uiFilters.distanceMin !== undefined
+        ? (uiFilters.distanceMin / 100) * DISTANCE_MAX
+        : undefined,
+    distanceMax:
+      uiFilters.distanceMax !== undefined
+        ? (uiFilters.distanceMax / 100) * DISTANCE_MAX
+        : undefined,
+  };
+}
+
 export async function fetchAsteroids(
   page: number = 1,
   pageSize: number = DEFAULT_PAGE_SIZE,
@@ -252,10 +284,10 @@ export async function fetchAsteroids(
   try {
     const { data } = await client.query<AsteroidsResponse>({
       query: GET_ASTEROIDS,
-      variables: { 
-        page, 
+      variables: {
+        page,
         pageSize,
-        filters
+        filters,
       },
       fetchPolicy: 'network-only', // Always fetch fresh data from server
     });

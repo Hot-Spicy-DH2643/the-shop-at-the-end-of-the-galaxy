@@ -21,7 +21,8 @@ import ProductSkeleton from '@/components/asteroidProducts.tsx/productSkeleton';
 import {
   useAppStore,
   type SortOption,
-  type BackendFilters
+  type UIFilters,
+  convertUIFiltersToBackend,
 } from '@/store/useAppViewModel';
 import { onHandleProductClick, onHandleStarred } from '@/store/useAppViewModel';
 import AsteroidModal from '@/components/asteroidModal';
@@ -40,9 +41,9 @@ const HAZARD_FILTER = {
   id: 'hazardous',
   name: 'Hazard Level',
   options: [
-    { id: 0, value: "all", label: 'All', checked: true },
-    { id: 1, value: "hazardous", label: 'Hazardous', checked: false },
-    { id: 2, value: "non-hazardous", label: 'Non-Hazardous', checked: false },
+    { id: 0, value: 'all', label: 'All', checked: true },
+    { id: 1, value: 'hazardous', label: 'Hazardous', checked: false },
+    { id: 2, value: 'non-hazardous', label: 'Non-Hazardous', checked: false },
   ] as const,
 };
 
@@ -74,18 +75,18 @@ export default function Shop() {
   } = useAppStore();
 
   // Keep filter state local as it's UI-specific
-  const [filter, setFilter] = useState<BackendFilters>({
-      hazardous: "all",
-      sizeMin:  0,
-      sizeMax: 3000,
-      distanceMin: 0,
-      distanceMax: 100000000,
-      priceMin: 100,
-      priceMax: 900,
-      orbitTypes: [],
-      sortBy: "None",
-    }
-  );
+  // Distance is stored in 0-100 range for UI slider
+  const [filter, setFilter] = useState<UIFilters>({
+    hazardous: 'all',
+    sizeMin: 0,
+    sizeMax: 3000,
+    distanceMin: 0, // 0-100 range
+    distanceMax: 100, // 0-100 range
+    priceMin: 100,
+    priceMax: 900,
+    orbitTypes: [],
+    sortBy: 'None',
+  });
 
   const selectedAsteroidId = useAppStore(state => state.selectedAsteroidId);
   const selectedAsteroid = asteroids.find(a => a.id === selectedAsteroidId);
@@ -94,12 +95,15 @@ export default function Shop() {
 
   // Fetch asteroids on mount
   useEffect(() => {
-    setAsteroids(1, filter); // send current filter to backend
+    // Convert UI filters to backend format before sending
+    const backendFilters = convertUIFiltersToBackend(filter);
+    setAsteroids(1, backendFilters);
   }, [filter, setAsteroids]);
 
   // Handler for page changes
   const handlePageChange = (newPage: number) => {
-    setAsteroids(newPage);
+    const backendFilters = convertUIFiltersToBackend(filter);
+    setAsteroids(newPage, backendFilters);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -132,9 +136,10 @@ export default function Shop() {
                       {HAZARD_FILTER.options.map((option, index) => (
                         <li key={option.value} className="flex items-center">
                           <input
-                            type="checkbox"
+                            type="radio"
+                            name="hazard-level"
                             id={`hazard-${index}`}
-                            className="h-4 w-4 rounded border-gray-300 text-purple-400 focus:ring-purple-500"
+                            className="h-4 w-4 border-gray-300 text-purple-400 accent-purple-500 focus:ring-purple-500 cursor-pointer"
                             checked={filter.hazardous === option.value} // controlled by state
                             onChange={() => {
                               setFilter(prev => ({
@@ -145,7 +150,7 @@ export default function Shop() {
                           />
                           <label
                             htmlFor={`hazard-${index}`}
-                            className="ml-3 text-sm font-medium text-white"
+                            className="ml-3 text-sm font-medium text-white cursor-pointer"
                           >
                             {option.label}
                           </label>
@@ -154,7 +159,7 @@ export default function Shop() {
                     </ul>
                   </div>
 
-                 {/* Orbit Type Filter */}
+                  {/* Orbit Type Filter */}
                   <div>
                     <h3 className="text-sm font-modak text-white mb-4">
                       Orbit Type
@@ -165,7 +170,7 @@ export default function Shop() {
                           <input
                             type="checkbox"
                             id={`orbit-${index}`}
-                            className="h-4 w-4 rounded border-gray-300 text-purple-400 focus:ring-purple-500"
+                            className="h-4 w-4 rounded border-gray-300 text-purple-400 accent-purple-500 focus:ring-purple-500 cursor-pointer"
                             checked={
                               option.value === 'all'
                                 ? filter.orbitTypes?.length === 0
@@ -174,12 +179,15 @@ export default function Shop() {
                             onChange={e => {
                               if (option.value === 'all') {
                                 // "All" clears any specific selections
-                                setFilter(prev => ({ ...prev, orbitTypes: [] }));
+                                setFilter(prev => ({
+                                  ...prev,
+                                  orbitTypes: [],
+                                }));
                               } else {
                                 setFilter(prev => ({
                                   ...prev,
                                   orbitTypes: e.target.checked
-                                    ? [...prev.orbitTypes?? [], option.value]
+                                    ? [...(prev.orbitTypes ?? []), option.value]
                                     : prev.orbitTypes?.filter(
                                         o => o !== option.value
                                       ),
@@ -189,7 +197,7 @@ export default function Shop() {
                           />
                           <label
                             htmlFor={`orbit-${index}`}
-                            className="ml-3 text-sm font-medium text-white"
+                            className="ml-3 text-sm font-medium text-white cursor-pointer"
                           >
                             {option.label}
                           </label>
@@ -211,9 +219,13 @@ export default function Shop() {
                         min={0}
                         max={3000}
                         step={50}
-                        value={[filter.sizeMin?? 0, filter.sizeMax?? 3000]}
+                        value={[filter.sizeMin ?? 0, filter.sizeMax ?? 3000]}
                         onValueChange={(value: [number, number]) =>
-                          setFilter(prev => ({ ...prev, sizeMin: value[0], sizeMax: value[1] }))
+                          setFilter(prev => ({
+                            ...prev,
+                            sizeMin: value[0],
+                            sizeMax: value[1],
+                          }))
                         }
                       />
                     </div>
@@ -221,20 +233,26 @@ export default function Shop() {
                     <div className="mb-8">
                       <div className="flex justify-between items-center mb-2">
                         <h3 className="text-sm font-modak text-white">
-                          Distance Away
+                          Miss Distance
                         </h3>
                         <span className="text-xs text-gray-300">
-                          {filter.distanceMin} - {filter.distanceMax}
-                          million km
+                          {filter.distanceMin} - {filter.distanceMax} million km
                         </span>
                       </div>
                       <Slider
                         min={0}
                         max={100}
                         step={1}
-                        value={[filter.distanceMin?? 0, filter.distanceMax?? 100000000]}
+                        value={[
+                          filter.distanceMin ?? 0,
+                          filter.distanceMax ?? 100,
+                        ]}
                         onValueChange={(value: [number, number]) =>
-                          setFilter(prev => ({ ...prev, distanceMin: value[0], distanceMax: value[1] }))
+                          setFilter(prev => ({
+                            ...prev,
+                            distanceMin: value[0],
+                            distanceMax: value[1],
+                          }))
                         }
                       />
                     </div>
@@ -243,17 +261,20 @@ export default function Shop() {
                       <div className="flex justify-between items-center mb-2">
                         <h3 className="text-sm font-modak text-white">Price</h3>
                         <span className="text-xs text-gray-300">
-                          {filter.priceMin} - {filter.priceMax}
-                          CosmoCoins
+                          {filter.priceMin} - {filter.priceMax} CosmoCoins
                         </span>
                       </div>
                       <Slider
                         min={100}
                         max={900}
                         step={10}
-                        value={[filter.priceMin?? 100, filter.priceMax?? 900]}
+                        value={[filter.priceMin ?? 100, filter.priceMax ?? 900]}
                         onValueChange={(value: [number, number]) =>
-                          setFilter(prev => ({ ...prev, priceMin: value[0], priceMax: value[1]}))
+                          setFilter(prev => ({
+                            ...prev,
+                            priceMin: value[0],
+                            priceMax: value[1],
+                          }))
                         }
                       />
                     </div>
@@ -278,7 +299,7 @@ export default function Shop() {
                     className={`cursor-pointer ml-4 py-2 px-4 text-sm rounded-none
                             ${
                               option.value === filter.sortBy
-                                ? 'bg-gray-800 text-white' // Selected style
+                                ? 'bg-purple-500 text-white' // Selected style
                                 : 'bg-black hover:bg-gray-800 text-white' // Default style
                             }`}
                     onClick={() => {
@@ -304,11 +325,11 @@ export default function Shop() {
         <div>
           {/* Product Grid */}
           <ul className="bg-transparent grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6 gap-4 p-4 flex-grow">
-            {loading
-              ? new Array(20) // loading state with 20 skeletons
-                  .fill(null)
-                  .map((_, index) => <ProductSkeleton key={index} />)
-              : asteroids.length === 0 ? (
+            {loading ? (
+              new Array(20) // loading state with 20 skeletons
+                .fill(null)
+                .map((_, index) => <ProductSkeleton key={index} />)
+            ) : asteroids.length === 0 ? (
               <li className="col-span-full flex flex-col items-center justify-center py-16 text-white">
                 <div className="text-6xl mb-4">🔍</div>
                 <h3 className="text-2xl font-modak mb-2">No Asteroids Found</h3>
@@ -318,16 +339,16 @@ export default function Shop() {
                   level selection.
                 </p>
               </li>
-              ) : asteroids.map(asteroid => (
-                  <Product
-                    key={asteroid.id}
-                    asteroid={asteroid}
-                    onHandleProductClick={() =>
-                      onHandleProductClick(asteroid.id)
-                    }
-                    onHandleStarred={() => onHandleStarred(asteroid.id)}
-                  />
-                ))}
+            ) : (
+              asteroids.map(asteroid => (
+                <Product
+                  key={asteroid.id}
+                  asteroid={asteroid}
+                  onHandleProductClick={() => onHandleProductClick(asteroid.id)}
+                  onHandleStarred={() => onHandleStarred(asteroid.id)}
+                />
+              ))
+            )}
           </ul>
 
           {/* Pagination */}
