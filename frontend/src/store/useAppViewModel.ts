@@ -17,42 +17,6 @@ import {
 import { useAsteroidViewers } from '@/hooks/useAsteroidViewers';
 import { useAuthStore } from './useAuthViewModel';
 
-export function onHandleProductClick(id: string) {
-  // open the product modal component with detailed info
-  useAppStore.getState().setSelectedAsteroidId(id);
-
-  // also get the orbital data using the fetch
-  /*fetchOrbitalData(id).then(orbitalData => {
-    useAppStore.setState(state => ({
-      asteroids: state.asteroids.map(asteroid =>
-        asteroid.id === id ?
-          { ...asteroid, orbital_data: orbitalData } : asteroid
-      ),
-    }));
-  });*/
-}
-
-export function onHandleStarred(id: string) {
-  // toggle the starred status of the asteroid - and add to/remove from favorites??
-  useAppStore.setState(state => {
-    const updatedAsteroids = state.asteroids.map(asteroid =>
-      asteroid.id === id
-        ? { ...asteroid, is_starred: !asteroid.is_starred }
-        : asteroid
-    );
-
-    const starredAsteroids = updatedAsteroids.filter(a => a.is_starred);
-    console.log(starredAsteroids);
-
-    const updatedUserData = state.userData
-      ? { ...state.userData, starred_asteroids: starredAsteroids }
-      : state.userData;
-    console.log(updatedUserData);
-
-    return { asteroids: updatedAsteroids, userData: updatedUserData };
-  });
-}
-
 const useAppStore = create<AppState>(set => ({
   loading: false,
   error: null,
@@ -169,7 +133,16 @@ export function onHandleStarred(id: string) {
         ? { ...asteroid, is_starred: !asteroid.is_starred }
         : asteroid
     );
-    return { asteroids: updatedAsteroids };
+
+    const starredAsteroids = updatedAsteroids.filter(a => a.is_starred);
+    console.log(starredAsteroids);
+
+    const updatedUserData = state.userData
+      ? { ...state.userData, starred_asteroids: starredAsteroids }
+      : state.userData;
+    console.log(updatedUserData);
+
+    return { asteroids: updatedAsteroids, userData: updatedUserData };
   });
 }
 
