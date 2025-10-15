@@ -1,9 +1,14 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '@/store/useAuthViewModel';
-import { useAppStore } from '@/store/useAppViewModel';
+import {
+  useAppStore,
+  onHandleProductClick,
+  onHandleStarred,
+} from '@/store/useAppViewModel';
 
 import AsteroidSVGMoving from '@/components/asteroidSVGMoving';
+import AsteroidModal from '@/components/asteroidModal';
 
 export default function Purchases() {
   const { user: firebaseUser } = useAuthStore();
@@ -19,6 +24,9 @@ export default function Purchases() {
   const [zeroPurchaseId, setZeroPurchaseId] = useState<string>('0000000');
 
   const { asteroids, setAsteroids } = useAppStore();
+
+  const selectedAsteroidId = useAppStore(state => state.selectedAsteroidId);
+  const selectedAsteroid = asteroids.find(a => a.id === selectedAsteroidId);
 
   useEffect(() => {
     if (user_owned_asteroids?.length === 0) {
@@ -101,8 +109,11 @@ export default function Purchases() {
                     : 'Not Hazardous'}
                 </p>
                 <p>Diameter: {asteroid.size.toFixed(2)} m</p>
-                <p>Price</p>
-                <button className="bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700 text-white px-6 py-2 rounded shadow hover:scale-105 hover:shadow-xl transition cursor-pointer text-center m-1 my-2 md:w-auto">
+                <p>Price: {asteroid.price}</p>
+                <button
+                  className="bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700 text-white px-6 py-2 rounded shadow hover:scale-105 hover:shadow-xl transition cursor-pointer text-center m-1 my-2 md:w-auto"
+                  onClick={() => onHandleProductClick(asteroid.id)}
+                >
                   Show Details
                 </button>
               </div>
@@ -110,6 +121,14 @@ export default function Purchases() {
           </div>
         ))}
       </div>
+
+      {selectedAsteroidId && selectedAsteroid && (
+        <AsteroidModal
+          asteroid={selectedAsteroid}
+          onClose={() => useAppStore.getState().setSelectedAsteroidId(null)}
+          onHandleStarred={() => onHandleStarred(selectedAsteroid.id)}
+        />
+      )}
     </div>
   );
 }

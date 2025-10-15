@@ -1,5 +1,4 @@
 import { User } from '../models/User.js';
-import { Asteroid } from '../models/Asteroid.js';
 import { getAsteroidById } from './externalApiService.js';
 
 export async function getAllUsers() {
