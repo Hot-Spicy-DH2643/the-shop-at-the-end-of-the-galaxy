@@ -102,4 +102,9 @@ AsteroidSchema.index({ neo_reference_id: 1 });
 AsteroidSchema.index({ is_potentially_hazardous_asteroid: 1 });
 AsteroidSchema.index({ 'close_approach_data.close_approach_date': 1 });
 
+// Additional indexes for filtering
+AsteroidSchema.index({ size: 1 });
+AsteroidSchema.index({ price: 1 });
+AsteroidSchema.index({ 'orbital_data.orbit_class.orbit_class_type': 1 });
+
 export const Asteroid = mongoose.model('Asteroid', AsteroidSchema);
