@@ -8,6 +8,7 @@ import {
   DEFAULT_PAGE_SIZE,
   type SortOption,
   type BackendFilters,
+  sortAsteroids,
 } from './AppModel';
 
 const useAppStore = create<AppState>(set => ({
@@ -64,7 +65,7 @@ const useAppStore = create<AppState>(set => ({
 //  CUSTOM HOOKS
 
 {
-  /* Sorting 
+  /* Sorting */}
 export function useSortedAsteroids(
   sortBy: SortOption = 'None', // sorting criteria (e.g., 'price-asc', 'size-desc', etc.)
   limit?: number // limit to return only the first N asteroids
@@ -78,8 +79,7 @@ export function useAsteroidsSortedByClosestApproach(limit?: number) {
   const asteroids = useAppStore(state => state.asteroids);
   return sortAsteroids(asteroids, 'distance-asc', limit);
 }
-*/
-}
+
 // =========================
 //  EVENT HANDLERS
 
