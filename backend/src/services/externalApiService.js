@@ -514,7 +514,7 @@ function applyDistanceFilterAndSort(asteroids, filters) {
  * @param {number} pageSize - Number of items per page
  * @returns {Promise<Object>} Paginated asteroids with metadata
  */
-export async function getAsteroids(page = 1, pageSize = 20) {
+export async function getAsteroids(page = 1, pageSize = 20, filters = null) {
   try {
       // Check if we have cached data
       let totalCount = await Asteroid.countDocuments();
