@@ -41,3 +41,23 @@ export async function getUserById(userId) {
     throw error;
   }
 }
+
+export async function updateUserName(userId, newName) {
+  try {
+    const user = await User.findOneAndUpdate(
+      { uid: userId },
+      { name: newName },
+      { new: true }
+    );
+
+    if (!user) {
+      throw new Error(`User with uid ${userId} not found`);
+    }
+
+    // Return the user with followers and following populated
+    return await getUserById(userId);
+  } catch (error) {
+    console.error(`Error updating user name for ${userId}:`, error.message);
+    throw error;
+  }
+}

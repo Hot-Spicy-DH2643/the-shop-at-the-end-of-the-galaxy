@@ -18,3 +18,7 @@ extend type Query {
   user(uid: String!): User
   allUsers: [User!]!
 }
+
+extend type Mutation {
+  updateUserName(uid: String!, name: String!): User
+}
