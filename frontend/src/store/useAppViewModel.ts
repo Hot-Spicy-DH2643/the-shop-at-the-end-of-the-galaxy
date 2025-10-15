@@ -142,7 +142,6 @@ export function onHandleStarred(id: string) {
     );
 
     const foundAsteroid = state.asteroids.find(a => a.id === id);
-    console.log(foundAsteroid);
 
     if (!foundAsteroid?.is_starred) {
       addToStarredAsteroids(id);

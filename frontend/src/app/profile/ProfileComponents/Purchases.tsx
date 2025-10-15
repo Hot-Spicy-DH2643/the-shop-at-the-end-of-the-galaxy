@@ -21,7 +21,7 @@ export default function Purchases() {
   const selectedAsteroidId = useAppStore(state => state.selectedAsteroidId);
   const selectedAsteroid = asteroids.find(a => a.id === selectedAsteroidId);
 
-  console.log(selectedAsteroidId, selectedAsteroid);
+  // console.log(selectedAsteroidId, selectedAsteroid);
 
   useEffect(() => {
     setUserData();
