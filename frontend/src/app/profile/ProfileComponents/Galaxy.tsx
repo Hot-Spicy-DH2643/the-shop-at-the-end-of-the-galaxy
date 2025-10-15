@@ -1,11 +1,13 @@
 import { useEffect, useState, useRef } from 'react';
+import Image from 'next/image';
 import AsteroidSVG from '@/components/asteroidSVG';
 import AsteroidModal from '@/components/asteroidModal';
 import '@/app/globals.css';
 import type { UserData } from '@/store/AppModel';
 import { useGalaxyViewModel } from '@/store/useAppViewModel';
 
-// Configuration for the orbital system
+// Configuration for the orbital system (base values for 600px container)
+const BASE_CONTAINER_SIZE = 600;
 const ORBITAL_CENTER_X = -50; // pixels from left - ADJUST THIS to move Earth horizontally
 const ORBITAL_CENTER_Y = 100; // pixels from top - ADJUST THIS to move Earth vertically
 const ORBITAL_BAND_INNER = 400; // inner radius of the orbital band
@@ -42,6 +44,10 @@ export default function Galaxy({ profileData }: GalaxyProps) {
   const [selectedAsteroidId, setSelectedAsteroidId] = useState<string | null>(
     null
   );
+
+  // Container size state for responsive scaling
+  const [containerSize, setContainerSize] = useState(BASE_CONTAINER_SIZE);
+  const scaleFactor = containerSize / BASE_CONTAINER_SIZE;
 
   // Use the Galaxy viewmodel hook for modal management
   const { modalAsteroid, handleAsteroidClick, closeModal } =
@@ -123,6 +129,38 @@ export default function Galaxy({ profileData }: GalaxyProps) {
     }
     setLoading(false);
   }, [profileData]);
+
+  // Track container size for responsive scaling
+  useEffect(() => {
+    if (!containerRef.current) {
+      console.log('Container ref not ready yet');
+      return;
+    }
+
+    // Set initial size immediately
+    const initialSize = containerRef.current.getBoundingClientRect().width;
+    console.log('Initial container size:', initialSize);
+    setContainerSize(initialSize);
+
+    const resizeObserver = new ResizeObserver(entries => {
+      for (const entry of entries) {
+        const size = entry.contentRect.width; // Use width since it's square
+        console.log(
+          'Container size:',
+          size,
+          'Scale factor:',
+          size / BASE_CONTAINER_SIZE
+        );
+        setContainerSize(size);
+      }
+    });
+
+    resizeObserver.observe(containerRef.current);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [loading]); // Re-run when loading changes
 
   // Handle drag start
   const handleMouseDown = (e: React.MouseEvent | React.TouchEvent) => {
@@ -245,10 +283,10 @@ export default function Galaxy({ profileData }: GalaxyProps) {
   }
 
   return (
-    <div className="flex justify-center items-center w-full py-10 bg-transparent">
+    <div className="flex justify-center items-center w-full py-4 md:py-10 bg-transparent px-4">
       <div
         ref={containerRef}
-        className="relative w-[600px] h-[600px] bg-black rounded-lg overflow-hidden cursor-grab active:cursor-grabbing select-none"
+        className="relative w-full max-w-[600px] aspect-square bg-black rounded-lg overflow-hidden cursor-grab active:cursor-grabbing select-none"
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
@@ -263,24 +301,46 @@ export default function Galaxy({ profileData }: GalaxyProps) {
         <div
           className="absolute rounded-full shadow-2xl shadow-blue-500/30 overflow-hidden"
           style={{
-            width: '600px',
-            height: '600px',
-            left: `${ORBITAL_CENTER_X - 300}px`, // Center the 600px circle on the orbital center
-            top: `${ORBITAL_CENTER_Y - 300}px`,
-            backgroundImage: 'url(/NASA-EARTH.png)',
-            backgroundSize: '110%', // Scale up slightly to hide black edges
-            backgroundPosition: 'center',
+            width: `${BASE_CONTAINER_SIZE * scaleFactor}px`,
+            height: `${BASE_CONTAINER_SIZE * scaleFactor}px`,
+            left: `${(ORBITAL_CENTER_X - BASE_CONTAINER_SIZE / 2) * scaleFactor}px`,
+            top: `${(ORBITAL_CENTER_Y - BASE_CONTAINER_SIZE / 2) * scaleFactor}px`,
             transform: `rotate(${earthRotation}deg)`,
             transition: isDragging ? 'none' : 'transform 50ms linear',
           }}
-        />
+        >
+          <Image
+            src="/NASA-EARTH.png"
+            alt="Earth"
+            fill
+            className="object-cover"
+            style={{
+              transform: 'scale(1.1)', // Scale up slightly to hide black edges
+            }}
+            draggable={false}
+            priority
+          />
+        </div>
 
         {/* Asteroids - each with individual rotation */}
         {asteroidOrbits.map(orbit => {
           const currentAngle = asteroidAngles[orbit.id] || orbit.startAngle;
           const angleInRadians = (currentAngle * Math.PI) / 180;
-          const x = ORBITAL_CENTER_X + orbit.radius * Math.cos(angleInRadians);
-          const y = ORBITAL_CENTER_Y + orbit.radius * Math.sin(angleInRadians);
+          const x =
+            (ORBITAL_CENTER_X + orbit.radius * Math.cos(angleInRadians)) *
+            scaleFactor;
+          const y =
+            (ORBITAL_CENTER_Y + orbit.radius * Math.sin(angleInRadians)) *
+            scaleFactor;
+
+          // Asteroid size with less aggressive scaling (min 50px, scales up to 80px)
+          // Uses a dampened scale factor: scales slower on small screens
+          const minAsteroidSize = 50;
+          const maxAsteroidSize = ASTEROID_SIZE;
+          const scaledAsteroidSize = Math.max(
+            minAsteroidSize,
+            maxAsteroidSize * Math.max(0.7, scaleFactor) // Never go below 70% scale
+          );
 
           return (
             <div
@@ -289,8 +349,8 @@ export default function Galaxy({ profileData }: GalaxyProps) {
               style={{
                 left: `${x}px`,
                 top: `${y}px`,
-                width: `${ASTEROID_SIZE}px`,
-                height: `${ASTEROID_SIZE}px`,
+                width: `${scaledAsteroidSize}px`,
+                height: `${scaledAsteroidSize}px`,
                 transform: `translate(-50%, -50%)`,
                 filter:
                   orbit.id === selectedAsteroidId
@@ -306,7 +366,7 @@ export default function Galaxy({ profileData }: GalaxyProps) {
               }}
             >
               <div style={{ pointerEvents: 'none' }}>
-                <AsteroidSVG id={orbit.id} size={ASTEROID_SIZE} />
+                <AsteroidSVG id={orbit.id} size={scaledAsteroidSize} />
               </div>
             </div>
           );
@@ -331,8 +391,8 @@ export default function Galaxy({ profileData }: GalaxyProps) {
         */}
 
         {/* Instructions */}
-        <div className="absolute bottom-4 right-4 bg-black/60 backdrop-blur-sm px-3 py-2 rounded text-white text-xs">
-          Drag anywhere to rotate the orbital system
+        <div className="absolute bottom-2 right-2 md:bottom-4 md:right-4 bg-black/60 backdrop-blur-sm px-2 py-1 md:px-3 md:py-2 rounded text-white text-[10px] md:text-xs">
+          Drag to rotate
         </div>
       </div>
 
