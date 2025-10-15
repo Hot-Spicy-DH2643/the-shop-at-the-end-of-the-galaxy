@@ -17,7 +17,6 @@ export default function Purchases() {
   const [zeroPurchaseId, setZeroPurchaseId] = useState<string>('0000000');
 
   const user_owned_asteroids = userData?.owned_asteroids;
-  const user_starred_asteroids = userData?.starred_asteroids;
 
   const selectedAsteroidId = useAppStore(state => state.selectedAsteroidId);
   const selectedAsteroid = asteroids.find(a => a.id === selectedAsteroidId);
