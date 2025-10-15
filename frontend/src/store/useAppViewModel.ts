@@ -33,6 +33,7 @@ const useAppStore = create<AppState>(set => ({
   removeFromCart: id =>
     set(state => ({ cart: state.cart.filter(a => a.id !== id) })),
   clearCart: () => set({ cart: [] }),
+
   addToStarredAsteroids: async asteroidId => {
     addToStarredAsteroids(asteroidId);
   },
@@ -49,7 +50,6 @@ const useAppStore = create<AppState>(set => ({
       set({ loading: true, error: null });
       // Fetch asteroids from GraphQL backend with pagination
       // Price and size are now calculated server-side
-      console.log(filters);
       const result = await fetchAsteroids(page, DEFAULT_PAGE_SIZE, filters);
       set({
         asteroids: result.asteroids,

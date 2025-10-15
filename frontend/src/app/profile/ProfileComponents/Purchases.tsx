@@ -21,19 +21,16 @@ export default function Purchases() {
   const selectedAsteroidId = useAppStore(state => state.selectedAsteroidId);
   const selectedAsteroid = asteroids.find(a => a.id === selectedAsteroidId);
 
-  useEffect(() => {
-    setUserData();
-  }, []);
+  console.log(selectedAsteroidId, selectedAsteroid);
 
   useEffect(() => {
+    setUserData();
+    setAsteroids();
     if (user_owned_asteroids?.length === 0) {
       const id = Math.floor(Math.random() * 10000000)
         .toString()
         .padStart(7, '0');
       setZeroPurchaseId(id);
-    }
-    if (asteroids.length === 0) {
-      setAsteroids();
     }
   }, []);
 
@@ -86,18 +83,14 @@ export default function Purchases() {
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2">
-        {user_owned_asteroids?.map((asteroid, idx) => (
+        {user_owned_asteroids?.map(asteroid => (
           <div
             key={asteroid.id}
             className="relative rounded bg-[rgba(23,23,23,0.7)]1 shadow text-center cursor-pointer"
           >
             <div className="p-6">
               <div className="flex flex-col text-sm justify-center items-center hover:scale-[1.08] transition duration-300">
-                <AsteroidSVGMoving
-                  id={`${asteroid.id}-${idx}`}
-                  size={100}
-                  bgsize={160}
-                />
+                <AsteroidSVGMoving id={asteroid.id} size={100} bgsize={160} />
 
                 <p className="font-bold font-sm mt-4">{asteroid.name}</p>
                 <p>

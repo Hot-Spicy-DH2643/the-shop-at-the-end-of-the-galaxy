@@ -38,7 +38,6 @@ export default function AsteroidModal({
 
   const { userData } = useAppStore();
   const user_owned_asteroids = userData?.owned_asteroids.map(a => a.id);
-  console.log('asteroidModal.tsx file : ', user_owned_asteroids);
 
   return (
     <div

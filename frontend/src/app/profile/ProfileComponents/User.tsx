@@ -13,21 +13,20 @@ import { Star } from 'lucide-react';
 
 export default function User() {
   const { user: firebaseUser } = useAuthStore();
-  const { asteroids, setAsteroids, userData, setUserData } = useAppStore();
+  const { userData, setUserData, asteroids, setAsteroids } = useAppStore();
+
+  const [zeroFavAsteroidId, setZeroFavAsteroidId] = useState<string>('0000000');
 
   const user_starred_asteroids = userData?.starred_asteroids;
 
   const selectedAsteroidId = useAppStore(state => state.selectedAsteroidId);
   const selectedAsteroid = asteroids.find(a => a.id === selectedAsteroidId);
 
-  const [zeroFavAsteroidId, setZeroFavAsteroidId] = useState<string>('0000000');
+  console.log(selectedAsteroidId, selectedAsteroid);
 
   useEffect(() => {
-    setAsteroids();
     setUserData();
-  }, [setAsteroids, setUserData]);
-
-  useEffect(() => {
+    setAsteroids();
     if (user_starred_asteroids?.length === 0) {
       const id = Math.floor(Math.random() * 10000000)
         .toString()
@@ -58,6 +57,10 @@ export default function User() {
             <td>{userData?.owned_asteroids.length} asteroids</td>
           </tr>
           <tr>
+            <td className="font-bold">Favorite:</td>
+            <td>{userData?.starred_asteroids.length} asteroids</td>
+          </tr>
+          <tr>
             <td className="font-bold">Follwers:</td>
             <td>{userData?.followers.length}</td>
           </tr>
@@ -81,60 +84,7 @@ export default function User() {
       </h2>
 
       {/* user favorite asteroids */}
-      {user_starred_asteroids && user_starred_asteroids.length > 0 ? (
-        <div className="text-white">
-          <div className="grid grid-cols-1 md:grid-cols-2">
-            {user_starred_asteroids?.map(asteroid => (
-              <div
-                key={asteroid.id}
-                className="relative rounded bg-[rgba(23,23,23,0.7)]1 shadow text-center cursor-pointer"
-              >
-                <div className="p-6">
-                  <div className="relative flex flex-col text-sm justify-center items-center hover:scale-[1.08] transition duration-300">
-                    <button
-                      onClick={() => onHandleStarred(asteroid.id)}
-                      className="p-1 absolute top-1 right-2 z-10 cursor-pointer"
-                    >
-                      <Star
-                        className="transition duration-300 text-yellow-300"
-                        fill="yellow"
-                      />
-                    </button>
-                    <AsteroidSVGMoving
-                      id={asteroid.id}
-                      size={100}
-                      bgsize={160}
-                    />
-
-                    <p className="font-bold font-sm mt-4">{asteroid.name}</p>
-                    <p>
-                      {asteroid.is_potentially_hazardous_asteroid
-                        ? 'Hazardous'
-                        : 'Not Hazardous'}
-                    </p>
-                    <p>Diameter: {asteroid.size.toFixed(2)} m</p>
-                    <p>Price: {asteroid.price}</p>
-                    <button
-                      className="bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700 text-white px-6 py-2 rounded shadow hover:scale-105 hover:shadow-xl transition cursor-pointer text-center m-1 my-2 md:w-auto"
-                      onClick={() => onHandleProductClick(asteroid.id)}
-                    >
-                      Show Details
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {selectedAsteroidId && selectedAsteroid && (
-            <AsteroidModal
-              asteroid={selectedAsteroid}
-              onClose={() => useAppStore.getState().setSelectedAsteroidId(null)}
-              onHandleStarred={() => onHandleStarred(selectedAsteroid.id)}
-            />
-          )}
-        </div>
-      ) : (
+      {user_starred_asteroids?.length === 0 ? (
         <div className="text-white">
           <div className="flex flex-row items-center mt-10 text-center">
             <style>
@@ -164,6 +114,58 @@ export default function User() {
               </span>
             </p>
           </div>
+        </div>
+      ) : (
+        <div className="text-white">
+          <div className="grid grid-cols-1 md:grid-cols-2">
+            {user_starred_asteroids?.map(asteroid => (
+              <div
+                key={asteroid.id}
+                className="relative rounded bg-[rgba(23,23,23,0.7)]1 shadow text-center cursor-pointer"
+              >
+                <div className="p-6">
+                  <button
+                    onClick={() => onHandleStarred(asteroid.id)}
+                    className="p-1 absolute top-1 right-2 z-10 cursor-pointer"
+                  >
+                    <Star
+                      className="transition duration-300 text-yellow-300"
+                      fill="yellow"
+                    />
+                  </button>
+                  <div className="flex flex-col text-sm justify-center items-center hover:scale-[1.08] transition duration-300">
+                    <AsteroidSVGMoving
+                      id={asteroid.id}
+                      size={100}
+                      bgsize={160}
+                    />
+
+                    <p className="font-bold font-sm mt-4">{asteroid.name}</p>
+                    <p>
+                      {asteroid.is_potentially_hazardous_asteroid
+                        ? 'Hazardous'
+                        : 'Not Hazardous'}
+                    </p>
+                    <p>Diameter: {asteroid.size.toFixed(2)} m</p>
+                    <p>Price: {asteroid.price}</p>
+                    <button
+                      className="bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700 text-white px-6 py-2 rounded shadow hover:scale-105 hover:shadow-xl transition cursor-pointer text-center m-1 my-2 md:w-auto"
+                      onClick={() => onHandleProductClick(asteroid.id)}
+                    >
+                      Show Details
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          {selectedAsteroidId && selectedAsteroid && (
+            <AsteroidModal
+              asteroid={selectedAsteroid}
+              onClose={() => useAppStore.getState().setSelectedAsteroidId(null)}
+              onHandleStarred={() => onHandleStarred(selectedAsteroid.id)}
+            />
+          )}
         </div>
       )}
     </div>
