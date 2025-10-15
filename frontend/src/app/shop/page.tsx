@@ -57,7 +57,7 @@ const ORBIT_FILTER = {
     { value: 'AMO', label: 'Amor (AMO)', checked: false },
     {
       value: 'IEO',
-      label: 'Atira/Interior Earth Object (IEO)',
+      label: 'Atira (IEO)',
       checked: false,
     },
   ] as const,
@@ -131,10 +131,10 @@ export default function Shop() {
                     <ChevronDownIcon className="text-muted-foreground pointer-events-none size-4 transition-transform duration-200 text-white group-hover:text-gray-400" />
                   </span>
                 </AccordionTrigger>
-                <AccordionContent className="pt-6 animate-none grid grid-cols-1 md:grid-cols-3 gap-6">
+                <AccordionContent className="pt-2 animate-none grid grid-cols-1 lg:grid-cols-4 md:grid-cols-2 gap-9">
                   {/*Hazard filter*/}
-                  <div>
-                    <h3 className="text-sm font-modak text-white mb-4">
+                  <div className="lg:col-span-1 px-4">
+                    <h3 className="text-m font-modak text-white mb-4">
                       Hazard Level
                     </h3>
                     <ul className="space-y-4">
@@ -165,8 +165,8 @@ export default function Shop() {
                   </div>
 
                   {/* Orbit Type Filter */}
-                  <div>
-                    <h3 className="text-sm font-modak text-white mb-4">
+                  <div className="lg:col-span-1 px-4">
+                    <h3 className="text-m font-modak text-white mb-4">
                       Orbit Type
                     </h3>
                     <ul className="space-y-4">
@@ -202,7 +202,7 @@ export default function Shop() {
                           />
                           <label
                             htmlFor={`orbit-${index}`}
-                            className="ml-3 text-sm font-medium text-white cursor-pointer"
+                            className="ml-3 text-sm font-medium text-white cursor-pointer "
                           >
                             {option.label}
                           </label>
@@ -211,8 +211,8 @@ export default function Shop() {
                     </ul>
                   </div>
 
-                  {/*Size and distance sliders*/}
-                  <div>
+                  {/*Size, distance, price sliders*/}
+                  <div className="lg:col-span-2 px-4">
                     <div className="mb-8">
                       <div className="flex justify-between items-center mb-2">
                         <h3 className="text-sm font-modak text-white">Size</h3>
@@ -237,7 +237,7 @@ export default function Shop() {
 
                     <div className="mb-8">
                       <div className="flex justify-between items-center mb-2">
-                        <h3 className="text-sm font-modak text-white">
+                        <h3 className="text-m font-modak text-white">
                           Miss Distance
                         </h3>
                         <span className="text-xs text-gray-300">
@@ -262,9 +262,9 @@ export default function Shop() {
                       />
                     </div>
 
-                    <div>
+                    <div className="pb-2">
                       <div className="flex justify-between items-center mb-2">
-                        <h3 className="text-sm font-modak text-white">Price</h3>
+                        <h3 className="text-m font-modak text-white">Price</h3>
                         <span className="text-xs text-gray-300">
                           {filter.priceMin} - {filter.priceMax} CosmoCoins
                         </span>
@@ -284,15 +284,6 @@ export default function Shop() {
                       />
                     </div>
                   </div>
-
-                  <div className="md:col-span-3 flex pt-4">
-                    <button
-                      onClick={resetFilters}
-                      className="px-6 py-2 text-sm font-modak text-white bg-purple-600 hover:bg-purple-700 rounded transition-colors"
-                    >
-                      RESET FILTERS
-                    </button>
-                  </div>
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
@@ -305,7 +296,6 @@ export default function Shop() {
                 SORT
                 <ChevronDownIcon className="text-muted-foreground pointer-events-none size-4 shrink-0 translate-y-1.5 transition-transform duration-200 text-white group-hover:text-gray-400" />
               </DropdownMenuTrigger>
-
               <DropdownMenuContent align="end">
                 {SORT_OPTIONS.map(option => (
                   <DropdownMenuItem
@@ -332,7 +322,7 @@ export default function Shop() {
         </div>
       </main>
 
-      <section>
+      <section className="max-w-8xl mx-auto">
         <div>
           {/* Product Grid */}
           <ul className="bg-transparent grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6 gap-4 p-4 flex-grow">

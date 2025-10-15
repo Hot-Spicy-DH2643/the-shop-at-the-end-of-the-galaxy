@@ -11,6 +11,8 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-modak: 'Modak', cursive;
+  --max-width-8xl: 88rem;
+  --max-width-9xl:96rem;
 }
 
 /* Automatic dark mode disabled */

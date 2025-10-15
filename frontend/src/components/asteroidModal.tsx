@@ -36,6 +36,10 @@ export default function AsteroidModal({
     onClose(); // optional: close modal after adding
   };
 
+  const { userData } = useAppStore();
+  const user_owned_asteroids = userData?.owned_asteroids.map(a => a.id);
+  console.log('asteroidModal.tsx file : ', user_owned_asteroids);
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 overflow-y-auto"
@@ -97,13 +101,21 @@ export default function AsteroidModal({
         </div>
 
         <div className="mb-6 text-sm font-bold mx-auto px-8 mt-2 items-center flex flex-col md:flex-row justify-center">
-          <button
-            onClick={handleAddToCart}
-            className="bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700 text-white px-6 py-2 rounded shadow hover:scale-105 hover:shadow-xl transition cursor-pointer text-center m-1 my-2 w-full md:w-auto"
-          >
-            <ShoppingBasket className="inline-block mr-2 mb-1" size={22} />
-            Add to basket
-          </button>
+          {user_owned_asteroids?.find(a => a === asteroid.id) ? (
+            <p className="bg-gradient-to-r bg-gray-400 text-white px-6 py-2 rounded shadow text-center m-1 my-2 w-full md:w-auto">
+              Already Purchased 🪐 {asteroid.name}
+            </p>
+          ) : (
+            <div>
+              <button
+                onClick={handleAddToCart}
+                className="bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700 text-white px-6 py-2 rounded shadow hover:scale-105 hover:shadow-xl transition cursor-pointer text-center m-1 my-2 w-full md:w-auto"
+              >
+                <ShoppingBasket className="inline-block mr-2 mb-1" size={22} />
+                Add to basket
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="overflow-hidden rounded-lg shadow bg-gradient-to-br from-gray-900 via-gray-950 to-black mb-6">
