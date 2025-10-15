@@ -27,7 +27,7 @@ export default function AsteroidModal({
   const addToCart = useAppStore(state => state.addToCart);
 
   const handleAddToCart = () => {
-    addToCart(asteroid);
+    addToCart(asteroid.id);
     onClose(); // optional: close modal after adding
   };
 

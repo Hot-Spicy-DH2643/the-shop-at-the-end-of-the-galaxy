@@ -126,7 +126,7 @@ export type AppState = {
   setUserData: () => Promise<void>;
 
   cart: shopAsteroid[];
-  addToCart: (asteroid: shopAsteroid) => void;
+  addToCart: (asteroid_id: string) => void;
   removeFromCart: (id: string) => void;
   clearCart: () => void;
   setViewedProfile: (uid: string) => Promise<void>;
@@ -669,4 +669,26 @@ export function getFormattedAsteroidData(asteroid: shopAsteroid) {
     approach: getFormattedApproachData(asteroid),
     nasaUrl: asteroid.nasa_jpl_url,
   };
+}
+
+const ADD_TO_CART = gql`
+  mutation AddToCart($asteroidId: String!) {
+    addToCart(asteroidId: $asteroidId)
+  }
+`;
+
+export function addToCart(asteroid_id: string) {
+  // call the backend using graphql mutation to add to cart
+  console.log('Adding to cart:', asteroid_id);
+  client
+    .mutate({
+      mutation: ADD_TO_CART,
+      variables: { asteroidId: asteroid_id },
+    })
+    .then(response => {
+      console.log('Add to cart response:', response);
+    })
+    .catch(error => {
+      console.error('Error adding to cart:', error);
+    });
 }

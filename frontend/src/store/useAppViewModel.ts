@@ -10,6 +10,7 @@ import {
   type SortOption,
   filterAndSortAsteroids,
   type FilterState,
+  addToCart,
 } from './AppModel';
 import { useAuthStore } from './useAuthViewModel';
 
@@ -23,7 +24,10 @@ const useAppStore = create<AppState>(set => ({
   totalPages: 0,
   totalCount: 0,
   cart: [],
-  addToCart: asteroid => set(state => ({ cart: [...state.cart, asteroid] })),
+  addToCart: async asteroid_id => {
+    addToCart(asteroid_id);
+    useAppStore.getState().setUserData();
+  },
   removeFromCart: id =>
     set(state => ({ cart: state.cart.filter(a => a.id !== id) })),
   clearCart: () => set({ cart: [] }),
