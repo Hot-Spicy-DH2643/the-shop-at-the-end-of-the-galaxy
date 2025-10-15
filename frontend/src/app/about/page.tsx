@@ -183,7 +183,7 @@ export default function About() {
                       <AccordionContent className="mb-4">
                         This product was crafted by the finest artisans in the
                         galaxy, using materials sourced from the most exotic
-                        locations. We are Antonio, Lambo, Lucky, Maja, and Sara
+                        locations. We are Antonio, Lambo, Lucky, Maja and Sara
                         from Stockholm, Sweden.
                       </AccordionContent>
                     </AccordionItem>

@@ -117,6 +117,11 @@ export type AppState = {
   setAsteroids: (page?: number, filters?: BackendFilters) => Promise<void>;
   setSelectedAsteroidId: (id: string | null) => void;
   setUserData: () => Promise<void>;
+
+  cart: shopAsteroid[];
+  addToCart: (asteroid: shopAsteroid) => void;
+  removeFromCart: (id: string) => void;
+  clearCart: () => void;
 };
 
 // GraphQL query to fetch asteroids with pagination

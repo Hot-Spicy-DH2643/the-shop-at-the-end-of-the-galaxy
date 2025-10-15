@@ -1,8 +1,12 @@
 'use client';
 import AsteroidSVGMoving from './asteroidSVGMoving';
 import Image from 'next/image';
-import { shopAsteroid, getFormattedAsteroidData } from '@/store/AppModel';
-import { Star, ShoppingBasket, CalendarPlus } from 'lucide-react';
+import { shopAsteroid } from '@/store/AppModel';
+import { Star, ShoppingBasket, CalendarPlus, Eye } from 'lucide-react';
+import {
+  useAsteroidModalViewModel,
+  useAppStore,
+} from '@/store/useAppViewModel';
 
 interface modalProps {
   asteroid: shopAsteroid;
@@ -15,8 +19,9 @@ export default function AsteroidModal({
   onClose,
   onHandleStarred,
 }: modalProps) {
-  // MVVM: Get formatted data from Model layer
-  const formatted = getFormattedAsteroidData(asteroid);
+  // MVVM: Use ViewModel to manage all business logic and state
+  const { formatted, isConnected, isLoading, viewerText, handleAddToCalendar } =
+    useAsteroidModalViewModel(asteroid);
 
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {
@@ -24,35 +29,11 @@ export default function AsteroidModal({
     }
   };
 
-  const handleAddToCalendar = () => {
-    const approach = asteroid.close_approach_data?.[0];
-    if (!approach) return;
+  const addToCart = useAppStore(state => state.addToCart);
 
-    // Create a Google Calendar URL with the asteroid approach details
-    const startDate = new Date(approach.close_approach_date_full);
-    const endDate = new Date(startDate.getTime() + 60 * 60 * 1000); // 1 hour duration
-
-    const formatDateForCalendar = (date: Date) => {
-      return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-    };
-
-    const calendarUrl = new URL('https://calendar.google.com/calendar/render');
-    calendarUrl.searchParams.append('action', 'TEMPLATE');
-    calendarUrl.searchParams.append(
-      'text',
-      `Asteroid ${asteroid.name} Close Approach`
-    );
-    calendarUrl.searchParams.append(
-      'details',
-      `Asteroid ${asteroid.name} will pass Earth at a distance of ${formatted.approach.distanceAU} (${formatted.approach.distanceKm}) traveling at ${formatted.approach.velocityKmPerSec}.\n\nMore info: ${asteroid.nasa_jpl_url}`
-    );
-    calendarUrl.searchParams.append(
-      'dates',
-      `${formatDateForCalendar(startDate)}/${formatDateForCalendar(endDate)}`
-    );
-
-    // Open in new tab
-    window.open(calendarUrl.toString(), '_blank', 'noopener,noreferrer');
+  const handleAddToCart = () => {
+    addToCart(asteroid);
+    onClose(); // optional: close modal after adding
   };
 
   return (
@@ -74,7 +55,7 @@ export default function AsteroidModal({
             <AsteroidSVGMoving size={100} id={asteroid.id} bgsize={160} />
           </div>
 
-          <div className="w-full mx-auto px-4 md:px-8 mt-4">
+          <div className="w-full mx-auto px-4 md:px-8 mt-4 !text-white">
             <div className="flex flex-row mb-4 justify-between items-center gap-2">
               <h2 className="text-lg md:text-xl lg:text-2xl font-mono break-words flex-1 min-w-0">
                 {asteroid.name}
@@ -116,7 +97,10 @@ export default function AsteroidModal({
         </div>
 
         <div className="mb-6 text-sm font-bold mx-auto px-8 mt-2 items-center flex flex-col md:flex-row justify-center">
-          <button className="bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700 text-white px-6 py-2 rounded shadow hover:scale-105 hover:shadow-xl transition cursor-pointer text-center m-1 my-2 w-full md:w-auto">
+          <button
+            onClick={handleAddToCart}
+            className="bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700 text-white px-6 py-2 rounded shadow hover:scale-105 hover:shadow-xl transition cursor-pointer text-center m-1 my-2 w-full md:w-auto"
+          >
             <ShoppingBasket className="inline-block mr-2 mb-1" size={22} />
             Add to basket
           </button>
@@ -139,8 +123,17 @@ export default function AsteroidModal({
                   Interest:
                 </td>
                 <td className="px-4 py-3 text-pink-100">
-                  {/*  TODO: Implement interest websocket */}
-                  👀 7 explorers eyeing this right now
+                  <Eye className="inline-block mr-2 mb-1" size={16} />
+                  {isLoading ? (
+                    <span className="text-gray-400 italic">{viewerText}</span>
+                  ) : (
+                    viewerText
+                  )}
+                  {!isConnected && !isLoading && (
+                    <span className="text-xs text-gray-500 ml-2">
+                      (offline)
+                    </span>
+                  )}
                 </td>
               </tr>
               <tr className="border-b border-gray-800 last:border-b-0">
@@ -212,7 +205,7 @@ export default function AsteroidModal({
                 <td className="px-4 py-3 text-purple-200 font-semibold align-top">
                   Speed:
                 </td>
-                <td className="px-4 py-3">
+                <td className="px-4 py-3 text-purple-200">
                   {formatted.approach.velocityKmPerSec}
                 </td>
               </tr>
