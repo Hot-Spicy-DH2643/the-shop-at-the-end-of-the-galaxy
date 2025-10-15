@@ -12,6 +12,7 @@ import { createApolloServer } from './loaders/apollo.js';
 import { createExpressApp, setupGraphQL } from './loaders/express.js';
 import { connectDatabase } from './loaders/database.js';
 import { initializeCronJobs } from './utils/cronJobs.js';
+import { asteroidViewersService } from './services/asteroidViewersService.js';
 import http from 'http';
 
 // Create Apollo Server and Express app
@@ -42,6 +43,9 @@ async function startServer() {
   initializeCronJobs();
 
   await setupGraphQL(app, server);
+
+  // Initialize WebSocket server for real-time asteroid viewers
+  asteroidViewersService.initialize(httpServer);
 
   /**
    * Listen on provided port, on all network interfaces.

@@ -89,10 +89,10 @@ export default function DailyClaimChecker({
             {claimed && claimMessage && (
               <div className="border border-purple-400 rounded-lg p-4 mb-6 text-center">
                 <p className="text-purple-200">
-                  You&apos;ve earned {coinsToEarn} CosmoCoins! 🎉
+                  You&apos;ve claimed {coinsToEarn} CosmoCoins.
                 </p>
                 <p className="text-sm text-gray-300 mt-2">
-                  Come back tomorrow for more rewards!
+                  Come back tomorrow for more rewards.
                 </p>
               </div>
             )}

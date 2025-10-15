@@ -121,7 +121,7 @@ export type AppState = {
   totalCount: number;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
-  setAsteroids: (page?: number) => Promise<void>;
+  setAsteroids: (page?: number, filters?: BackendFilters) => Promise<void>;
   setSelectedAsteroidId: (id: string | null) => void;
   setUserData: () => Promise<void>;
 
@@ -134,8 +134,8 @@ export type AppState = {
 
 // GraphQL query to fetch asteroids with pagination
 const GET_ASTEROIDS = gql`
-  query GetAsteroids($page: Int, $pageSize: Int) {
-    asteroids(page: $page, pageSize: $pageSize) {
+  query GetAsteroids($page: Int, $pageSize: Int, $filters: AsteroidFilters) {
+    asteroids(page: $page, pageSize: $pageSize, filters: $filters) {
       asteroids {
         id
         neo_reference_id
@@ -238,14 +238,65 @@ export interface AsteroidsResult {
   currentPage: number;
 }
 
+// UI filter type - stores values in user-friendly ranges
+export interface UIFilters {
+  hazardous?: string;
+  sizeMin?: number;
+  sizeMax?: number;
+  distanceMin?: number; // 0-100 range
+  distanceMax?: number; // 0-100 range
+  priceMin?: number;
+  priceMax?: number;
+  orbitTypes?: string[];
+  sortBy?: string;
+}
+
+// Backend filter input type
+export interface BackendFilters {
+  hazardous?: string;
+  sizeMin?: number;
+  sizeMax?: number;
+  distanceMin?: number;
+  distanceMax?: number;
+  priceMin?: number;
+  priceMax?: number;
+  orbitTypes?: string[];
+  sortBy?: string;
+}
+
+// Converter function: UI filters -> Backend filters
+export function convertUIFiltersToBackend(
+  uiFilters: UIFilters
+): BackendFilters {
+  const DISTANCE_MAX = 100000000; // 100 million km
+
+  return {
+    ...uiFilters,
+    // Convert distance from 0-100 range to actual kilometers
+    distanceMin:
+      uiFilters.distanceMin !== undefined
+        ? (uiFilters.distanceMin / 100) * DISTANCE_MAX
+        : undefined,
+    distanceMax:
+      uiFilters.distanceMax !== undefined
+        ? (uiFilters.distanceMax / 100) * DISTANCE_MAX
+        : undefined,
+  };
+}
+
 export async function fetchAsteroids(
   page: number = 1,
-  pageSize: number = DEFAULT_PAGE_SIZE
+  pageSize: number = DEFAULT_PAGE_SIZE,
+  filters?: BackendFilters
 ): Promise<AsteroidsResult> {
   try {
     const { data } = await client.query<AsteroidsResponse>({
       query: GET_ASTEROIDS,
-      variables: { page, pageSize },
+      variables: {
+        page,
+        pageSize,
+        filters,
+      },
       fetchPolicy: 'network-only', // Always fetch fresh data from server
     });
 
@@ -345,33 +396,6 @@ export async function fetchUserData(uid: string): Promise<UserData | null> {
 // ============================================
 // SORTING FUNCTIONS - Pure Business Logic
 // ============================================
-
-/**
- * Helper function to get the closest approach distance from Earth for an asteroid
- * Currently unused, but kept for future reference if physical distance sorting is needed
- * @param asteroid - The asteroid to analyze
- * @returns Distance in kilometers, or Infinity if no data
- */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function getClosestApproachDistance(asteroid: shopAsteroid): number {
-  if (
-    !asteroid.close_approach_data ||
-    asteroid.close_approach_data.length === 0
-  ) {
-    return Infinity;
-  }
-
-  // Find the approach with minimum distance to Earth
-  const closestApproach = asteroid.close_approach_data.reduce(
-    (closest, current) => {
-      const currentDist = parseFloat(current.miss_distance.kilometers);
-      const closestDist = parseFloat(closest.miss_distance.kilometers);
-      return currentDist < closestDist ? current : closest;
-    }
-  );
-
-  return parseFloat(closestApproach.miss_distance.kilometers);
-}
 
 /**
  * Helper function to get the time difference from now to closest approach date

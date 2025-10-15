@@ -1,9 +1,13 @@
 'use client';
 import AsteroidSVGMoving from './asteroidSVGMoving';
 import Image from 'next/image';
-import { shopAsteroid, getFormattedAsteroidData } from '@/store/AppModel';
-import { Star, ShoppingBasket, CalendarPlus } from 'lucide-react';
-import { useAppStore } from '@/store/useAppViewModel';
+import { shopAsteroid } from '@/store/AppModel';
+import { Star, ShoppingBasket, CalendarPlus, Eye } from 'lucide-react';
+import {
+  useAsteroidModalViewModel,
+  useAppStore,
+} from '@/store/useAppViewModel';
+
 interface modalProps {
   asteroid: shopAsteroid;
   onClose: () => void;
@@ -15,8 +19,9 @@ export default function AsteroidModal({
   onClose,
   onHandleStarred,
 }: modalProps) {
-  // MVVM: Get formatted data from Model layer
-  const formatted = getFormattedAsteroidData(asteroid);
+  // MVVM: Use ViewModel to manage all business logic and state
+  const { formatted, isConnected, isLoading, viewerText, handleAddToCalendar } =
+    useAsteroidModalViewModel(asteroid);
 
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {
@@ -85,7 +90,7 @@ export default function AsteroidModal({
             <AsteroidSVGMoving size={100} id={asteroid.id} bgsize={160} />
           </div>
 
-          <div className="w-full mx-auto px-4 md:px-8 mt-4">
+          <div className="w-full mx-auto px-4 md:px-8 mt-4 !text-white">
             <div className="flex flex-row mb-4 justify-between items-center gap-2">
               <h2 className="text-lg md:text-xl lg:text-2xl font-mono break-words flex-1 min-w-0">
                 {asteroid.name}
@@ -161,8 +166,17 @@ export default function AsteroidModal({
                   Interest:
                 </td>
                 <td className="px-4 py-3 text-pink-100">
-                  {/*  TODO: Implement interest websocket */}
-                  👀 7 explorers eyeing this right now
+                  <Eye className="inline-block mr-2 mb-1" size={16} />
+                  {isLoading ? (
+                    <span className="text-gray-400 italic">{viewerText}</span>
+                  ) : (
+                    viewerText
+                  )}
+                  {!isConnected && !isLoading && (
+                    <span className="text-xs text-gray-500 ml-2">
+                      (offline)
+                    </span>
+                  )}
                 </td>
               </tr>
               <tr className="border-b border-gray-800 last:border-b-0">
@@ -234,7 +248,7 @@ export default function AsteroidModal({
                 <td className="px-4 py-3 text-purple-200 font-semibold align-top">
                   Speed:
                 </td>
-                <td className="px-4 py-3">
+                <td className="px-4 py-3 text-purple-200">
                   {formatted.approach.velocityKmPerSec}
                 </td>
               </tr>
