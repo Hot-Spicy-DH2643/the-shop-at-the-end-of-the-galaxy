@@ -9,8 +9,36 @@ import {
   sortAsteroids,
   type SortOption,
   filterAndSortAsteroids,
-  type FilterState
+  type FilterState,
 } from './AppModel';
+import { useAuthStore } from './useAuthViewModel';
+
+export function onHandleProductClick(id: string) {
+  // open the product modal component with detailed info
+  useAppStore.getState().setSelectedAsteroidId(id);
+
+  // also get the orbital data using the fetch
+  /*fetchOrbitalData(id).then(orbitalData => {
+    useAppStore.setState(state => ({
+      asteroids: state.asteroids.map(asteroid =>
+        asteroid.id === id ?
+          { ...asteroid, orbital_data: orbitalData } : asteroid
+      ),
+    }));
+  });*/
+}
+
+export function onHandleStarred(id: string) {
+  // toggle the starred status of the asteroid - and add to/remove from favorites??
+  useAppStore.setState(state => {
+    const updatedAsteroids = state.asteroids.map(asteroid =>
+      asteroid.id === id
+        ? { ...asteroid, starred_asteroid_ids: !asteroid.starred_asteroid_ids }
+        : asteroid
+    );
+    return { asteroids: updatedAsteroids };
+  });
+}
 
 const useAppStore = create<AppState>(set => ({
   loading: false,
@@ -27,6 +55,7 @@ const useAppStore = create<AppState>(set => ({
     set(state => ({ cart: state.cart.filter(a => a.id !== id) })),
   clearCart: () => set({ cart: [] }),
 
+  viewedProfile: null,
   setSelectedAsteroidId: (id: string | null) => set({ selectedAsteroidId: id }),
   setLoading: (loading: boolean) => set({ loading }),
   setError: (error: string | null) => set({ error }),
@@ -54,7 +83,15 @@ const useAppStore = create<AppState>(set => ({
   setUserData: async () => {
     try {
       set({ loading: true, error: null });
-      const userData = await fetchUserData();
+      const currentUser = useAuthStore.getState().user;
+      const userId = currentUser?.uid;
+
+      if (!userId) {
+        set({ error: 'No authenticated user', loading: false });
+        return;
+      }
+
+      const userData = await fetchUserData(userId);
       if (userData) {
         set({ userData, loading: false });
       }
@@ -65,13 +102,31 @@ const useAppStore = create<AppState>(set => ({
       });
     }
   },
+  setViewedProfile: async (uid: string) => {
+    try {
+      set({ loading: true, error: null });
+      const viewedProfile = await fetchUserData(uid);
+      if (viewedProfile) {
+        set({ viewedProfile, loading: false });
+      } else {
+        set({ error: 'User not found', loading: false });
+      }
+    } catch (error) {
+      set({
+        error:
+          error instanceof Error ? error.message : 'Failed to fetch profile',
+        loading: false,
+      });
+    }
+  },
 }));
-
 
 // =========================
 //  CUSTOM HOOKS
 
-{/* Sorting */}
+{
+  /* Sorting */
+}
 export function useSortedAsteroids(
   sortBy: SortOption = 'None', // sorting criteria (e.g., 'price-asc', 'size-desc', etc.)
   limit?: number // limit to return only the first N asteroids
@@ -86,7 +141,9 @@ export function useAsteroidsSortedByClosestApproach(limit?: number) {
   return sortAsteroids(asteroids, 'distance-asc', limit);
 }
 
-{/* Filtering */}
+{
+  /* Filtering */
+}
 export function useFilteredAsteroids(filters: FilterState) {
   const asteroids = useAppStore(state => state.asteroids);
   return filterAndSortAsteroids(asteroids, filters);
@@ -112,6 +169,5 @@ export function onHandleStarred(id: string) {
   });
 }
 
-
 export { useAppStore };
-export type { SortOption, FilterState};
+export type { SortOption, FilterState };

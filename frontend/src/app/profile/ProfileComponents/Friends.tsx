@@ -1,11 +1,20 @@
 'use client';
 import Image from 'next/image';
-import type { UserData } from '@/store/AppModel';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAuthStore } from '@/store/useAuthViewModel';
+import { useAppStore } from '@/store/useAppViewModel';
 
-export default function Friends({ user }: { user: UserData }) {
+export default function Friends() {
+  const { user: firebaseUser } = useAuthStore();
+  const { userData, setUserData } = useAppStore();
+
+  useEffect(() => {
+    setUserData();
+  }, []);
+
   // const friends = [];
-  const friends = user.friends;
+  const following = userData?.following;
 
   const router = useRouter();
 
@@ -14,7 +23,7 @@ export default function Friends({ user }: { user: UserData }) {
     router.push(newUrl);
   };
 
-  if (friends.length === 0) {
+  if (following?.length === 0) {
     return (
       <div className="text-white">
         <h2 className="text-2xl font-extrabold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-300 bg-clip-text text-transparent drop-shadow-lg">
@@ -38,7 +47,7 @@ export default function Friends({ user }: { user: UserData }) {
           />
 
           <p className="ml-10 text-lg">
-            <span className="font-bold">{user.username}</span> has{' '}
+            <span className="font-bold">{firebaseUser?.displayName}</span> has{' '}
             <span className="block sm:inline"> </span>
             <span className="font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
               no{' '}
@@ -59,17 +68,17 @@ export default function Friends({ user }: { user: UserData }) {
       </h2>
 
       <p className="mt-4 text-lg">
-        <span className="font-bold">{user.username}</span> has{' '}
+        <span className="font-bold">{firebaseUser?.displayName}</span> has{' '}
         <span className="font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-          {friends.length}
+          {following?.length}
         </span>{' '}
         friends.
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2">
-        {friends.map(friend => (
+        {following?.map(one_following => (
           <div
-            key={friend.id}
+            key={one_following.uid}
             className="relative rounded bg-[rgba(23,23,23,0.7)]1 shadow text-center cursor-pointer"
           >
             <div className="p-6">
@@ -82,12 +91,11 @@ export default function Friends({ user }: { user: UserData }) {
                   className="w-20 h-20 md:w-40 md:h-40 rounded-full object-contain hue-rotate-90"
                 />
                 <p className="font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                  {friend.name}
+                  {one_following.name}
                 </p>
-                <p>{friend.username}</p>
                 <button
                   className="bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700 text-white px-6 py-2 rounded shadow hover:scale-105 hover:shadow-xl transition cursor-pointer text-center m-1 my-2 md:w-auto"
-                  onClick={() => handleNavigation(friend.username)}
+                  onClick={() => handleNavigation(one_following.uid)}
                 >
                   Visit Galaxy
                 </button>

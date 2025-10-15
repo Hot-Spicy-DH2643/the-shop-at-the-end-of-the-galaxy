@@ -1,0 +1,20 @@
+type Friend {
+  uid: String!
+  name: String!
+}
+
+type User {
+  uid: String!
+  name: String!
+  coins: Int!
+  owned_asteroids: [Asteroid!]!
+  starred_asteroids: [Asteroid!]!
+  followers: [Friend!]!
+  following: [Friend!]!
+  cart_asteroids: [Asteroid!]!
+}
+
+extend type Query {
+  user(uid: String!): User
+  allUsers: [User!]!
+}

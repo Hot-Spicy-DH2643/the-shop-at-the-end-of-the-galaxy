@@ -2,9 +2,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-import type { UserData } from '@/store/AppModel';
-import type { User as FirebaseUser } from 'firebase/auth';
-
 import User from './ProfileComponents/User';
 import Galaxy from './ProfileComponents/Galaxy';
 import Purchases from './ProfileComponents/Purchases';
@@ -12,13 +9,7 @@ import Friends from './ProfileComponents/Friends';
 
 type Tab = 'user' | 'purchases' | 'galaxy' | 'friends';
 
-const ProfileTab = ({
-  firebaseUser,
-  userData,
-}: {
-  firebaseUser: FirebaseUser;
-  userData: UserData;
-}) => {
+const ProfileTab = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const currentTab = (searchParams.get('tab') as Tab) || 'user';
@@ -42,10 +33,10 @@ const ProfileTab = ({
           <button
             key={tab}
             onClick={() => handleNavigation(tab)}
-            className={`px-4 py-3 text-sm sm:px-6 sm:py-2 sm:text-base font-bold rounded shadow cursor-pointer ${
+            className={`px-4 py-3 text-sm sm:px-6 sm:py-2 sm:text-base font-bold text-white rounded shadow cursor-pointer box-border ${
               activeTab === tab
-                ? 'bg-gray-300'
-                : 'bg-gray-200 hover:bg-gray-300'
+                ? 'bg-gradient-to-br bg-gray-900 border border-soild'
+                : 'bg-black/50 hover:bg-gray-900'
             }`}
           >
             {tab.toUpperCase()}
@@ -54,13 +45,11 @@ const ProfileTab = ({
       </div>
 
       {/* Content Panel */}
-      <div className="bg-black/20 p-6 rounded shadow-md min-h-[150px] w-full transition-all duration-300">
-        {activeTab === 'user' && (
-          <User firebaseUser={firebaseUser} userData={userData} />
-        )}
-        {activeTab === 'purchases' && <Purchases user={userData} />}
-        {activeTab === 'galaxy' && <Galaxy userData={userData} />}
-        {activeTab === 'friends' && <Friends user={userData} />}
+      <div className="bg-black/20 rounded shadow-md min-h-[150px] p-6 transition-all duration-300">
+        {activeTab === 'user' && <User />}
+        {activeTab === 'purchases' && <Purchases />}
+        {activeTab === 'galaxy' && <Galaxy />}
+        {activeTab === 'friends' && <Friends />}
       </div>
     </div>
   );
