@@ -9,6 +9,7 @@ import { useAppStore } from '@/store/useAppViewModel';
 import Link from 'next/link';
 import CartItem from '@/components/cartItem';
 import { useEffect } from 'react';
+import CheckoutItem from '@/components/checkoutItem';
 
 //TODO: Right now hardcoded with fake data. Just to be able to style it.
 // I am gonna work on the functionality
@@ -69,34 +70,7 @@ export default function Checkout() {
         <h2 className="text-4xl text-center mb-8 font-modak">YOUR CART</h2>
 
         {/* Items in cart */}
-        <div className="space-y-4">
-          {cart.map(item => (
-            <div
-              key={item.id}
-              className="flex items-center gap-6 bg-gray-900/60 border border-fuchsia-700 rounded-2xl p-4 shadow-md"
-            >
-              <div className="w-16 h-16 flex items-center justify-center">
-                <AsteroidSVGMoving id={item.id} size={70} bgsize={70} />
-              </div>
-
-              <div className="flex-1">
-                <h3 className="text-lg font-semibold">{item.name}</h3>
-                <p className="text-gray-400 text-sm">ID: {item.id}</p>
-              </div>
-
-              <div className="text-right text-xl font-semibold">
-                <Image
-                  src="/cosmocoin-tiny.png"
-                  alt="coin icon"
-                  className="inline-block mr-1"
-                  width={18}
-                  height={18}
-                />
-                {item.price}
-              </div>
-            </div>
-          ))}
-        </div>
+        <CheckoutItem cart={cart} />
 
         {/* Total Summary */}
         <div className="bg-gray-900/80 border border-fuchsia-700 rounded-2xl p-6 mt-8 shadow-xl text-center">

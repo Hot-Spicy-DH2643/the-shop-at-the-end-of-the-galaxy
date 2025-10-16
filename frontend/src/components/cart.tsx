@@ -51,6 +51,7 @@ export default function Cart() {
                   id={parseInt(item.id)}
                   name={item.name}
                   price={item.price}
+                  asteroid={item}
                 />
               ))}
             </tbody>

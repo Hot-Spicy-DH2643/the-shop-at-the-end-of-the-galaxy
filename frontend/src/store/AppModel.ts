@@ -89,7 +89,7 @@ type Friend = {
   name: string;
 };
 
-type UserAsteriod = {
+export type UserAsteriod = {
   id: string;
   name: string;
   is_potentially_hazardous_asteroid: boolean;
@@ -718,8 +718,8 @@ export function addToCart(asteroid_id: string) {
 }
 
 const REMOVE_FROM_CART = gql`
-  mutation AddToCart($asteroidId: String!) {
-    addToCart(asteroidId: $asteroidId)
+  mutation removeFromCart($asteroidId: String!) {
+    removeFromCart(asteroidId: $asteroidId)
   }
 `;
 

@@ -3,17 +3,22 @@
 import Image from 'next/image';
 import { X } from 'lucide-react';
 import AsteroidSVGMoving from '@/components/asteroidSVGMoving';
-import { removeFromCart } from '@/store/AppModel';
+import { removeFromCart, UserAsteriod } from '@/store/AppModel';
+import { useAppStore } from '@/store/useAppViewModel';
+import { shopAsteroid } from '@/store/AppModel';
 
 interface CartItemProps {
   id: number;
   name: string;
   price: number;
+  asteroid: UserAsteriod;
 }
 
-export default function CartItem({ id, name, price }: CartItemProps) {
-  const handleRemove = () => {
-    removeFromCart(id.toString());
+export default function CartItem({ id, name, price, asteroid }: CartItemProps) {
+  const removeFromCart = useAppStore(state => state.removeFromCart);
+
+  const handleRemoveFromCart = () => {
+    removeFromCart(asteroid.id);
   };
 
   return (
@@ -34,7 +39,7 @@ export default function CartItem({ id, name, price }: CartItemProps) {
 
       <td className="py-3 text-right">
         <button
-          onClick={handleRemove}
+          onClick={handleRemoveFromCart}
           className="p-1 text-gray-500 hover:text-pink-500 transition cursor-pointer"
           aria-label="Remove item"
         >
