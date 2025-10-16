@@ -6,8 +6,7 @@ import {
   onHandleStarred,
 } from '@/store/useAppViewModel';
 import { useAuthStore } from '@/store/useAuthViewModel';
-import type { UserData, ShopAsteroid } from '@/store/AppModel';
-import { fetchAsteroidById } from '@/store/AppModel';
+import type { UserData } from '@/store/AppModel';
 import EditProfileModal from '@/components/editProfileModal';
 
 interface UserProps {
@@ -27,31 +26,18 @@ export default function User({ profileData, isOwnProfile }: UserProps) {
   const [isFollowing, setIsFollowing] = useState(false); //initialize this from backend
 
   const [zeroFavAsteroidId, setZeroFavAsteroidId] = useState<string>('0000000');
-  const [selectedAsteroid, setSelectedAsteroid] = useState<ShopAsteroid | null>(
-    null
-  );
 
   const selectedAsteroidId = useAppStore(state => state.selectedAsteroidId);
+  const selectedAsteroid = useAppStore(state => state.selectedAsteroid);
 
-  // Fetch full asteroid data
   useEffect(() => {
-    const fetchFullAsteroidData = async () => {
-      if (!selectedAsteroidId) {
-        setSelectedAsteroid(null);
-        return;
-      }
-
-      try {
-        const fullAsteroidData = await fetchAsteroidById(selectedAsteroidId);
-        setSelectedAsteroid(fullAsteroidData);
-      } catch (error) {
-        console.error('Error fetching asteroid:', error);
-        setSelectedAsteroid(null);
-      }
-    };
-
-    fetchFullAsteroidData();
-  }, [selectedAsteroidId]);
+    if (profileData?.starred_asteroids?.length === 0) {
+      const id = Math.floor(Math.random() * 10000000)
+        .toString()
+        .padStart(7, '0');
+      setZeroFavAsteroidId(id);
+    }
+  }, []);
 
   const displayName = isOwnProfile
     ? firebaseUser?.displayName

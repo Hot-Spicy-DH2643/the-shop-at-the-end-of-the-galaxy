@@ -38,7 +38,29 @@ const useAppStore = create<AppState>(set => ({
     set(state => ({ cart: state.cart.filter(a => a.id !== id) })),
   clearCart: () => set({ cart: [] }),
   viewedProfile: null,
-  setSelectedAsteroidId: (id: string | null) => set({ selectedAsteroidId: id }),
+  setSelectedAsteroidId: async (id: string | null) => {
+    set({ selectedAsteroidId: id });
+
+    if (id) {
+      try {
+        // Fetch full asteroid data when an ID is selected
+        const asteroidData = await fetchAsteroidById(id);
+        set({
+          selectedAsteroid: asteroidData,
+        });
+      } catch (error) {
+        console.error('Error fetching selected asteroid:', error);
+        set({
+          selectedAsteroid: null,
+        });
+      }
+    } else {
+      // Clear selected asteroid when no ID is provided
+      set({
+        selectedAsteroid: null,
+      });
+    }
+  },
   setLoading: (loading: boolean) => set({ loading }),
   setError: (error: string | null) => set({ error }),
   setAsteroids: async (page: number = 1, filters?: BackendFilters) => {
@@ -131,9 +153,9 @@ export function useAsteroidsSortedByClosestApproach(limit?: number) {
 // =========================
 //  EVENT HANDLERS
 
-export function onHandleProductClick(id: string) {
+export async function onHandleProductClick(id: string) {
   // open the product modal component with detailed info
-  useAppStore.getState().setSelectedAsteroidId(id);
+  await useAppStore.getState().setSelectedAsteroidId(id);
 }
 
 export function onHandleStarred(asteroid_id: string) {

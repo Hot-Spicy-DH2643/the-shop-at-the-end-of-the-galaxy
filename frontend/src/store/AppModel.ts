@@ -119,7 +119,7 @@ export type AppState = {
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   setAsteroids: (page?: number, filters?: BackendFilters) => Promise<void>;
-  setSelectedAsteroidId: (id: string | null) => void;
+  setSelectedAsteroidId: (id: string | null) => Promise<void>;
   setUserData: () => Promise<void>;
   updateProfileData: (newName: string) => void;
 
