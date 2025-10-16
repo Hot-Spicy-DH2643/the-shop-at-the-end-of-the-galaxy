@@ -80,3 +80,31 @@ export async function updateUserName(userId, newName) {
     throw error;
   }
 }
+
+export async function toggleStarredAsteroid(userId, asteroidId) {
+  try {
+    const user = await User.findOne({ uid: userId }).exec();
+
+    if (!user) {
+      throw new Error(`User with uid ${userId} not found`);
+    }
+
+    const index = user.starred_asteroid_ids.indexOf(asteroidId);
+    if (index === -1) {
+      // Asteroid not starred, add it
+      user.starred_asteroid_ids.push(asteroidId);
+    } else {
+      // Asteroid already starred, remove it
+      user.starred_asteroid_ids.splice(index, 1);
+    }
+
+    await user.save();
+    return true;
+  } catch (error) {
+    console.error(
+      `Error toggling starred asteroid for user ${userId}:`,
+      error.message
+    );
+    throw error;
+  }
+}

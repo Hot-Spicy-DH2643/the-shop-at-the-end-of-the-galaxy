@@ -56,7 +56,6 @@ type Owner = {
 export type ShopAsteroid = Asteroid & {
   price: number;
   owner: Owner | null;
-  is_starred: boolean;
   size: number;
   orbital_data?: {
     orbit_id: string;
@@ -319,16 +318,8 @@ export async function fetchAsteroids(
       };
     }
 
-    // Transform backend data to include frontend-specific fields
-    const asteroids: ShopAsteroid[] = data.asteroids.asteroids.map(
-      asteroid => ({
-        ...asteroid,
-        is_starred: false, // TODO: Get from user data
-      })
-    );
-
     return {
-      asteroids,
+      asteroids: data.asteroids.asteroids,
       totalCount: data.asteroids.totalCount,
       totalPages: data.asteroids.totalPages,
       currentPage: data.asteroids.page,
@@ -713,4 +704,16 @@ export function getFormattedAsteroidData(asteroid: ShopAsteroid) {
     approach: getFormattedApproachData(asteroid),
     nasaUrl: asteroid.nasa_jpl_url,
   };
+}
+
+export function toggleStarred(asteroid_id: string) {
+  // Call the backend mutation to toggle starred status
+  return client.mutate({
+    mutation: gql`
+      mutation ToggleStarredAsteroid($asteroidId: String!) {
+        toggleStarredAsteroid(asteroidId: $asteroidId)
+      }
+    `,
+    variables: { asteroidId: asteroid_id },
+  });
 }

@@ -20,5 +20,6 @@ export const resolvers = {
     ...mutationResolvers.Mutation,
     ...asteroidResolvers.Mutation,
     ...dailyClaimResolvers.Mutation,
+    ...userResolvers.Mutation,
   },
 };

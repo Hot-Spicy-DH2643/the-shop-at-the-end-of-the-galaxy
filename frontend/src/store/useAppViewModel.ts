@@ -15,6 +15,7 @@ import {
   getFormattedAsteroidData,
   sortAsteroids,
   UserData,
+  toggleStarred,
 } from './AppModel';
 import { useAsteroidViewers } from '@/hooks/useAsteroidViewers';
 import { useAuthStore } from './useAuthViewModel';
@@ -127,15 +128,24 @@ export function onHandleProductClick(id: string) {
   useAppStore.getState().setSelectedAsteroidId(id);
 }
 
-export function onHandleStarred(id: string) {
-  // toggle the starred status of the asteroid - and add to/remove from favorites??
-  useAppStore.setState(state => {
-    const updatedAsteroids = state.asteroids.map(asteroid =>
-      asteroid.id === id
-        ? { ...asteroid, is_starred: !asteroid.is_starred }
-        : asteroid
-    );
-    return { asteroids: updatedAsteroids };
+export function onHandleStarred(asteroid_id: string) {
+  // Add the asteroid to the user's starred list (if logged in)
+  const { userData, setUserData } = useAppStore.getState();
+  const currentUser = useAuthStore.getState().user;
+  const userId = currentUser?.uid;
+
+  if (!userId) {
+    alert('Please log in to star asteroids.');
+    return;
+  }
+
+  toggleStarred(asteroid_id).then(success => {
+    if (success) {
+      // Refresh user data to reflect the change
+      setUserData();
+    } else {
+      alert('Failed to update starred asteroids. Please try again.');
+    }
   });
 }
 
@@ -253,14 +263,7 @@ export function useGalaxyViewModel(profileData: UserData | null) {
         const asteroidData = await fetchAsteroidById(asteroidId);
 
         if (asteroidData) {
-          // Enhance with user-specific data
-          const enhancedAsteroid: ShopAsteroid = {
-            ...asteroidData,
-            is_starred:
-              profileData?.starred_asteroids.some(a => a.id === asteroidId) ||
-              false,
-          };
-          setModalAsteroid(enhancedAsteroid);
+          setModalAsteroid(asteroidData);
         }
       } catch (error) {
         console.error('Error fetching asteroid details:', error);
