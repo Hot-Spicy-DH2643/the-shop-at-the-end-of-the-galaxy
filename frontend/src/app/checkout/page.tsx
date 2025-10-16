@@ -7,20 +7,31 @@ import Image from 'next/image';
 import Navbar from '@/components/navbar';
 import { useAppStore } from '@/store/useAppViewModel';
 import Link from 'next/link';
+import CartItem from '@/components/cartItem';
+import { useEffect } from 'react';
 
 //TODO: Right now hardcoded with fake data. Just to be able to style it.
 // I am gonna work on the functionality
 
 export default function Checkout() {
-  const cart = useAppStore(state => state.cart);
-  const clearCart = useAppStore(state => state.clearCart);
+  const { userData, setUserData, clearCart } = useAppStore();
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
+  useEffect(() => {
+    setUserData();
+  }, [setUserData]);
+
+  const cart = userData?.cart_asteroids || [];
   const total = cart.reduce((sum, item) => sum + item.price, 0);
 
   const handleConfirm = () => {
+    if ((userData?.coins ?? 0) < total) {
+      alert("You don't have enough coins to complete this purchase!");
+      return;
+    }
+
     setIsProcessing(true);
     setTimeout(() => {
       setIsProcessing(false);
@@ -102,6 +113,21 @@ export default function Checkout() {
               {total}
             </span>
           </div>
+          {/* User Balance */}
+          <div className="flex justify-between mb-4 text-lg text-gray-400">
+            <span>Your Balance:</span>
+            <span className="flex items-center gap-1">
+              <Image
+                src="/cosmocoin-tiny.png"
+                alt="coin icon"
+                className="inline-block"
+                width={16}
+                height={16}
+              />
+              {userData?.coins ?? 0}
+            </span>
+          </div>
+
           <button
             onClick={handleConfirm}
             disabled={isProcessing}
