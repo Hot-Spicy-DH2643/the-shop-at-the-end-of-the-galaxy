@@ -16,7 +16,9 @@ import {
   sortAsteroids,
   UserData,
   toggleStarred,
-  updateProfile
+  updateProfile,
+  follow,
+  unfollow
 } from './AppModel';
 import { useAsteroidViewers } from '@/hooks/useAsteroidViewers';
 import { useAuthStore } from './useAuthViewModel';
@@ -90,6 +92,18 @@ const useAppStore = create<AppState>(set => ({
     const user = useAuthStore.getState().user;
     if (!user?.uid) return;
     updateProfile(user.uid, newName);
+  },
+
+  updateFollow: (tUid: string) => {
+    const targetUser = useAppStore.getState().viewedProfile;
+    if (!targetUser?.uid) return;
+    follow(targetUser.uid);
+  },
+
+  updateUnfollow: (tUid: string) => {
+    const targetUser = useAppStore.getState().viewedProfile;
+    if (!targetUser?.uid) return;
+    unfollow(targetUser.uid);
   },
 
   setViewedProfile: async (uid: string) => {

@@ -15,8 +15,6 @@ export default function User({ profileData, isOwnProfile }: UserProps) {
   const { updateProfileData } = useAppStore();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-  const [isFollowing, setIsFollowing] = useState(false); //initialize this from backend
-
   const displayName = isOwnProfile
     ? firebaseUser?.displayName
     : profileData?.name;

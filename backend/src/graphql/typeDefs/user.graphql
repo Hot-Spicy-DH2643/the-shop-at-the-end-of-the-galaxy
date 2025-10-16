@@ -22,6 +22,6 @@ extend type Query {
 extend type Mutation {
   updateUserName(uid: String!, name: String!): User
   toggleStarredAsteroid(asteroidId: String!): Boolean
-  followUser(uid: String!): Boolean
-  unfollowUser(uid: String!): Boolean
+  followUser(targetUid: String!): Boolean
+  unfollowUser(targetUid: String!): Boolean
 }
