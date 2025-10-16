@@ -28,6 +28,7 @@ const useAppStore = create<AppState>(set => ({
   userData: null,
   asteroids: [],
   selectedAsteroidId: null,
+  selectedAsteroid: null,
   currentPage: 1,
   totalPages: 0,
   totalCount: 0,
@@ -137,7 +138,7 @@ export function onHandleProductClick(id: string) {
 
 export function onHandleStarred(asteroid_id: string) {
   // Add the asteroid to the user's starred list (if logged in)
-  const { userData, setUserData } = useAppStore.getState();
+  const { setUserData } = useAppStore.getState();
   const currentUser = useAuthStore.getState().user;
   const userId = currentUser?.uid;
 

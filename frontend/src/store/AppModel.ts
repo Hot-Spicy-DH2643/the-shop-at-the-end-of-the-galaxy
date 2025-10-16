@@ -494,7 +494,7 @@ export async function fetchUserData(uid: string): Promise<UserData | null> {
       fetchPolicy: 'network-only',
     });
 
-    if (!data || !data.user) {
+    if (!data) {
       console.error('No data returned from GraphQL query');
       return null;
     }
