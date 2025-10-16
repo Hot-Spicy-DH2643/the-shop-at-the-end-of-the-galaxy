@@ -1,7 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import type { ShopAsteroid, UserData } from '@/store/AppModel';
-import { useAuthStore } from '@/store/useAuthViewModel';
+import type { UserData } from '@/store/AppModel';
 import {
   useAppStore,
   onHandleProductClick,
@@ -20,19 +19,13 @@ export default function Purchases({
   profileData,
   isOwnProfile,
 }: PurchasesProps) {
-  const { user: firebaseUser } = useAuthStore();
-
   // const owned_asteroid_ids = []; // For testing no purchases
   const owned_asteroids = profileData?.owned_asteroids;
 
   const [zeroPurchaseId, setZeroPurchaseId] = useState<string>('0000000');
 
   const selectedAsteroidId = useAppStore(state => state.selectedAsteroidId);
-  const selectedAsteroid = owned_asteroids?.find(
-    a => a.id === selectedAsteroidId
-  );
-
-  // console.log(selectedAsteroidId, selectedAsteroid);
+  const selectedAsteroid = useAppStore(state => state.selectedAsteroid);
 
   useEffect(() => {
     if (owned_asteroids?.length === 0) {
