@@ -64,6 +64,11 @@ type OrbitClass {
   orbit_class_range: String!
 }
 
+type User {
+  uid: String!
+  name: String!
+}
+
 type Asteroid {
   id: String!
   neo_reference_id: String!
@@ -77,6 +82,7 @@ type Asteroid {
   orbital_data: OrbitalData
   price: Float!
   size: Float!
+  owner: User
 }
 
 type CacheStatus {
@@ -94,22 +100,33 @@ type AsteroidPage {
   totalPages: Int!
 }
 
+# Input type for filtering asteroids
+input AsteroidFilters {
+  hazardous: String # 'all', 'hazardous', 'non-hazardous'
+  sizeMin: Float # minimum size in meters
+  sizeMax: Float # maximum size in meters
+  distanceMin: Float # minimum distance in km
+  distanceMax: Float # maximum distance in km
+  priceMin: Float # minimum price in CosmoCoins
+  priceMax: Float # maximum price in CosmoCoins
+  orbitTypes: [String!] # array of orbit class types: 'APO', 'ATE', 'AMO', 'IEO'
+  sortBy: String # 'None', 'size-asc', 'size-desc', 'price-asc', 'price-desc', 'distance-asc', 'distance-desc'
+}
+
 # TODO: Add allAsteroids query
 extend type Query {
-  # Get all asteroids from cache with pagination
-  asteroids(page: Int = 1, pageSize: Int = 20): AsteroidPage!
+  # Get all asteroids with optional filtering + pagination
+  asteroids(
+    page: Int = 1
+    pageSize: Int = 20
+    filters: AsteroidFilters
+  ): AsteroidPage!
 
   # Get a specific asteroid by ID
   asteroid(id: String!): Asteroid
 
   # Get cache status
   cacheStatus: CacheStatus
-
-  # Get asteroids filtered by hazard status
-  asteroidsByHazard(isHazardous: Boolean!): [Asteroid!]!
-
-  # Get asteroids by size category
-  asteroidsBySize(size: Int!): [Asteroid!]!
 }
 
 extend type Mutation {

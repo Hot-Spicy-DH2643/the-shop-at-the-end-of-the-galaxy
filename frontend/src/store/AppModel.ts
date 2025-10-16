@@ -48,10 +48,14 @@ export interface Asteroid {
   is_sentry_object: boolean;
 }
 
-export type shopAsteroid = Asteroid & {
+type Owner = {
+  uid: string;
+  name: string;
+};
+
+export type ShopAsteroid = Asteroid & {
   price: number;
-  ownership_id: string | null;
-  is_starred: boolean;
+  owner: Owner | null;
   size: number;
   orbital_data?: {
     orbit_id: string;
@@ -85,53 +89,59 @@ export type shopAsteroid = Asteroid & {
 };
 
 type Friend = {
-  id: string;
+  uid: string;
   name: string;
-  username: string;
-  email: string;
 };
 
 export type UserData = {
-  id: number;
+  uid: string;
   name: string;
-  username: string;
-  email: string;
   coins: number;
-  owned_asteroids: string[];
-  favorite_asteroids: string[];
-  friends: Friend[];
+  owned_asteroids: ShopAsteroid[];
+  starred_asteroids: ShopAsteroid[];
+  followers: Friend[];
+  following: Friend[];
+  cart_asteroids: ShopAsteroid[];
 };
 
 export type AppState = {
   userData: UserData | null;
-  asteroids: shopAsteroid[];
+  viewedProfile: UserData | null;
+  asteroids: ShopAsteroid[];
   loading: boolean;
   error: string | null;
   selectedAsteroidId: string | null;
+  selectedAsteroid: ShopAsteroid | null;
   // Pagination state
   currentPage: number;
   totalPages: number;
   totalCount: number;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
-  setAsteroids: (page?: number) => Promise<void>;
+  setAsteroids: (page?: number, filters?: BackendFilters) => Promise<void>;
   setSelectedAsteroidId: (id: string | null) => void;
   setUserData: () => Promise<void>;
+  updateProfileData: (newName: string) => void;
 
-  cart: shopAsteroid[];
-  addToCart: (asteroid: shopAsteroid) => void;
+  cart: ShopAsteroid[];
+  addToCart: (asteroid: ShopAsteroid) => void;
   removeFromCart: (id: string) => void;
   clearCart: () => void;
+  setViewedProfile: (uid: string) => Promise<void>;
 };
 
 // GraphQL query to fetch asteroids with pagination
 const GET_ASTEROIDS = gql`
-  query GetAsteroids($page: Int, $pageSize: Int) {
-    asteroids(page: $page, pageSize: $pageSize) {
+  query GetAsteroids($page: Int, $pageSize: Int, $filters: AsteroidFilters) {
+    asteroids(page: $page, pageSize: $pageSize, filters: $filters) {
       asteroids {
         id
         neo_reference_id
         name
+        owner {
+          uid
+          name
+        }
         nasa_jpl_url
         absolute_magnitude_h
         estimated_diameter {
@@ -213,7 +223,7 @@ const GET_ASTEROIDS = gql`
 
 interface AsteroidsResponse {
   asteroids: {
-    asteroids: (Asteroid & { price: number; size: number })[];
+    asteroids: ShopAsteroid[];
     totalCount: number;
     page: number;
     pageSize: number;
@@ -224,20 +234,71 @@ interface AsteroidsResponse {
 export const DEFAULT_PAGE_SIZE = 24;
 
 export interface AsteroidsResult {
-  asteroids: shopAsteroid[];
+  asteroids: ShopAsteroid[];
   totalCount: number;
   totalPages: number;
   currentPage: number;
 }
 
+// UI filter type - stores values in user-friendly ranges
+export interface UIFilters {
+  hazardous?: string;
+  sizeMin?: number;
+  sizeMax?: number;
+  distanceMin?: number; // 0-100 range
+  distanceMax?: number; // 0-100 range
+  priceMin?: number;
+  priceMax?: number;
+  orbitTypes?: string[];
+  sortBy?: string;
+}
+
+// Backend filter input type
+export interface BackendFilters {
+  hazardous?: string;
+  sizeMin?: number;
+  sizeMax?: number;
+  distanceMin?: number;
+  distanceMax?: number;
+  priceMin?: number;
+  priceMax?: number;
+  orbitTypes?: string[];
+  sortBy?: string;
+}
+
+// Converter function: UI filters -> Backend filters
+export function convertUIFiltersToBackend(
+  uiFilters: UIFilters
+): BackendFilters {
+  const DISTANCE_MAX = 100000000; // 100 million km
+
+  return {
+    ...uiFilters,
+    // Convert distance from 0-100 range to actual kilometers
+    distanceMin:
+      uiFilters.distanceMin !== undefined
+        ? (uiFilters.distanceMin / 100) * DISTANCE_MAX
+        : undefined,
+    distanceMax:
+      uiFilters.distanceMax !== undefined
+        ? (uiFilters.distanceMax / 100) * DISTANCE_MAX
+        : undefined,
+  };
+}
+
 export async function fetchAsteroids(
   page: number = 1,
-  pageSize: number = DEFAULT_PAGE_SIZE
+  pageSize: number = DEFAULT_PAGE_SIZE,
+  filters?: BackendFilters
 ): Promise<AsteroidsResult> {
   try {
     const { data } = await client.query<AsteroidsResponse>({
       query: GET_ASTEROIDS,
-      variables: { page, pageSize },
+      variables: {
+        page,
+        pageSize,
+        filters,
+      },
       fetchPolicy: 'network-only', // Always fetch fresh data from server
     });
 
@@ -251,17 +312,8 @@ export async function fetchAsteroids(
       };
     }
 
-    // Transform backend data to include frontend-specific fields
-    const asteroids: shopAsteroid[] = data.asteroids.asteroids.map(
-      asteroid => ({
-        ...asteroid,
-        ownership_id: null, // TODO: Get from user data
-        is_starred: false, // TODO: Get from user data
-      })
-    );
-
     return {
-      asteroids,
+      asteroids: data.asteroids.asteroids,
       totalCount: data.asteroids.totalCount,
       totalPages: data.asteroids.totalPages,
       currentPage: data.asteroids.page,
@@ -277,22 +329,194 @@ export async function fetchAsteroids(
   }
 }
 
-export async function fetchUserData(): Promise<UserData | null> {
-  // will auto carry cookie when using graphql
+// GraphQL query to fetch a single asteroid by ID
+const GET_ASTEROID_BY_ID = gql`
+  query GetAsteroid($id: String!) {
+    asteroid(id: $id) {
+      id
+      neo_reference_id
+      name
+      nasa_jpl_url
+      absolute_magnitude_h
+      estimated_diameter {
+        kilometers {
+          estimated_diameter_min
+          estimated_diameter_max
+        }
+        meters {
+          estimated_diameter_min
+          estimated_diameter_max
+        }
+      }
+      is_potentially_hazardous_asteroid
+      close_approach_data {
+        close_approach_date
+        close_approach_date_full
+        epoch_date_close_approach
+        relative_velocity {
+          kilometers_per_second
+          kilometers_per_hour
+        }
+        miss_distance {
+          astronomical
+          kilometers
+        }
+        orbiting_body
+      }
+      is_sentry_object
+      orbital_data {
+        orbit_id
+        eccentricity
+        semi_major_axis
+        inclination
+        orbital_period
+        orbit_class {
+          orbit_class_type
+          orbit_class_description
+          orbit_class_range
+        }
+      }
+      price
+      size
+    }
+  }
+`;
 
-  //using fake user data for now
-  const baseUrl = 'http://localhost:3000';
+const GET_USER_BY_ID = gql`
+  query GetUserById($uid: String!) {
+    user(uid: $uid) {
+      uid
+      name
+      coins
+      owned_asteroids {
+        id
+        name
+        is_potentially_hazardous_asteroid
+        price
+        size
+      }
+      starred_asteroids {
+        id
+        name
+        is_potentially_hazardous_asteroid
+        price
+        size
+      }
+      followers {
+        uid
+        name
+      }
+      following {
+        uid
+        name
+      }
+      cart_asteroids {
+        id
+        name
+        price
+        size
+      }
+    }
+  }
+`;
 
+export async function fetchAsteroidById(
+  id: string
+): Promise<ShopAsteroid | null> {
   try {
-    const response = await fetch(`${baseUrl}/userFakeData.json`);
-    if (!response.ok) throw new Error('Failed to fetch');
+    const { data } = await client.query<{ asteroid: ShopAsteroid }>({
+      query: GET_ASTEROID_BY_ID,
+      variables: { id },
+      fetchPolicy: 'network-only',
+    });
 
-    const userData: UserData = await response.json();
+    if (!data || !data.asteroid) {
+      console.error('No asteroid data returned from GraphQL query');
+      return null;
+    }
 
-    console.log(userData);
-
-    return userData;
+    // Transform to include frontend-specific fields
+    return data.asteroid;
   } catch (error) {
+    console.error('Error fetching asteroid by ID from GraphQL:', error);
+    return null;
+  }
+}
+
+export const UPDATE_USER_NAME = gql`
+  mutation UpdateUserName($uid: String!, $name: String!) {
+    updateUserName(uid: $uid, name: $name) {
+      uid
+      name
+    }
+  }
+`;
+
+export const FOLLOW_USER = gql`
+  mutation FollowUser($followerUid: String!, $targetUid: String!) {
+    followUser(followerUid: $followerUid, targetUid: $targetUid) {
+      uid
+      name
+      followers {
+        uid
+        name
+      }
+      following {
+        uid
+        name
+      }
+    }
+  }
+`;
+
+export const UNFOLLOW_USER = gql`
+  mutation UnfollowUser($followerUid: String!, $targetUid: String!) {
+    unfollowUser(followerUid: $followerUid, targetUid: $targetUid) {
+      uid
+      name
+      followers {
+        uid
+        name
+      }
+      following {
+        uid
+        name
+      }
+    }
+  }
+`;
+
+export async function fetchUserData(uid: string): Promise<UserData | null> {
+  try {
+    const { data } = await client.query<{ user: UserData }>({
+      query: GET_USER_BY_ID,
+      variables: { uid },
+      fetchPolicy: 'network-only',
+    });
+
+    if (!data) {
+      console.error('No data returned from GraphQL query');
+      return null;
+    }
+    return data.user;
+  } catch (error) {
+    console.error('Error fetching user from GraphQL:', error);
+    return null;
+  }
+}
+
+export async function updateProfile(uid: string, newName: string) {
+  try {
+    // Update backend via GraphQL
+    await client.mutate({
+      mutation: UPDATE_USER_NAME,
+      variables: {
+        uid: uid,
+        name: newName,
+      },
+    });
+  } catch (error) {
+    console.error('Error updating user name in backend:', error);
     throw error;
   }
 }
@@ -302,38 +526,11 @@ export async function fetchUserData(): Promise<UserData | null> {
 // ============================================
 
 /**
- * Helper function to get the closest approach distance from Earth for an asteroid
- * Currently unused, but kept for future reference if physical distance sorting is needed
- * @param asteroid - The asteroid to analyze
- * @returns Distance in kilometers, or Infinity if no data
- */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function getClosestApproachDistance(asteroid: shopAsteroid): number {
-  if (
-    !asteroid.close_approach_data ||
-    asteroid.close_approach_data.length === 0
-  ) {
-    return Infinity;
-  }
-
-  // Find the approach with minimum distance to Earth
-  const closestApproach = asteroid.close_approach_data.reduce(
-    (closest, current) => {
-      const currentDist = parseFloat(current.miss_distance.kilometers);
-      const closestDist = parseFloat(closest.miss_distance.kilometers);
-      return currentDist < closestDist ? current : closest;
-    }
-  );
-
-  return parseFloat(closestApproach.miss_distance.kilometers);
-}
-
-/**
  * Helper function to get the time difference from now to closest approach date
  * @param asteroid - The asteroid to analyze
  * @returns Absolute time difference in milliseconds, or Infinity if no data
  */
-function getClosestApproachTimeDiff(asteroid: shopAsteroid): number {
+function getClosestApproachTimeDiff(asteroid: ShopAsteroid): number {
   const now = new Date().getTime();
 
   if (
@@ -383,10 +580,10 @@ export type SortOption =
  * @returns Sorted array of asteroids
  */
 export function sortAsteroids(
-  asteroids: shopAsteroid[],
+  asteroids: ShopAsteroid[],
   sortBy: SortOption = 'None',
   limit?: number
-): shopAsteroid[] {
+): ShopAsteroid[] {
   if (sortBy === 'None') {
     return limit ? asteroids.slice(0, limit) : [...asteroids];
   }
@@ -425,68 +622,6 @@ export function sortAsteroids(
   });
 
   return limit ? sorted.slice(0, limit) : sorted;
-}
-
-{/* Filter */}
-
-export type FilterState = {
-  hazardous: 'all' | 'hazardous' | 'non-hazardous';
-  sizeRange: [number, number]; // in whatever scale your Slider uses
-  distanceRange: [number, number]; // same idea
-  orbitType: string[]; // e.g. ['APO', 'AMO']
-  sort: SortOption;
-};
-
-export function filterAsteroids(
-  asteroids: shopAsteroid[],
-  filters: FilterState
-): shopAsteroid[] {
-  return asteroids.filter(a => {
-    // ---------------------------
-    // Hazard filter
-    if (
-      filters.hazardous &&
-      filters.hazardous.length > 0 &&
-      !filters.hazardous.includes('all')
-    ) {
-      const hazardType = a.is_potentially_hazardous_asteroid
-        ? 'hazardous'
-        : 'non-hazardous';
-      if (!filters.hazardous.includes(hazardType)) return false;
-    }
-
-    // ---------------------------
-    // Orbit type filter
-    /*if (filters.orbitType && filters.orbitType.length > 0 && !filters.orbitType.includes('all')) {
-      const orbitClassType = a.orbital_data?.orbit_class?.orbit_class_type ?? '';
-      if (!filters.orbitType.includes(orbitClassType)) return false;
-    }*/
-
-    // ---------------------------
-    // Size filter
-    /*if (filters.sizeRange) {
-      const [minSize, maxSize] = filters.sizeRange;
-      if (a.size < minSize || a.size > maxSize) return false;
-    }*/
-
-    // ---------------------------
-    // Distance filter (by closest approach distance)
-    /*if (filters.distanceRange) {
-      const [minDist, maxDist] = filters.distanceRange;
-      const closestDist = getClosestApproachDistance(a);
-      if (closestDist < minDist || closestDist > maxDist) return false;
-    }*/
-
-    return true; // passes all filters
-  });
-}
-
-export function filterAndSortAsteroids(
-  asteroids: shopAsteroid[],
-  filters: FilterState
-): shopAsteroid[] {
-  const filtered = filterAsteroids(asteroids, filters);
-  return sortAsteroids(filtered, filters.sort ?? 'None');
 }
 
 // ============================================
@@ -549,7 +684,7 @@ export function formatMillionKilometers(
  * @param asteroid - The asteroid to format
  * @returns Object with formatted orbital parameters
  */
-export function getFormattedOrbitalData(asteroid: shopAsteroid) {
+export function getFormattedOrbitalData(asteroid: ShopAsteroid) {
   return {
     semiMajorAxis: formatOrbitalParameter(
       asteroid.orbital_data?.semi_major_axis,
@@ -576,7 +711,7 @@ export function getFormattedOrbitalData(asteroid: shopAsteroid) {
  * @param asteroid - The asteroid to format
  * @returns Object with formatted approach data
  */
-export function getFormattedApproachData(asteroid: shopAsteroid) {
+export function getFormattedApproachData(asteroid: ShopAsteroid) {
   const approach = asteroid.close_approach_data?.[0];
 
   if (!approach) {
@@ -609,7 +744,7 @@ export function getFormattedApproachData(asteroid: shopAsteroid) {
  * @param asteroid - The asteroid to format
  * @returns Complete formatted data object
  */
-export function getFormattedAsteroidData(asteroid: shopAsteroid) {
+export function getFormattedAsteroidData(asteroid: ShopAsteroid) {
   return {
     id: asteroid.id,
     name: asteroid.name,
@@ -622,4 +757,16 @@ export function getFormattedAsteroidData(asteroid: shopAsteroid) {
     approach: getFormattedApproachData(asteroid),
     nasaUrl: asteroid.nasa_jpl_url,
   };
+}
+
+export function toggleStarred(asteroid_id: string) {
+  // Call the backend mutation to toggle starred status
+  return client.mutate({
+    mutation: gql`
+      mutation ToggleStarredAsteroid($asteroidId: String!) {
+        toggleStarredAsteroid(asteroidId: $asteroidId)
+      }
+    `,
+    variables: { asteroidId: asteroid_id },
+  });
 }
