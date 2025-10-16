@@ -66,7 +66,7 @@ export default function Checkout() {
     <div className="galaxy-bg-space min-h-screen text-white flex flex-col items-center gap-12">
       <Navbar />
       <div className="w-full max-w-3xl space-y-6">
-        <h2 className="text-3xl font-bold text-center mb-8">Your cart:</h2>
+        <h2 className="text-4xl text-center mb-8 font-modak">YOUR CART</h2>
 
         {/* Items in cart */}
         <div className="space-y-4">
@@ -146,7 +146,7 @@ export default function Checkout() {
       {/* Explore More Section, right now hardcoded*/}
 
       <div className="w-full max-w-4xl mt-12 text-center">
-        <h2 className="text-2xl font-bold mb-6 text-white/90">
+        <h2 className="text-2xl mb-6 text-white/90 font-modak">
           Wanna look for more?
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">

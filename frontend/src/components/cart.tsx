@@ -17,10 +17,11 @@ export default function Cart() {
   const { userData, setUserData } = useAppStore();
 
   useEffect(() => {
-    setUserData(); // fetches from backend and sets global store
-    console.log('User cart items', userData?.cart_asteroids);
+    const fetchData = async () => {
+      await setUserData(); // ensure data is fetched
+    };
+    fetchData();
   }, [setUserData]);
-
   const cart = userData?.cart_asteroids || [];
   const total = cart.reduce((sum, item) => sum + item.price, 0);
 
@@ -33,7 +34,7 @@ export default function Cart() {
     <div className="flex flex-col bg-gray-950 text-white rounded-xl w-full h-[80vh] max-h-[600px] overflow-hidden">
       {/* Header */}
       <div className="flex justify-between items-center px-6 py-4 border-b border-white/10">
-        <h2 className="text-2xl font-semibold">Your Cart</h2>
+        <h2 className="text-4xl font-modak">Your Cart</h2>
         <span className="text-sm text-gray-400">{cart.length} items</span>
       </div>
 
@@ -70,6 +71,21 @@ export default function Cart() {
             />
             <span>{total}</span>
           </div>
+        </div>
+
+        {/* User Balance */}
+        <div className="flex justify-between mb-4 text-sm text-gray-400">
+          <span>Your Balance:</span>
+          <span className="flex items-center gap-1">
+            <Image
+              src="/cosmocoin-tiny.png"
+              alt="coin icon"
+              className="inline-block"
+              width={16}
+              height={16}
+            />
+            {userData?.coins ?? 0}
+          </span>
         </div>
 
         <Link href="/checkout" className="block">
