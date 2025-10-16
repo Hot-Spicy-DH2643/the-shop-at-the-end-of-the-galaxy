@@ -93,23 +93,15 @@ type Friend = {
   name: string;
 };
 
-type UserAsteriod = {
-  id: string;
-  name: string;
-  is_potentially_hazardous_asteroid: boolean;
-  price: number;
-  size: number;
-};
-
 export type UserData = {
   uid: string;
   name: string;
   coins: number;
-  owned_asteroids: UserAsteriod[];
-  starred_asteroids: UserAsteriod[];
+  owned_asteroids: ShopAsteroid[];
+  starred_asteroids: ShopAsteroid[];
   followers: Friend[];
   following: Friend[];
-  cart_asteroids: UserAsteriod[];
+  cart_asteroids: ShopAsteroid[];
 };
 
 export type AppState = {
@@ -119,6 +111,7 @@ export type AppState = {
   loading: boolean;
   error: string | null;
   selectedAsteroidId: string | null;
+  selectedAsteroid: ShopAsteroid | null;
   // Pagination state
   currentPage: number;
   totalPages: number;
@@ -135,9 +128,6 @@ export type AppState = {
   removeFromCart: (id: string) => void;
   clearCart: () => void;
   setViewedProfile: (uid: string) => Promise<void>;
-
-  addToStarredAsteroids: (asteroid_id: string) => void;
-  deleteFromStarredAsteroids: (asteroid_id: string) => void;
 };
 
 // GraphQL query to fetch asteroids with pagination
