@@ -3,21 +3,28 @@
 import Image from 'next/image';
 import { useAppStore } from '@/store/useAppViewModel';
 import CartItem from './cartItem';
-
-// Temporary fake data (for styling)
-const fakeCart = [
-  { id: 1209384, name: 'Starlight Sneakers', price: 120 },
-  { id: 2192847, name: 'Cosmic Hoodie', price: 95 },
-  { id: 3102937, name: 'Nebula Jacket', price: 250 },
-  { id: 4102937, name: 'Galaxy Watch', price: 300 },
-  { id: 5293847, name: 'Moonlight Bag', price: 180 },
-];
+import { useEffect } from 'react';
 
 export default function Cart() {
   // const cart = useAppStore(state => state.cart);
-  const cart = fakeCart; // using fake data for now
+  //const cart = fakeCart; // using fake data for now
 
+  //const total = cart.reduce((sum, item) => sum + item.price, 0);
+
+  const { userData, setUserData } = useAppStore();
+
+  useEffect(() => {
+    setUserData(); // fetches from backend and sets global store
+    console.log('User cart items', userData?.cart_asteroids);
+  }, [setUserData]);
+
+  const cart = userData?.cart_asteroids || [];
   const total = cart.reduce((sum, item) => sum + item.price, 0);
+
+  if (!userData)
+    return (
+      <p className="text-center text-gray-400 mt-10">Loading your cart...</p>
+    );
 
   return (
     <div className="flex flex-col bg-gray-950 text-white rounded-xl w-full h-[80vh] max-h-[600px] overflow-hidden">
@@ -34,10 +41,10 @@ export default function Cart() {
         ) : (
           <table className="w-full text-left border-collapse">
             <tbody>
-              {cart.map(item => (
+              {userData?.cart_asteroids.map(item => (
                 <CartItem
                   key={item.id}
-                  id={item.id}
+                  id={parseInt(item.id)}
                   name={item.name}
                   price={item.price}
                 />
