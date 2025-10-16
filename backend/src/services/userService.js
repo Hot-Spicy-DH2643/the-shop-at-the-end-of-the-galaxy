@@ -63,6 +63,7 @@ export async function getUserById(userId) {
 
 export async function addToCart(userId, asteroidId) {
   try {
+    console.log(`Adding asteroid ${asteroidId} to cart for user ${userId}`);
     const user = await User.findOne({ uid: userId });
     if (!user) {
       throw new Error('User not found');

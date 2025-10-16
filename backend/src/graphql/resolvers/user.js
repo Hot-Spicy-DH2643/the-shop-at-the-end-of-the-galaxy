@@ -38,12 +38,9 @@ export const userResolvers = {
         return true;
       } catch (error) {
         console.error('Error in addToCart mutation:', error);
-        throw new Error('Failed to add asteroid to cart');
+        throw new Error('Failed to add asteroid to cart', error);
       }
     },
-  },
-
-  Mutation: {
     removeFromCart: async (parent, { asteroidId }, context) => {
       try {
         if (!context.user) {
@@ -53,7 +50,7 @@ export const userResolvers = {
         return true;
       } catch (error) {
         console.error('Error in removeFromCart mutation:', error);
-        throw new Error('Failed to remove asteroid from cart');
+        throw new Error('Failed to remove asteroid from cart', error);
       }
     },
   },
