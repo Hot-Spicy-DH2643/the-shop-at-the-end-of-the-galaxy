@@ -601,6 +601,10 @@ export async function getAsteroidById(asteroidId) {
       ).lean();
     }
 
+    // Find owner user
+    const ownerUser = await User.findOne({ owned_asteroid_ids: asteroid.id });
+    asteroid.owner = ownerUser ? ownerUser : null;
+
     return asteroid;
   } catch (error) {
     console.error(`❌ Error getting asteroid ${asteroidId}:`, error.message);

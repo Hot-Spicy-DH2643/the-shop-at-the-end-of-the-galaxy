@@ -451,11 +451,7 @@ export async function fetchAsteroidById(
     }
 
     // Transform to include frontend-specific fields
-    return {
-      ...data.asteroid,
-      owner: null, // TODO: Get from user data
-      is_starred: false, // TODO: Get from user data
-    };
+    return data.asteroid;
   } catch (error) {
     console.error('Error fetching asteroid by ID from GraphQL:', error);
     return null;
