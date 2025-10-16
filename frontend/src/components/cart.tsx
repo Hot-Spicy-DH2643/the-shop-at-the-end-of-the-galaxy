@@ -4,6 +4,9 @@ import Image from 'next/image';
 import { useAppStore } from '@/store/useAppViewModel';
 import CartItem from './cartItem';
 import { useEffect } from 'react';
+import Link from 'next/link';
+
+const cartLinks = [{ label: 'Checkout', href: '/checkout' }];
 
 export default function Cart() {
   // const cart = useAppStore(state => state.cart);
@@ -69,9 +72,11 @@ export default function Cart() {
           </div>
         </div>
 
-        <button className="w-full mt-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 transition-all py-3 rounded-lg font-semibold text-white">
-          Go to Checkout
-        </button>
+        <Link href="/checkout" className="block">
+          <button className="w-full mt-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 transition-all py-3 rounded-lg font-semibold text-white">
+            Go to Checkout
+          </button>
+        </Link>
       </div>
     </div>
   );

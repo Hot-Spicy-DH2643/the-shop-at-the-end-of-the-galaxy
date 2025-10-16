@@ -6,6 +6,7 @@ import AsteroidSVGMoving from '@/components/asteroidSVGMoving';
 import Image from 'next/image';
 import Navbar from '@/components/navbar';
 import { useAppStore } from '@/store/useAppViewModel';
+import Link from 'next/link';
 
 //TODO: Right now hardcoded with fake data. Just to be able to style it.
 // I am gonna work on the functionality
@@ -36,13 +37,15 @@ export default function Checkout() {
           <p className="text-white-300 mb-6">
             Your new asteroids are now orbiting in your galaxy
           </p>
-          <button
-            //Need to navigate back to shop
-            onClick={() => setIsSuccess(false)}
-            className="px-6 py-3 rounded-xl transition text-lg font-semibold bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700 cursor-pointer hover:scale-102 hover:shadow-[0_0_20px_4px_rgba(236,72,255,0.6)] hover:brightness-110"
-          >
-            Back to Shop
-          </button>
+
+          <Link href="/shop">
+            <button
+              className="w-full mt-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 transition-all py-3 rounded-lg font-semibold text-white"
+              onClick={() => setIsSuccess(false)}
+            >
+              Back to Shop
+            </button>
+          </Link>
         </div>
       </div>
     );
