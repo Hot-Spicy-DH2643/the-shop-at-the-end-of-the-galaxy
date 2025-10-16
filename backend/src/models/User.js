@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema({
   follower_ids: { type: [String], default: [] },
   following_ids: { type: [String], default: [] },
   cart_asteroid_ids: { type: [String], default: [] },
+  lastDailyClaimDate: { type: String, default: null }, // YYYY-MM-DD
 });
 
 export const User = mongoose.model('User', userSchema);
