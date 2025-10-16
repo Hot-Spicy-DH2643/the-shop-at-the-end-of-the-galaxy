@@ -11,7 +11,7 @@ import {
   type BackendFilters,
   type UIFilters,
   convertUIFiltersToBackend,
-  shopAsteroid,
+  ShopAsteroid,
   getFormattedAsteroidData,
   sortAsteroids,
   UserData,
@@ -145,7 +145,7 @@ export function onHandleStarred(id: string) {
 /**
  * Manages the business logic and state for displaying asteroid details
  */
-export function useAsteroidModalViewModel(asteroid: shopAsteroid) {
+export function useAsteroidModalViewModel(asteroid: ShopAsteroid) {
   const formatted = getFormattedAsteroidData(asteroid);
 
   const { viewerCount, isConnected, isLoading } = useAsteroidViewers(
@@ -242,7 +242,7 @@ export function useAsteroidModalViewModel(asteroid: shopAsteroid) {
  * Custom hook for Galaxy component - handles asteroid fetching and modal state
  */
 export function useGalaxyViewModel(profileData: UserData | null) {
-  const [modalAsteroid, setModalAsteroid] = useState<shopAsteroid | null>(null);
+  const [modalAsteroid, setModalAsteroid] = useState<ShopAsteroid | null>(null);
   const [isLoadingModal, setIsLoadingModal] = useState(false);
 
   const handleAsteroidClick = useCallback(
@@ -254,7 +254,7 @@ export function useGalaxyViewModel(profileData: UserData | null) {
 
         if (asteroidData) {
           // Enhance with user-specific data
-          const enhancedAsteroid: shopAsteroid = {
+          const enhancedAsteroid: ShopAsteroid = {
             ...asteroidData,
             is_starred:
               profileData?.starred_asteroids.some(a => a.id === asteroidId) ||

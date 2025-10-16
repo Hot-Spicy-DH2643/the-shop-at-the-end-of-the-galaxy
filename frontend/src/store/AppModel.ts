@@ -48,9 +48,14 @@ export interface Asteroid {
   is_sentry_object: boolean;
 }
 
-export type shopAsteroid = Asteroid & {
+type Owner = {
+  uid: string;
+  name: string;
+};
+
+export type ShopAsteroid = Asteroid & {
   price: number;
-  ownership_id: string | null;
+  owner: Owner | null;
   is_starred: boolean;
   size: number;
   orbital_data?: {
@@ -111,7 +116,7 @@ export type UserData = {
 export type AppState = {
   userData: UserData | null;
   viewedProfile: UserData | null;
-  asteroids: shopAsteroid[];
+  asteroids: ShopAsteroid[];
   loading: boolean;
   error: string | null;
   selectedAsteroidId: string | null;
@@ -125,8 +130,8 @@ export type AppState = {
   setSelectedAsteroidId: (id: string | null) => void;
   setUserData: () => Promise<void>;
 
-  cart: shopAsteroid[];
-  addToCart: (asteroid: shopAsteroid) => void;
+  cart: ShopAsteroid[];
+  addToCart: (asteroid: ShopAsteroid) => void;
   removeFromCart: (id: string) => void;
   clearCart: () => void;
   setViewedProfile: (uid: string) => Promise<void>;
@@ -140,6 +145,10 @@ const GET_ASTEROIDS = gql`
         id
         neo_reference_id
         name
+        owner {
+          uid
+          name
+        }
         nasa_jpl_url
         absolute_magnitude_h
         estimated_diameter {
@@ -221,7 +230,7 @@ const GET_ASTEROIDS = gql`
 
 interface AsteroidsResponse {
   asteroids: {
-    asteroids: (Asteroid & { price: number; size: number })[];
+    asteroids: ShopAsteroid[];
     totalCount: number;
     page: number;
     pageSize: number;
@@ -232,7 +241,7 @@ interface AsteroidsResponse {
 export const DEFAULT_PAGE_SIZE = 24;
 
 export interface AsteroidsResult {
-  asteroids: shopAsteroid[];
+  asteroids: ShopAsteroid[];
   totalCount: number;
   totalPages: number;
   currentPage: number;
@@ -311,10 +320,9 @@ export async function fetchAsteroids(
     }
 
     // Transform backend data to include frontend-specific fields
-    const asteroids: shopAsteroid[] = data.asteroids.asteroids.map(
+    const asteroids: ShopAsteroid[] = data.asteroids.asteroids.map(
       asteroid => ({
         ...asteroid,
-        ownership_id: null, // TODO: Get from user data
         is_starred: false, // TODO: Get from user data
       })
     );
@@ -429,9 +437,9 @@ const GET_USER_BY_ID = gql`
 
 export async function fetchAsteroidById(
   id: string
-): Promise<shopAsteroid | null> {
+): Promise<ShopAsteroid | null> {
   try {
-    const { data } = await client.query<{ asteroid: shopAsteroid }>({
+    const { data } = await client.query<{ asteroid: ShopAsteroid }>({
       query: GET_ASTEROID_BY_ID,
       variables: { id },
       fetchPolicy: 'network-only',
@@ -445,7 +453,7 @@ export async function fetchAsteroidById(
     // Transform to include frontend-specific fields
     return {
       ...data.asteroid,
-      ownership_id: null, // TODO: Get from user data
+      owner: null, // TODO: Get from user data
       is_starred: false, // TODO: Get from user data
     };
   } catch (error) {
@@ -482,7 +490,7 @@ export async function fetchUserData(uid: string): Promise<UserData | null> {
  * @param asteroid - The asteroid to analyze
  * @returns Absolute time difference in milliseconds, or Infinity if no data
  */
-function getClosestApproachTimeDiff(asteroid: shopAsteroid): number {
+function getClosestApproachTimeDiff(asteroid: ShopAsteroid): number {
   const now = new Date().getTime();
 
   if (
@@ -532,10 +540,10 @@ export type SortOption =
  * @returns Sorted array of asteroids
  */
 export function sortAsteroids(
-  asteroids: shopAsteroid[],
+  asteroids: ShopAsteroid[],
   sortBy: SortOption = 'None',
   limit?: number
-): shopAsteroid[] {
+): ShopAsteroid[] {
   if (sortBy === 'None') {
     return limit ? asteroids.slice(0, limit) : [...asteroids];
   }
@@ -636,7 +644,7 @@ export function formatMillionKilometers(
  * @param asteroid - The asteroid to format
  * @returns Object with formatted orbital parameters
  */
-export function getFormattedOrbitalData(asteroid: shopAsteroid) {
+export function getFormattedOrbitalData(asteroid: ShopAsteroid) {
   return {
     semiMajorAxis: formatOrbitalParameter(
       asteroid.orbital_data?.semi_major_axis,
@@ -663,7 +671,7 @@ export function getFormattedOrbitalData(asteroid: shopAsteroid) {
  * @param asteroid - The asteroid to format
  * @returns Object with formatted approach data
  */
-export function getFormattedApproachData(asteroid: shopAsteroid) {
+export function getFormattedApproachData(asteroid: ShopAsteroid) {
   const approach = asteroid.close_approach_data?.[0];
 
   if (!approach) {
@@ -696,7 +704,7 @@ export function getFormattedApproachData(asteroid: shopAsteroid) {
  * @param asteroid - The asteroid to format
  * @returns Complete formatted data object
  */
-export function getFormattedAsteroidData(asteroid: shopAsteroid) {
+export function getFormattedAsteroidData(asteroid: ShopAsteroid) {
   return {
     id: asteroid.id,
     name: asteroid.name,

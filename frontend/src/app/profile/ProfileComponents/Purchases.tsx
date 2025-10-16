@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import type { shopAsteroid, UserData } from '@/store/AppModel';
+import type { ShopAsteroid, UserData } from '@/store/AppModel';
 import { useAuthStore } from '@/store/useAuthViewModel';
 import {
   useAppStore,

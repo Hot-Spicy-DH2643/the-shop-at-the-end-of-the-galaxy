@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { Asteroid } from '../models/Asteroid.js';
+import { User } from '../models/User.js';
 import { CacheMetadata } from '../models/CacheMetadata.js';
 
 const NASA_API_KEY = process.env.NASA_API_KEY || 'DEMO_KEY';
@@ -503,11 +504,6 @@ function applyDistanceFilterAndSort(asteroids, filters) {
   return filtered;
 }
 
-
-
-
-
-
 /**
  * Get asteroids from database or fetch from API if cache is empty
  * @param {number} page - Page number (1-indexed)
@@ -516,48 +512,54 @@ function applyDistanceFilterAndSort(asteroids, filters) {
  */
 export async function getAsteroids(page = 1, pageSize = 20, filters = null) {
   try {
-      // Check if we have cached data
-      let totalCount = await Asteroid.countDocuments();
-  
-      if (totalCount === 0) {
-        console.log('⚠️  No cached data found. Fetching from NASA API...');
-        await cacheAsteroidsData();
-        // Recount after caching
-        totalCount = await Asteroid.countDocuments();
-      }
-  
-      // Build MongoDB query from filters
-      const query = buildFilterQuery(filters);
+    // Check if we have cached data
+    let totalCount = await Asteroid.countDocuments();
 
-      // Get filtered count
-      const filteredCount = await Asteroid.countDocuments(query);
-  
-      // Fetch all matching documents (we need to sort/filter by distance in-memory)
-      let asteroids = await Asteroid.find(query).lean();
-  
-      // Apply distance filtering and sorting
-      asteroids = applyDistanceFilterAndSort(asteroids, filters);
-  
-      // Update total count after distance filtering
-      const finalCount = asteroids.length;
-      const totalPages = Math.ceil(finalCount / pageSize);
-  
-      // Apply pagination after filtering and sorting
-      const skip = (page - 1) * pageSize;
-      const paginatedAsteroids = asteroids.slice(skip, skip + pageSize);
-  
-      console.log(
-        `📊 Results: ${paginatedAsteroids.length} asteroids (page ${page}/${totalPages}, total: ${finalCount})`
-      );
-  
-      return {
-        asteroids: paginatedAsteroids,
-        totalCount: finalCount,
-        page,
-        pageSize,
-        totalPages,
-      };
-    } catch (error) {
+    if (totalCount === 0) {
+      console.log('⚠️  No cached data found. Fetching from NASA API...');
+      await cacheAsteroidsData();
+      // Recount after caching
+      totalCount = await Asteroid.countDocuments();
+    }
+
+    // Build MongoDB query from filters
+    const query = buildFilterQuery(filters);
+
+    // Get filtered count
+    const filteredCount = await Asteroid.countDocuments(query);
+
+    // Fetch all matching documents (we need to sort/filter by distance in-memory)
+    let asteroids = await Asteroid.find(query).lean();
+
+    // Find in User to find the ownership of each asteroid
+    for (let asteroid of asteroids) {
+      const ownerUser = await User.findOne({ owned_asteroid_ids: asteroid.id });
+      asteroid.owner = ownerUser ? ownerUser : null;
+    }
+
+    // Apply distance filtering and sorting
+    asteroids = applyDistanceFilterAndSort(asteroids, filters);
+
+    // Update total count after distance filtering
+    const finalCount = asteroids.length;
+    const totalPages = Math.ceil(finalCount / pageSize);
+
+    // Apply pagination after filtering and sorting
+    const skip = (page - 1) * pageSize;
+    const paginatedAsteroids = asteroids.slice(skip, skip + pageSize);
+
+    console.log(
+      `📊 Results: ${paginatedAsteroids.length} asteroids (page ${page}/${totalPages}, total: ${finalCount})`
+    );
+
+    return {
+      asteroids: paginatedAsteroids,
+      totalCount: finalCount,
+      page,
+      pageSize,
+      totalPages,
+    };
+  } catch (error) {
     console.error('❌ Error getting asteroids:', error.message);
     throw error;
   }
