@@ -64,6 +64,11 @@ type OrbitClass {
   orbit_class_range: String!
 }
 
+type User {
+  uid: String!
+  name: String!
+}
+
 type Asteroid {
   id: String!
   neo_reference_id: String!
@@ -77,6 +82,7 @@ type Asteroid {
   orbital_data: OrbitalData
   price: Float!
   size: Float!
+  owner: User
 }
 
 type CacheStatus {

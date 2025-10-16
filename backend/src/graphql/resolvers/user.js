@@ -1,4 +1,8 @@
-import { getAllUsers, getUserById } from '../../services/userService.js';
+import {
+  getAllUsers,
+  getUserById,
+  toggleStarredAsteroid,
+} from '../../services/userService.js';
 
 export const userResolvers = {
   Query: {
@@ -23,5 +27,21 @@ export const userResolvers = {
       }
     },
   },
-  Mutation: {},
+  Mutation: {
+    toggleStarredAsteroid: async (parent, { asteroidId }, context) => {
+      const user = context.user;
+      if (!user) {
+        throw new Error('Authentication required');
+      }
+
+      // Call the service function to toggle the starred status
+      try {
+        const result = await toggleStarredAsteroid(user.uid, asteroidId);
+        return result;
+      } catch (error) {
+        console.error('Error toggling starred asteroid:', error);
+        throw new Error('Failed to toggle starred asteroid');
+      }
+    },
+  },
 };
