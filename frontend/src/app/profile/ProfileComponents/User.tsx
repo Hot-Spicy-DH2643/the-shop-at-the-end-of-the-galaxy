@@ -1,56 +1,26 @@
 'use client';
 import { useState } from 'react';
 import { useAuthStore } from '@/store/useAuthViewModel';
-import { useAppStore } from '@/store/useAppViewModel';
+import { useAppStore} from '@/store/useAppViewModel';
 import type { UserData } from '@/store/AppModel';
 import EditProfileModal from '@/components/editProfileModal';
-import { gql } from '@apollo/client';
-import client from '@/lib/apollo-client';
 
 interface UserProps {
   profileData: UserData | null;
   isOwnProfile: boolean;
 }
 
-const UPDATE_USER_NAME = gql`
-  mutation UpdateUserName($uid: String!, $name: String!) {
-    updateUserName(uid: $uid, name: $name) {
-      uid
-      name
-    }
-  }
-`;
-
 export default function User({ profileData, isOwnProfile }: UserProps) {
   const { user: firebaseUser } = useAuthStore();
-  const { setUserData } = useAppStore();
+  const { updateProfileData } = useAppStore();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  const [isFollowing, setIsFollowing] = useState(false); //initialize this from backend
 
   const displayName = isOwnProfile
     ? firebaseUser?.displayName
     : profileData?.name;
   const displayEmail = isOwnProfile ? firebaseUser?.email : 'Hidden';
-
-  const handleUpdateProfile = async (newName: string) => {
-    if (!firebaseUser?.uid) return;
-
-    try {
-      // Update backend via GraphQL
-      await client.mutate({
-        mutation: UPDATE_USER_NAME,
-        variables: {
-          uid: firebaseUser.uid,
-          name: newName,
-        },
-      });
-
-      // Refresh user data
-      await setUserData();
-    } catch (error) {
-      console.error('Error updating user name in backend:', error);
-      throw error;
-    }
-  };
 
   return (
     <div className="text-white">
@@ -96,7 +66,7 @@ export default function User({ profileData, isOwnProfile }: UserProps) {
             isOpen={isEditModalOpen}
             onClose={() => setIsEditModalOpen(false)}
             currentName={displayName || ''}
-            onUpdate={handleUpdateProfile}
+            onUpdate={updateProfileData}
           />
         </>
       )}

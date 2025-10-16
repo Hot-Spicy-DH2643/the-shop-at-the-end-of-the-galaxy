@@ -27,7 +27,7 @@ export default function Friends({ profileData, isOwnProfile }: FriendsProps) {
   const router = useRouter();
 
   const handleNavigation = async (friendUid: string) => {
-    await setViewedProfile(friendUid);
+    await setViewedProfile(friendUid); //temporarily change 
     router.push('/profile');
   };
 
