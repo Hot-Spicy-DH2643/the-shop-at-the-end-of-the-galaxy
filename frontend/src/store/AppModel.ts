@@ -128,6 +128,8 @@ export type AppState = {
   setAsteroids: (page?: number, filters?: BackendFilters) => Promise<void>;
   setSelectedAsteroidId: (id: string | null) => void;
   setUserData: () => Promise<void>;
+  updateProfileData: (newName: string) => void;
+
 
   cart: ShopAsteroid[];
   addToCart: (asteroid: ShopAsteroid) => void;
@@ -449,6 +451,49 @@ export async function fetchAsteroidById(
   }
 }
 
+export const UPDATE_USER_NAME = gql`
+  mutation UpdateUserName($uid: String!, $name: String!) {
+    updateUserName(uid: $uid, name: $name) {
+      uid
+      name
+    }
+  }
+`;
+
+export const FOLLOW_USER = gql`
+  mutation FollowUser($followerUid: String!, $targetUid: String!) {
+    followUser(followerUid: $followerUid, targetUid: $targetUid) {
+      uid
+      name
+      followers {
+        uid
+        name
+      }
+      following {
+        uid
+        name
+      }
+    }
+  }
+`;
+
+export const UNFOLLOW_USER = gql`
+  mutation UnfollowUser($followerUid: String!, $targetUid: String!) {
+    unfollowUser(followerUid: $followerUid, targetUid: $targetUid) {
+      uid
+      name
+      followers {
+        uid
+        name
+      }
+      following {
+        uid
+        name
+      }
+    }
+  }
+`;
+
 export async function fetchUserData(uid: string): Promise<UserData | null> {
   try {
     const { data } = await client.query<{ user: UserData }>({
@@ -467,6 +512,23 @@ export async function fetchUserData(uid: string): Promise<UserData | null> {
     return null;
   }
 }
+
+export async function updateProfile(uid: string, newName: String) {
+    try {
+      // Update backend via GraphQL
+      await client.mutate({
+        mutation: UPDATE_USER_NAME,
+        variables: {
+          uid: uid,
+          name: newName,
+        },
+      });
+
+    } catch (error) {
+      console.error('Error updating user name in backend:', error);
+      throw error;
+    }
+  };
 
 // ============================================
 // SORTING FUNCTIONS - Pure Business Logic

@@ -16,6 +16,7 @@ import {
   sortAsteroids,
   UserData,
   toggleStarred,
+  updateProfile
 } from './AppModel';
 import { useAsteroidViewers } from '@/hooks/useAsteroidViewers';
 import { useAuthStore } from './useAuthViewModel';
@@ -35,7 +36,6 @@ const useAppStore = create<AppState>(set => ({
   removeFromCart: id =>
     set(state => ({ cart: state.cart.filter(a => a.id !== id) })),
   clearCart: () => set({ cart: [] }),
-
   viewedProfile: null,
   setSelectedAsteroidId: (id: string | null) => set({ selectedAsteroidId: id }),
   setLoading: (loading: boolean) => set({ loading }),
@@ -62,6 +62,7 @@ const useAppStore = create<AppState>(set => ({
       });
     }
   },
+
   setUserData: async () => {
     try {
       set({ loading: true, error: null });
@@ -84,6 +85,13 @@ const useAppStore = create<AppState>(set => ({
       });
     }
   },
+
+  updateProfileData: async (newName: string) =>{
+    const user = useAuthStore.getState().user;
+    if (!user?.uid) return;
+    updateProfile(user.uid, newName);
+  },
+
   setViewedProfile: async (uid: string) => {
     try {
       set({ loading: true, error: null });
@@ -148,6 +156,8 @@ export function onHandleStarred(asteroid_id: string) {
     }
   });
 }
+
+
 
 // =========================
 //  ASTEROID MODAL VIEWMODEL
