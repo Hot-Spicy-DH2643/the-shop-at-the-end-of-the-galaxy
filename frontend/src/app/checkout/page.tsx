@@ -10,6 +10,7 @@ import Link from 'next/link';
 import CartItem from '@/components/cartItem';
 import { useEffect } from 'react';
 import CheckoutItem from '@/components/checkoutItem';
+import CheckoutAlert from '@/components/checkoutAlert';
 
 //TODO: Right now hardcoded with fake data. Just to be able to style it.
 // I am gonna work on the functionality
@@ -19,6 +20,7 @@ export default function Checkout() {
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
 
   useEffect(() => {
     setUserData();
@@ -29,7 +31,7 @@ export default function Checkout() {
 
   const handleConfirm = () => {
     if ((userData?.coins ?? 0) < total) {
-      alert("You don't have enough coins to complete this purchase!");
+      setAlertMessage("You don't have enough coins to complete this purchase!");
       return;
     }
 
@@ -115,6 +117,13 @@ export default function Checkout() {
           >
             {isProcessing ? 'Processing...' : 'Confirm Purchase'}
           </button>
+
+          {alertMessage && (
+            <CheckoutAlert
+              message={alertMessage}
+              onClose={() => setAlertMessage(null)}
+            />
+          )}
         </div>
       </div>
       {/* Explore More Section, right now hardcoded*/}
