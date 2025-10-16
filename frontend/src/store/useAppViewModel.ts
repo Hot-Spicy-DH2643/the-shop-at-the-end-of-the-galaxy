@@ -5,19 +5,22 @@ import type { AppState } from './AppModel';
 import {
   fetchAsteroids,
   fetchUserData,
+  fetchAsteroidById,
   DEFAULT_PAGE_SIZE,
   type SortOption,
   type BackendFilters,
   type UIFilters,
   convertUIFiltersToBackend,
-  shopAsteroid,
+  ShopAsteroid,
   getFormattedAsteroidData,
   sortAsteroids,
-  addToStarredAsteroids,
-  deleteFromStarredAsteroids,
+  UserData,
+  toggleStarred,
+  updateProfile,
 } from './AppModel';
 import { useAsteroidViewers } from '@/hooks/useAsteroidViewers';
 import { useAuthStore } from './useAuthViewModel';
+import { useState, useCallback } from 'react';
 
 const useAppStore = create<AppState>(set => ({
   loading: false,
@@ -33,14 +36,6 @@ const useAppStore = create<AppState>(set => ({
   removeFromCart: id =>
     set(state => ({ cart: state.cart.filter(a => a.id !== id) })),
   clearCart: () => set({ cart: [] }),
-
-  addToStarredAsteroids: async asteroidId => {
-    addToStarredAsteroids(asteroidId);
-  },
-  deleteFromStarredAsteroids: async asteroidId => {
-    deleteFromStarredAsteroids(asteroidId);
-  },
-
   viewedProfile: null,
   setSelectedAsteroidId: (id: string | null) => set({ selectedAsteroidId: id }),
   setLoading: (loading: boolean) => set({ loading }),
@@ -66,6 +61,7 @@ const useAppStore = create<AppState>(set => ({
       });
     }
   },
+
   setUserData: async () => {
     try {
       set({ loading: true, error: null });
@@ -88,6 +84,13 @@ const useAppStore = create<AppState>(set => ({
       });
     }
   },
+
+  updateProfileData: async (newName: string) => {
+    const user = useAuthStore.getState().user;
+    if (!user?.uid) return;
+    updateProfile(user.uid, newName);
+  },
+
   setViewedProfile: async (uid: string) => {
     try {
       set({ loading: true, error: null });
@@ -132,25 +135,24 @@ export function onHandleProductClick(id: string) {
   useAppStore.getState().setSelectedAsteroidId(id);
 }
 
-export function onHandleStarred(id: string) {
-  // toggle the starred status of the asteroid - and add to/remove from favorites??
-  useAppStore.setState(state => {
-    const updatedAsteroids = state.asteroids.map(asteroid =>
-      asteroid.id === id
-        ? { ...asteroid, is_starred: !asteroid.is_starred }
-        : asteroid
-    );
+export function onHandleStarred(asteroid_id: string) {
+  // Add the asteroid to the user's starred list (if logged in)
+  const { userData, setUserData } = useAppStore.getState();
+  const currentUser = useAuthStore.getState().user;
+  const userId = currentUser?.uid;
 
-    const foundAsteroid = updatedAsteroids.find(a => a.id === id);
-    console.log(foundAsteroid);
+  if (!userId) {
+    alert('Please log in to star asteroids.');
+    return;
+  }
 
-    if (foundAsteroid?.is_starred) {
-      addToStarredAsteroids(id);
+  toggleStarred(asteroid_id).then(success => {
+    if (success) {
+      // Refresh user data to reflect the change
+      setUserData();
     } else {
-      deleteFromStarredAsteroids(id);
+      alert('Failed to update starred asteroids. Please try again.');
     }
-
-    return { asteroids: updatedAsteroids };
   });
 }
 
@@ -160,7 +162,7 @@ export function onHandleStarred(id: string) {
 /**
  * Manages the business logic and state for displaying asteroid details
  */
-export function useAsteroidModalViewModel(asteroid: shopAsteroid) {
+export function useAsteroidModalViewModel(asteroid: ShopAsteroid) {
   const formatted = getFormattedAsteroidData(asteroid);
 
   const { viewerCount, isConnected, isLoading } = useAsteroidViewers(
@@ -247,6 +249,47 @@ export function useAsteroidModalViewModel(asteroid: shopAsteroid) {
     isLoading,
     viewerText,
     handleAddToCalendar,
+  };
+}
+
+// =========================
+//  GALAXY VIEWMODEL
+
+/**
+ * Custom hook for Galaxy component - handles asteroid fetching and modal state
+ */
+export function useGalaxyViewModel(profileData: UserData | null) {
+  const [modalAsteroid, setModalAsteroid] = useState<ShopAsteroid | null>(null);
+  const [isLoadingModal, setIsLoadingModal] = useState(false);
+
+  const handleAsteroidClick = useCallback(
+    async (asteroidId: string) => {
+      setIsLoadingModal(true);
+
+      try {
+        const asteroidData = await fetchAsteroidById(asteroidId);
+
+        if (asteroidData) {
+          setModalAsteroid(asteroidData);
+        }
+      } catch (error) {
+        console.error('Error fetching asteroid details:', error);
+      } finally {
+        setIsLoadingModal(false);
+      }
+    },
+    [profileData]
+  );
+
+  const closeModal = useCallback(() => {
+    setModalAsteroid(null);
+  }, []);
+
+  return {
+    modalAsteroid,
+    isLoadingModal,
+    handleAsteroidClick,
+    closeModal,
   };
 }
 

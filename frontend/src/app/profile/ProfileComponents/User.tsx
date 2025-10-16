@@ -6,34 +6,36 @@ import {
   onHandleStarred,
 } from '@/store/useAppViewModel';
 import { useAuthStore } from '@/store/useAuthViewModel';
+import type { UserData } from '@/store/AppModel';
+import EditProfileModal from '@/components/editProfileModal';
+
+interface UserProps {
+  profileData: UserData | null;
+  isOwnProfile: boolean;
+}
 
 import AsteroidSVGMoving from '@/components/asteroidSVGMoving';
 import AsteroidModal from '@/components/asteroidModal';
 import { Star } from 'lucide-react';
 
-export default function User() {
+export default function User({ profileData, isOwnProfile }: UserProps) {
   const { user: firebaseUser } = useAuthStore();
-  const { userData, setUserData, asteroids, setAsteroids } = useAppStore();
+  const { updateProfileData } = useAppStore();
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  const [isFollowing, setIsFollowing] = useState(false); //initialize this from backend
 
   const [zeroFavAsteroidId, setZeroFavAsteroidId] = useState<string>('0000000');
 
-  const user_starred_asteroids = userData?.starred_asteroids;
-
   const selectedAsteroidId = useAppStore(state => state.selectedAsteroidId);
-  const selectedAsteroid = asteroids.find(a => a.id === selectedAsteroidId);
+  const selectedAsteroid = profileData?.starred_asteroids.find(
+    a => a.id === selectedAsteroidId
+  );
 
-  // console.log(selectedAsteroidId, selectedAsteroid);
-
-  useEffect(() => {
-    setUserData();
-    setAsteroids();
-    if (user_starred_asteroids?.length === 0) {
-      const id = Math.floor(Math.random() * 10000000)
-        .toString()
-        .padStart(7, '0');
-      setZeroFavAsteroidId(id);
-    }
-  }, []);
+  const displayName = isOwnProfile
+    ? firebaseUser?.displayName
+    : profileData?.name;
+  const displayEmail = isOwnProfile ? firebaseUser?.email : 'Hidden';
 
   return (
     <div className="text-white">
@@ -42,49 +44,58 @@ export default function User() {
       </h2>
       <br />
 
-      <table className="border-separate border-spacing-x-10 -ml-10 border-spacing-y-2">
+      <table className="border-separate border-spacing-y-2 text-left">
         <tbody>
           <tr>
-            <td className="font-bold">Name:</td>
-            <td>{firebaseUser?.displayName}</td>
+            <td className="font-bold pr-10">Name:</td>
+            <td>{displayName}</td>
           </tr>
+          {isOwnProfile && (
+            <tr>
+              <td className="font-bold pr-10">Email:</td>
+              <td>{displayEmail}</td>
+            </tr>
+          )}
           <tr>
-            <td className="font-bold">Email:</td>
-            <td>{firebaseUser?.email}</td>
-          </tr>
-          <tr>
-            <td className="font-bold">Owned:</td>
-            <td>{userData?.owned_asteroids.length} asteroids</td>
+            <td className="font-bold pr-10">Owned:</td>
+            <td>{profileData?.owned_asteroids.length || 0} asteroids</td>
           </tr>
           <tr>
             <td className="font-bold">Favorite:</td>
-            <td>{userData?.starred_asteroids.length} asteroids</td>
+            <td>{profileData?.starred_asteroids.length} asteroids</td>
           </tr>
-          <tr>
-            <td className="font-bold">Follwers:</td>
-            <td>{userData?.followers.length}</td>
-          </tr>
-          <tr>
-            <td className="font-bold">Follwing:</td>
-            <td>{userData?.following.length}</td>
-          </tr>
-          <tr className="font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-            <td>Coins:</td>
-            <td>{userData?.coins}</td>
-          </tr>
+          {isOwnProfile && (
+            <tr className="font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+              <td className="pr-10">Coins:</td>
+              <td>{profileData?.coins || 0}</td>
+            </tr>
+          )}
         </tbody>
       </table>
-      <button className="bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700 text-white px-6 py-2 rounded shadow hover:scale-105 hover:shadow-xl transition cursor-pointer text-center m-1 my-2 md:w-autor">
-        Change Infomation
-      </button>
       <br />
+      {isOwnProfile && (
+        <>
+          <button
+            onClick={() => setIsEditModalOpen(true)}
+            className="bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700 text-white px-6 py-2 rounded shadow hover:scale-105 hover:shadow-xl transition cursor-pointer text-center md:w-autor"
+          >
+            Edit Profile
+          </button>
+          <EditProfileModal
+            isOpen={isEditModalOpen}
+            onClose={() => setIsEditModalOpen(false)}
+            currentName={displayName || ''}
+            onUpdate={updateProfileData}
+          />
+        </>
+      )}
 
       <h2 className="mt-10 text-2xl font-extrabold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-300 bg-clip-text text-transparent drop-shadow-lg">
         Favorite Asteroids
       </h2>
 
       {/* user favorite asteroids */}
-      {user_starred_asteroids?.length === 0 ? (
+      {profileData?.starred_asteroids.length === 0 ? (
         <div className="text-white">
           <div className="flex flex-row items-center mt-10 text-center">
             <style>
@@ -118,7 +129,7 @@ export default function User() {
       ) : (
         <div className="text-white">
           <div className="grid grid-cols-1 md:grid-cols-2">
-            {user_starred_asteroids?.map(asteroid => (
+            {profileData?.starred_asteroids.map(asteroid => (
               <div
                 key={asteroid.id}
                 className="relative rounded bg-[rgba(23,23,23,0.7)]1 shadow text-center cursor-pointer"

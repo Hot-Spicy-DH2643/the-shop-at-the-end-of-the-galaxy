@@ -61,6 +61,54 @@ export async function getUserById(userId) {
   }
 }
 
+export async function updateUserName(userId, newName) {
+  try {
+    const user = await User.findOneAndUpdate(
+      { uid: userId },
+      { name: newName },
+      { new: true }
+    );
+
+    if (!user) {
+      throw new Error(`User with uid ${userId} not found`);
+    }
+
+    // Return the user with followers and following populated
+    return await getUserById(userId);
+  } catch (error) {
+    console.error(`Error updating user name for ${userId}:`, error.message);
+    throw error;
+  }
+}
+
+export async function toggleStarredAsteroid(userId, asteroidId) {
+  try {
+    const user = await User.findOne({ uid: userId }).exec();
+
+    if (!user) {
+      throw new Error(`User with uid ${userId} not found`);
+    }
+
+    const index = user.starred_asteroid_ids.indexOf(asteroidId);
+    if (index === -1) {
+      // Asteroid not starred, add it
+      user.starred_asteroid_ids.push(asteroidId);
+    } else {
+      // Asteroid already starred, remove it
+      user.starred_asteroid_ids.splice(index, 1);
+    }
+
+    await user.save();
+    return true;
+  } catch (error) {
+    console.error(
+      `Error toggling starred asteroid for user ${userId}:`,
+      error.message
+    );
+    throw error;
+  }
+}
+
 export async function addToCart(userId, asteroidId) {
   try {
     const user = await User.findOne({ uid: userId });
@@ -80,65 +128,6 @@ export async function addToCart(userId, asteroidId) {
   } catch (error) {
     console.error(
       `Error adding asteroid ${asteroidId} to cart for user ${userId}:`,
-      error.message
-    );
-    throw error;
-  }
-}
-
-export async function addToStarredAsteroids(userId, asteroidId) {
-  try {
-    const user = await User.findOne({ uid: userId });
-    console.log(user);
-
-    if (!user) {
-      throw new Error('User not found');
-    }
-
-    // Check if the asteroid is already in the starred list
-    if (user.starred_asteroid_ids.includes(asteroidId)) {
-      throw new Error('Asteroid already in starred list');
-    }
-
-    user.starred_asteroid_ids.push(asteroidId);
-    await user.save();
-    console.log(
-      `Asteroid ${asteroidId} added to starred list for user ${userId}`
-    );
-    return user;
-  } catch (error) {
-    console.error(
-      `Error adding asteroid ${asteroidId} to starred list for user ${userId}:`,
-      error.message
-    );
-    throw error;
-  }
-}
-
-export async function deleteFromStarredAsteroids(userId, asteroid_id) {
-  try {
-    const user = await User.findOne({ uid: userId });
-    console.log(user);
-    if (!user) {
-      throw new Error('User not found');
-    }
-
-    // Check if the asteroid is in the starred list
-    if (!user.starred_asteroid_ids.includes(asteroid_id)) {
-      throw new Error('Asteroid not found in starred list');
-    }
-
-    user.starred_asteroid_ids = user.starred_asteroid_ids.filter(
-      id => id !== asteroid_id
-    );
-    await user.save();
-    console.log(
-      `Asteroid ${asteroid_id} removed from starred list for user ${userId}`
-    );
-    return user;
-  } catch (error) {
-    console.error(
-      `Error removing asteroid ${asteroid_id} from starred list for user ${userId}:`,
       error.message
     );
     throw error;

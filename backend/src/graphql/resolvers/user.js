@@ -1,8 +1,7 @@
 import {
   getAllUsers,
   getUserById,
-  addToStarredAsteroids,
-  deleteFromStarredAsteroids,
+  toggleStarredAsteroid,
 } from '../../services/userService.js';
 
 export const userResolvers = {
@@ -41,28 +40,19 @@ export const userResolvers = {
         throw new Error('Failed to add asteroid to cart');
       }
     },
-    addToStarredAsteroids: async (parent, { asteroidId }, context) => {
-      try {
-        if (!context.user) {
-          throw new Error('Authentication required');
-        }
-        await addToStarredAsteroids(context.user.uid, asteroidId);
-        return true;
-      } catch (error) {
-        console.error('Error in addToStarredAsteroids mutation:', error);
-        throw new Error('Failed to add asteroid to starred list');
+    toggleStarredAsteroid: async (parent, { asteroidId }, context) => {
+      const user = context.user;
+      if (!user) {
+        throw new Error('Authentication required');
       }
-    },
-    deleteFromStarredAsteroids: async (parent, { asteroidId }, context) => {
+
+      // Call the service function to toggle the starred status
       try {
-        if (!context.user) {
-          throw new Error('Authentication required');
-        }
-        await deleteFromStarredAsteroids(context.user.uid, asteroidId);
-        return true;
+        const result = await toggleStarredAsteroid(user.uid, asteroidId);
+        return result;
       } catch (error) {
-        console.error('Error in deleteFromStarredAsteroids mutation:', error);
-        throw new Error('Failed to delete asteroid from starred list');
+        console.error('Error toggling starred asteroid:', error);
+        throw new Error('Failed to toggle starred asteroid');
       }
     },
   },
