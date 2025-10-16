@@ -35,7 +35,7 @@ export default function CartItem({ id, name, price }: CartItemProps) {
       <td className="py-3 text-right">
         <button
           onClick={handleRemove}
-          className="p-1 text-gray-500 hover:text-pink-500 transition"
+          className="p-1 text-gray-500 hover:text-pink-500 transition cursor-pointer"
           aria-label="Remove item"
         >
           <X size={18} />

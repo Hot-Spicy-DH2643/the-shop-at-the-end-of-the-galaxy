@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useAuthStore } from '@/store/useAuthViewModel';
 import { ShoppingBasket } from 'lucide-react';
 import Cart from './cart';
+import { useAppStore } from '@/store/useAppViewModel';
 
 const navLinks = [
   { label: 'Home', href: '/' },
@@ -17,6 +18,8 @@ export default function Navbar() {
   const { user, logout } = useAuthStore();
   const [open, setOpen] = useState(false);
   const [showCart, setShowCart] = useState(false);
+  const { userData } = useAppStore(); // to get the cart from global store
+  const cartCount = userData?.cart_asteroids?.length || 0;
 
   return (
     <nav className="w-full text-white bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700">
@@ -77,10 +80,17 @@ export default function Navbar() {
           {user && (
             <button
               onClick={() => setShowCart(v => !v)}
-              className="ml-4 p-2 rounded-full hover:bg-white/20 transition"
+              className="ml-4 relative p-2 rounded-full hover:bg-white/20 transition cursor-pointer"
               aria-label="View cart"
             >
               <ShoppingBasket size={24} />
+
+              {/* Badge */}
+              {cartCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full font-bold">
+                  {cartCount}
+                </span>
+              )}
             </button>
           )}
         </div>
@@ -116,6 +126,11 @@ export default function Navbar() {
                 aria-label="View cart"
               >
                 <ShoppingBasket size={24} />
+                {cartCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full font-bold">
+                    {cartCount}
+                  </span>
+                )}
               </button>
             )}
           </li>

@@ -73,7 +73,7 @@ export default function Cart() {
         </div>
 
         <Link href="/checkout" className="block">
-          <button className="w-full mt-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 transition-all py-3 rounded-lg font-semibold text-white">
+          <button className="w-full mt-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 transition-all py-3 rounded-lg font-semibold text-white cursor-pointer">
             Go to Checkout
           </button>
         </Link>
