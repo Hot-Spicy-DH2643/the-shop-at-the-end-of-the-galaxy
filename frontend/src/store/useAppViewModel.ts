@@ -186,20 +186,22 @@ const useAppStore = create<AppState>((set, get) => ({
     });
   },
 
-  updateFollow: (tUid: string) => {
-    const targetUser = useAppStore.getState().viewedProfile;
-    if (!targetUser?.uid) return;
-    follow(targetUser.uid).then(() => {
-      useAppStore.getState().setUserData();
-    });
+  updateFollow: async (tUid: string) => {
+    const { setUserData, setViewedProfile } = useAppStore.getState();
+    if (!tUid) return;
+    const currentUser = useAuthStore.getState().user;
+    if (!currentUser?.uid) return;
+    await follow(tUid);
+    await Promise.all([setUserData(), setViewedProfile(tUid)]);
   },
 
-  updateUnfollow: (tUid: string) => {
-    const targetUser = useAppStore.getState().viewedProfile;
-    if (!targetUser?.uid) return;
-    unfollow(targetUser.uid).then(() => {
-      useAppStore.getState().setUserData();
-    });
+  updateUnfollow: async (tUid: string) => {
+    const { setUserData, setViewedProfile } = useAppStore.getState();
+    if (!tUid) return;
+    const currentUser = useAuthStore.getState().user;
+    if (!currentUser?.uid) return;
+    await unfollow(tUid);
+    await Promise.all([setUserData(), setViewedProfile(tUid)]);
   },
 
   setViewedProfile: async (uid: string) => {

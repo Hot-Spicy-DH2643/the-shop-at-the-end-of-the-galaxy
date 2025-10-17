@@ -5,7 +5,7 @@ import ProfileTab from './ProfileTabs';
 
 import { useAuthStore } from '@/store/useAuthViewModel';
 import { useAppStore } from '@/store/useAppViewModel';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 
 export default function Profile() {
@@ -17,22 +17,69 @@ export default function Profile() {
     userLoading,
     updateFollow,
     updateUnfollow,
+    setViewedProfile,
+    error,
   } = useAppStore();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const profileUid = searchParams.get('uid');
+  const queryString = searchParams.toString();
+  const userId = user?.uid;
+  const isAuthenticated = Boolean(userId);
+  const isOwnProfile =
+    isAuthenticated && (!profileUid || profileUid === userId);
+  const viewingUid = isOwnProfile ? userId : profileUid;
 
   // Fetch user data on mount
   useEffect(() => {
     // console.log('Fetching user data, user:', user);
-    if (user?.uid) {
+    if (userId) {
       setUserData();
     }
-  }, [setUserData, user]);
+  }, [setUserData, userId]);
+
+  useEffect(() => {
+    if (!userId || profileUid) return;
+    const params = new URLSearchParams(queryString);
+    params.set('uid', userId);
+    const newQuery = params.toString();
+    router.replace(newQuery ? `/profile?${newQuery}` : `/profile?uid=${userId}`);
+  }, [profileUid, queryString, router, userId]);
+
+  useEffect(() => {
+    if (isAuthenticated || profileUid) return;
+    router.replace('/login');
+  }, [isAuthenticated, profileUid, router]);
+
+  useEffect(() => {
+    if (!viewingUid || isOwnProfile) {
+      if (viewedProfile) {
+        useAppStore.setState({ viewedProfile: null });
+      }
+      return;
+    }
+
+    if (viewedProfile?.uid !== viewingUid) {
+      setViewedProfile(viewingUid);
+    }
+  }, [viewingUid, isOwnProfile, setViewedProfile, viewedProfile]);
 
   // Determine which profile to display
-  const profileData = viewedProfile || userData;
-  const isOwnProfile = !viewedProfile;
+  const profileData = isOwnProfile ? userData : viewedProfile;
+  const awaitingProfile =
+    (isOwnProfile && userId && (userLoading || (!profileData && !error))) ||
+    (!isOwnProfile && profileUid && !profileData && !error);
+  const profileErrorMessage = profileUid
+    ? error || 'Profile not found.'
+    : isAuthenticated
+      ? 'Unable to load your profile.'
+      : 'Please sign in or supply a profile link.';
 
-  if (!user || userLoading || !profileData) {
+  if (!viewingUid && !isAuthenticated) {
+    return null;
+  }
+
+  if (awaitingProfile) {
     return (
       <div className="galaxy-bg-space min-h-screen">
         <Navbar />
@@ -43,15 +90,28 @@ export default function Profile() {
     );
   }
 
-  const isFollowing = userData?.following.some(
-    // check if you are already following someone
-    friend => friend.uid === profileData?.uid
-  );
+  if (!profileData) {
+    return (
+      <div className="galaxy-bg-space min-h-screen">
+        <Navbar />
+        <div className="flex justify-center items-center h-screen px-6 text-center">
+          <p className="text-white text-xl">{profileErrorMessage}</p>
+        </div>
+      </div>
+    );
+  }
+
+  const canFollow = isAuthenticated && !isOwnProfile;
+  const isFollowing =
+    canFollow &&
+    Boolean(
+      userData?.following?.some(friend => friend.uid === profileData.uid)
+    );
 
   const handleFollowClick = async () => {
+    if (!canFollow) return;
     try {
       if (isFollowing) {
-        console.log('page.tsx, in hereee');
         await updateUnfollow(profileData.uid);
       } else {
         await updateFollow(profileData.uid);
@@ -75,12 +135,12 @@ export default function Profile() {
         {/* Profile content */}
         <div className="flex-col">
           {/* Back button when viewing other profile */}
-          {!isOwnProfile && (
+          {!isOwnProfile && isAuthenticated && (
             <div className="mb-6">
               <button
                 onClick={() => {
                   useAppStore.setState({ viewedProfile: null });
-                  router.push('/profile');
+                  router.push(`/profile?uid=${userId}`);
                 }}
                 className="text-purple-400 hover:text-pink-400 transition flex items-center gap-3 text-xl font-semibold cursor-pointer px-4 py-2 hover:bg-purple-400/10 rounded-lg"
               >
@@ -110,7 +170,7 @@ export default function Profile() {
                 </h4>
 
                 {/* Follow/Unfollow button */}
-                {!isOwnProfile && (
+                {canFollow && (
                   <button
                     onClick={handleFollowClick}
                     className="inline-block bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700 text-white px-8 rounded shadow hover:scale-105 hover:shadow-xl transition cursor-pointer text-center"
