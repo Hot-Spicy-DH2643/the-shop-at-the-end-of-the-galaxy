@@ -8,7 +8,6 @@ import {
   fetchAsteroidById,
   DEFAULT_PAGE_SIZE,
   type SortOption,
-  type BackendFilters,
   type UIFilters,
   convertUIFiltersToBackend,
   sortAsteroids,
@@ -22,6 +21,18 @@ import {
 } from './AppModel';
 import { useAuthStore } from './useAuthViewModel';
 
+const createDefaultFilters = (): UIFilters => ({
+  hazardous: 'all',
+  sizeMin: 0,
+  sizeMax: 3000,
+  distanceMin: 0,
+  distanceMax: 100,
+  priceMin: 100,
+  priceMax: 900,
+  orbitTypes: [],
+  sortBy: 'None',
+});
+
 const useAppStore = create<AppState>((set, get) => ({
   loading: false,
   error: null,
@@ -32,6 +43,25 @@ const useAppStore = create<AppState>((set, get) => ({
   currentPage: 1,
   totalPages: 0,
   totalCount: 0,
+  filters: createDefaultFilters(),
+  setFilters: updater => {
+    const prevFilters = get().filters;
+    const resolved =
+      typeof updater === 'function'
+        ? (updater as (prev: UIFilters) => UIFilters)(prevFilters)
+        : updater;
+    const nextFilters: UIFilters = {
+      ...resolved,
+      orbitTypes:
+        resolved.orbitTypes !== undefined
+          ? [...resolved.orbitTypes]
+          : resolved.orbitTypes,
+    };
+
+    set({ filters: nextFilters, currentPage: 1 });
+    void get().setAsteroids(1);
+  },
+  resetFilters: () => get().setFilters(createDefaultFilters()),
   cart: [],
   addToCart: async asteroid_id => {
     addToCart(asteroid_id).then(success => {
@@ -98,12 +128,17 @@ const useAppStore = create<AppState>((set, get) => ({
   },
   setLoading: (loading: boolean) => set({ loading }),
   setError: (error: string | null) => set({ error }),
-  setAsteroids: async (page: number = 1, filters?: BackendFilters) => {
+  setAsteroids: async (page: number = 1) => {
     try {
       set({ loading: true, error: null });
       // Fetch asteroids from GraphQL backend with pagination
       // Price and size are now calculated server-side
-      const result = await fetchAsteroids(page, DEFAULT_PAGE_SIZE, filters);
+      const currentFilters = convertUIFiltersToBackend(get().filters);
+      const result = await fetchAsteroids(
+        page,
+        DEFAULT_PAGE_SIZE,
+        currentFilters
+      );
       set({
         asteroids: result.asteroids,
         currentPage: result.currentPage,
@@ -211,4 +246,4 @@ const useAppStore = create<AppState>((set, get) => ({
 }));
 
 export { useAppStore, convertUIFiltersToBackend };
-export type { SortOption, BackendFilters, UIFilters };
+export type { SortOption, UIFilters };
