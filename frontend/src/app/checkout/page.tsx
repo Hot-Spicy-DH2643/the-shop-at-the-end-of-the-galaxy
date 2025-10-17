@@ -1,13 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import AsteroidSVG from '@/components/asteroidSVG';
 import AsteroidSVGMoving from '@/components/asteroidSVGMoving';
 import Image from 'next/image';
 import Navbar from '@/components/navbar';
 import { useAppStore } from '@/store/useAppViewModel';
 import Link from 'next/link';
-import CartItem from '@/components/cartItem';
 import { useEffect } from 'react';
 import CheckoutItem from '@/components/checkoutItem';
 import CheckoutAlert from '@/components/checkoutAlert';
@@ -28,6 +26,7 @@ export default function Checkout() {
 
   const [isSuccess, setIsSuccess] = useState(false);
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
+  const [hasCheckoutError, setHasCheckoutError] = useState(false);
   const [exploreAsteroids, setExploreAsteroids] = useState<Asteroid[]>([]);
 
   useEffect(() => {
@@ -50,7 +49,11 @@ export default function Checkout() {
   }, [userData]);
 
   const cart = userData?.cart_asteroids || [];
+  console.log('User cart asteroids:', cart);
   const total = cart.reduce((sum, item) => sum + item.price, 0);
+  const hasUnavailableAsteroids = cart.some(
+    asteroid => asteroid.owner && asteroid.owner.uid !== userData?.uid
+  );
 
   const handleConfirm = () => {
     if (!userData) return;
@@ -68,17 +71,58 @@ export default function Checkout() {
       return;
     }
 
+    setAlertMessage(null);
+    setHasCheckoutError(false);
+    setIsSuccess(false);
+
+    if (hasUnavailableAsteroids) {
+      setAlertMessage(
+        'Some asteroids in your cart are already owned by other users. Remove them to continue.'
+      );
+      return;
+    }
+
     //Proceed to checkout
-    checkout().then(success => {
-      if (success) {
+    checkout().then(result => {
+      if (result.success) {
         setIsSuccess(true);
+        setHasCheckoutError(false);
       } else {
         setAlertMessage(
-          'An error occurred during checkout. Please try again later.'
+          result.message ??
+            'An error occurred during checkout. Please try again later.'
         );
+        setHasCheckoutError(true);
       }
     });
   };
+
+  if (hasCheckoutError) {
+    const failureMessage =
+      alertMessage ??
+      'Something went wrong while processing your checkout. Please review your cart and try again.';
+
+    return (
+      <div className="galaxy-bg-space min-h-screen text-white flex flex-col items-center justify-center">
+        <div className="bg-gray-900/80 p-10 rounded-3xl shadow-2xl border border-red-600 text-center max-w-md">
+          <h1 className="text-3xl font-bold mb-4 text-red-400">
+            Purchase Failed
+          </h1>
+          <p className="text-white-300 mb-6">{failureMessage}</p>
+
+          <button
+            className="w-full mt-4 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 transition-all py-3 rounded-lg font-semibold text-white cursor-pointer"
+            onClick={() => {
+              setHasCheckoutError(false);
+              setAlertMessage(null);
+            }}
+          >
+            Back to Checkout
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (isSuccess) {
     return (
@@ -91,7 +135,7 @@ export default function Checkout() {
 
           <Link href="/profile">
             <button
-              className="w-full mt-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 transition-all py-3 rounded-lg font-semibold text-white"
+              className="w-full mt-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 transition-all py-3 rounded-lg font-semibold text-white cursor-pointer"
               onClick={() => setIsSuccess(false)}
             >
               Go to Profile
@@ -146,18 +190,23 @@ export default function Checkout() {
             disabled={
               checkoutLoading ||
               (userData?.coins ?? 0) < total ||
-              cart.length === 0
+              cart.length === 0 ||
+              hasUnavailableAsteroids
             }
             className={`mt-4 w-full py-3 rounded-xl text-lg font-semibold transition-all duration-300 
               ${
                 checkoutLoading
                   ? 'cursor-wait'
-                  : (userData?.coins ?? 0) < total || cart.length === 0
+                  : (userData?.coins ?? 0) < total ||
+                      cart.length === 0 ||
+                      hasUnavailableAsteroids
                     ? 'cursor-not-allowed'
                     : 'cursor-pointer'
               }
               ${
-                (userData?.coins ?? 0) < total || cart.length === 0
+                (userData?.coins ?? 0) < total ||
+                cart.length === 0 ||
+                hasUnavailableAsteroids
                   ? 'bg-gray-700 opacity-70 hover:brightness-100'
                   : 'bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700 hover:scale-102 hover:shadow-[0_0_20px_4px_rgba(236,72,255,0.6)] hover:brightness-110'
               }
@@ -166,6 +215,12 @@ export default function Checkout() {
           >
             {checkoutLoading ? 'Processing...' : 'Confirm Purchase'}
           </button>
+
+          {hasUnavailableAsteroids && (
+            <p className="mt-4 text-sm text-red-400">
+              Remove asteroids already owned by other users before checking out.
+            </p>
+          )}
 
           {alertMessage && (
             <CheckoutAlert

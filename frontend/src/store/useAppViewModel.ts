@@ -18,6 +18,7 @@ import {
   addToCart,
   removeFromCart,
   checkoutCart,
+  type CheckoutResult,
 } from './AppModel';
 import { useAuthStore } from './useAuthViewModel';
 
@@ -84,24 +85,30 @@ const useAppStore = create<AppState>((set, get) => ({
     });
   },
   checkoutLoading: false,
-  checkout: async () => {
+  checkout: async (): Promise<CheckoutResult> => {
     set({ checkoutLoading: true });
-    return checkoutCart()
-      .then(success => {
-        if (success) {
-          console.log('Checkout successful');
-        } else {
-          console.log('Checkout failed');
-        }
-        set({ checkoutLoading: false });
-        useAppStore.getState().setUserData();
-        return true;
-      })
-      .catch(error => {
-        console.error('Checkout error:', error);
-        set({ checkoutLoading: false });
-        return false;
-      });
+    try {
+      const result = await checkoutCart();
+
+      if (result.success) {
+        console.log('Checkout successful');
+      } else {
+        console.warn('Checkout failed:', result.message);
+      }
+
+      set({ checkoutLoading: false });
+      await useAppStore.getState().setUserData();
+
+      return result;
+    } catch (error) {
+      console.error('Checkout error:', error);
+      set({ checkoutLoading: false });
+      return {
+        success: false,
+        message:
+          error instanceof Error ? error.message : 'Failed to checkout cart',
+      };
+    }
   },
   // clearCart: () => set({ cart: [] }),
   viewedProfile: null,

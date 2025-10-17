@@ -73,16 +73,28 @@ export const userResolvers = {
       }
     },
     checkoutCart: async (parent, args, context) => {
+      console.log('Initiating checkoutCart mutation');
+      if (!context.user) {
+        return {
+          success: false,
+          message: 'Authentication required',
+        };
+      }
+
       try {
-        console.log('Initiating checkoutCart mutation');
-        if (!context.user) {
-          throw new Error('Authentication required');
-        }
         await checkoutCart(context.user.uid);
-        return true;
+        return {
+          success: true,
+          message: null,
+        };
       } catch (error) {
-        console.error('Error in checkoutCart mutation:', error);
-        throw new Error('Failed to checkout cart', error);
+        const message =
+          error instanceof Error ? error.message : 'Failed to checkout cart';
+        console.error('Error in checkoutCart mutation:', message);
+        return {
+          success: false,
+          message,
+        };
       }
     },
 

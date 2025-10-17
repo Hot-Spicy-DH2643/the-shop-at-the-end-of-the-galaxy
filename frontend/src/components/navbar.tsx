@@ -145,7 +145,7 @@ export default function Navbar() {
           <div className="relative bg-gray-950 text-white w-[90%] max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl border border-fuchsia-700 shadow-2xl p-6">
             <button
               onClick={() => setShowCart(false)}
-              className="absolute top-3 right-4 text-gray-400 hover:text-white text-2xl"
+              className="absolute top-3 right-4 text-gray-400 hover:text-white text-2xl cursor-pointer"
               aria-label="Close cart"
             >
               ✕

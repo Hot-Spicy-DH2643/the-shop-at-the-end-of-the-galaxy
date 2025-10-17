@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { Asteroid, getFormattedAsteroidData } from '@/store/AppModel';
 import { Star, ShoppingBasket, CalendarPlus, Eye, Trash2 } from 'lucide-react';
 import { useAppStore } from '@/store/useAppViewModel';
-import { X, Orbit, Telescope} from 'lucide-react';
+import { X, Orbit, Telescope } from 'lucide-react';
 import { useAsteroidViewers } from '@/hooks/useAsteroidViewers';
 
 interface modalProps {
@@ -123,14 +123,14 @@ export default function AsteroidModal({
     <div
       className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 overflow-y-auto pt-6"
       onClick={handleBackdropClick}
-      >
+    >
       <div className="relative w-[90vw] max-w-xl m-2 bg-black pt-4 p-4 rounded-lg shadow-2xl">
         <button
           className="absolute top-4 right-4 text-3xl text-gray-400 hover:text-white transition-colors cursor-pointer"
           aria-label="Close"
           onClick={onClose}
         >
-          <X/>
+          <X />
         </button>
 
         <div className="w-100% flex flex-col md:flex-row items-center gap-6 p-4 pb-0">
@@ -192,14 +192,14 @@ export default function AsteroidModal({
               // Owned by another user
               <p className="bg-purple-500 text-white px-6 py-2 rounded shadow flex items-center justify-center space-x-2 text-center">
                 <Telescope className="inline-block" size={22} />
-                <span>Explore {asteroid.owner.name}'s orbit</span>
+                <span>Explore {asteroid.owner.name}&apos;s orbit</span>
               </p>
             )
           ) : userData?.cart_asteroids.some(a => a.id === asteroid.id) ? (
             // In cart
             <button
               onClick={handleRemoveFromCart}
-              className="bg-red-700 text-white px-6 py-2 rounded shadow hover:scale-105 hover:shadow-xl transition flex items-center justify-center space-x-2 w-full md:w-auto"
+              className="bg-red-700 text-white px-6 py-2 rounded shadow hover:scale-105 hover:shadow-xl transition flex items-center justify-center space-x-2 w-full md:w-auto cursor-pointer"
             >
               <Trash2 className="inline-block" size={22} />
               <span>Remove from Basket</span>
@@ -208,7 +208,7 @@ export default function AsteroidModal({
             // Not owned / not in cart
             <button
               onClick={handleAddToCart}
-              className="bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700 text-white px-6 py-2 rounded shadow hover:scale-105 hover:shadow-xl transition flex items-center justify-center space-x-2 w-full md:w-auto"
+              className="bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700 text-white px-6 py-2 rounded shadow hover:scale-105 hover:shadow-xl transition flex items-center justify-center space-x-2 w-full md:w-auto cursor-pointer"
             >
               <ShoppingBasket className="inline-block" size={22} />
               <span>Add to basket</span>

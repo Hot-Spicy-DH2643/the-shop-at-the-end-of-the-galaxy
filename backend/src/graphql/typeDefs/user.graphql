@@ -27,5 +27,10 @@ extend type Mutation {
   toggleStarredAsteroid(asteroidId: String!): Boolean
   followUser(targetUid: String!): Boolean
   unfollowUser(targetUid: String!): Boolean
-  checkoutCart: Boolean
+  checkoutCart: CheckoutResult!
+}
+
+type CheckoutResult {
+  success: Boolean!
+  message: String
 }

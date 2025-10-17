@@ -114,9 +114,7 @@ export type AppState = {
   totalPages: number;
   totalCount: number;
   filters: UIFilters;
-  setFilters: (
-    updater: UIFilters | ((prev: UIFilters) => UIFilters)
-  ) => void;
+  setFilters: (updater: UIFilters | ((prev: UIFilters) => UIFilters)) => void;
   resetFilters: () => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
@@ -127,7 +125,7 @@ export type AppState = {
   updateFollow: (tUid: string) => void;
   updateUnfollow: (tUid: string) => void;
   checkoutLoading: boolean;
-  checkout: () => Promise<boolean>;
+  checkout: () => Promise<CheckoutResult>;
   cart: Asteroid[];
   addToCart: (asteroid_id: string) => void;
   removeFromCart: (asteroid_id: string) => void;
@@ -139,6 +137,7 @@ export type AppState = {
 };
 
 // GraphQL query to fetch asteroids with pagination
+// TODO: For all the graphql query definition in this file, consider moving it to a separate file for better organization, and is it possible to use the type definitions for the graphql query types?
 const GET_ASTEROIDS = gql`
   query GetAsteroids($page: Int, $pageSize: Int, $filters: AsteroidFilters) {
     asteroids(page: $page, pageSize: $pageSize, filters: $filters) {
@@ -427,6 +426,10 @@ const GET_USER_BY_ID = gql`
         name
         price
         size
+        owner {
+          uid
+          name
+        }
       }
     }
   }
@@ -899,23 +902,47 @@ export function removeFromCart(asteroid_id: string): Promise<boolean> {
     });
 }
 
-export function checkoutCart(): Promise<boolean> {
+const CHECKOUT_CART = gql`
+  mutation CheckoutCart {
+    checkoutCart {
+      success
+      message
+    }
+  }
+`;
+
+export type CheckoutResult = {
+  success: boolean;
+  message: string | null;
+};
+
+export function checkoutCart(): Promise<CheckoutResult> {
   // call the backend using graphql mutation to checkout cart
   console.log('Checking out cart');
   return client
-    .mutate({
-      mutation: gql`
-        mutation CheckoutCart {
-          checkoutCart
-        }
-      `,
+    .mutate<{ checkoutCart: CheckoutResult }>({
+      mutation: CHECKOUT_CART,
     })
     .then(response => {
       console.log('Checkout cart response:', response);
-      return true;
+      const result = response.data?.checkoutCart;
+      if (!result) {
+        return {
+          success: false,
+          message: 'Unexpected checkout response',
+        };
+      }
+      return {
+        success: Boolean(result.success),
+        message: result.message ?? null,
+      };
     })
     .catch(error => {
       console.error('Error checking out cart:', error);
-      return false;
+      return {
+        success: false,
+        message:
+          error instanceof Error ? error.message : 'Failed to checkout cart',
+      };
     });
 }
