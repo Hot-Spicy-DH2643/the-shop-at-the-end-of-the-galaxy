@@ -1,7 +1,7 @@
 'use client';
 
 import Navbar from '@/components/navbar';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Accordion,
   AccordionItem,
@@ -15,16 +15,10 @@ import {
   DropdownMenuItem,
 } from '@/components/dropdown';
 import { Slider } from '@/components/slider';
-import { ChevronDownIcon, Filter } from 'lucide-react';
+import { ChevronDownIcon } from 'lucide-react';
 import Product from '@/components/asteroidProducts.tsx/product';
 import ProductSkeleton from '@/components/asteroidProducts.tsx/productSkeleton';
-import {
-  useAppStore,
-  type SortOption,
-  type UIFilters,
-  convertUIFiltersToBackend,
-} from '@/store/useAppViewModel';
-import { onHandleProductClick, onHandleStarred } from '@/store/useAppViewModel';
+import { useAppStore, type SortOption } from '@/store/useAppViewModel';
 import AsteroidModal from '@/components/asteroidModal';
 
 const SORT_OPTIONS: Array<{ name: string; value: SortOption }> = [
@@ -75,39 +69,47 @@ export default function Shop() {
     totalPages,
     totalCount,
     selectedAsteroid,
+    onHandleProductClick,
+    onHandleStarred,
+    filters,
+    setFilters,
   } = useAppStore();
 
-  const INITIAL_FILTERS: UIFilters = {
-    hazardous: 'all',
-    sizeMin: 0,
-    sizeMax: 3000,
-    distanceMin: 0,
-    distanceMax: 100,
-    priceMin: 100,
-    priceMax: 900,
-    orbitTypes: [],
-    sortBy: 'None',
-  };
+  const [sizeRange, setSizeRange] = useState<[number, number]>([
+    filters.sizeMin ?? 0,
+    filters.sizeMax ?? 3000,
+  ]);
+  const [distanceRange, setDistanceRange] = useState<[number, number]>([
+    filters.distanceMin ?? 0,
+    filters.distanceMax ?? 100,
+  ]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([
+    filters.priceMin ?? 100,
+    filters.priceMax ?? 900,
+  ]);
 
-  const [filter, setFilter] = useState<UIFilters>(INITIAL_FILTERS);
+  useEffect(() => {
+    setSizeRange([filters.sizeMin ?? 0, filters.sizeMax ?? 3000]);
+  }, [filters.sizeMin, filters.sizeMax]);
 
-  const resetFilters = () => {
-    setFilter(INITIAL_FILTERS);
-  };
+  useEffect(() => {
+    setDistanceRange([filters.distanceMin ?? 0, filters.distanceMax ?? 100]);
+  }, [filters.distanceMin, filters.distanceMax]);
 
-  console.log('Current filter state:', filter);
+  useEffect(() => {
+    setPriceRange([filters.priceMin ?? 100, filters.priceMax ?? 900]);
+  }, [filters.priceMin, filters.priceMax]);
+
+  console.log('Current filter state:', filters);
 
   // Fetch asteroids on mount
   useEffect(() => {
-    const backendFilters = convertUIFiltersToBackend(filter);
-    setAsteroids(1, backendFilters);
-    // setUserData();
-  }, []);
+    setAsteroids(1);
+  }, [setAsteroids]);
 
   // Handler for page changes
   const handlePageChange = (newPage: number) => {
-    const backendFilters = convertUIFiltersToBackend(filter);
-    setAsteroids(newPage, backendFilters);
+    setAsteroids(newPage);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -146,9 +148,9 @@ export default function Shop() {
                             name="hazard-level"
                             id={`hazard-${index}`}
                             className="h-4 w-4 border-gray-300 text-purple-400 accent-purple-500 focus:ring-purple-500 cursor-pointer"
-                            checked={filter.hazardous === option.value} // controlled by state
+                            checked={filters.hazardous === option.value} // controlled by state
                             onChange={() => {
-                              setFilter(prev => ({
+                              setFilters(prev => ({
                                 ...prev,
                                 hazardous: option.value, // update selected value
                               }));
@@ -179,18 +181,18 @@ export default function Shop() {
                             className="h-4 w-4 rounded border-gray-300 text-purple-400 accent-purple-500 focus:ring-purple-500 cursor-pointer"
                             checked={
                               option.value === 'all'
-                                ? filter.orbitTypes?.length === 0
-                                : filter.orbitTypes?.includes(option.value)
+                                ? filters.orbitTypes?.length === 0
+                                : filters.orbitTypes?.includes(option.value)
                             }
                             onChange={e => {
                               if (option.value === 'all') {
                                 // "All" clears any specific selections
-                                setFilter(prev => ({
+                                setFilters(prev => ({
                                   ...prev,
                                   orbitTypes: [],
                                 }));
                               } else {
-                                setFilter(prev => ({
+                                setFilters(prev => ({
                                   ...prev,
                                   orbitTypes: e.target.checked
                                     ? [...(prev.orbitTypes ?? []), option.value]
@@ -218,16 +220,19 @@ export default function Shop() {
                       <div className="flex justify-between items-center mb-2">
                         <h3 className="text-sm font-modak text-white">Size</h3>
                         <span className="text-xs text-gray-300">
-                          {filter.sizeMin} - {filter.sizeMax} meters
+                          {sizeRange[0]} - {sizeRange[1]} meters
                         </span>
                       </div>
                       <Slider
                         min={0}
                         max={3000}
                         step={50}
-                        value={[filter.sizeMin ?? 0, filter.sizeMax ?? 3000]}
+                        value={sizeRange}
                         onValueChange={(value: [number, number]) =>
-                          setFilter(prev => ({
+                          setSizeRange(value)
+                        }
+                        onValueCommit={(value: [number, number]) =>
+                          setFilters(prev => ({
                             ...prev,
                             sizeMin: value[0],
                             sizeMax: value[1],
@@ -242,19 +247,19 @@ export default function Shop() {
                           Miss Distance
                         </h3>
                         <span className="text-xs text-gray-300">
-                          {filter.distanceMin} - {filter.distanceMax} million km
+                          {distanceRange[0]} - {distanceRange[1]} million km
                         </span>
                       </div>
                       <Slider
                         min={0}
                         max={100}
                         step={1}
-                        value={[
-                          filter.distanceMin ?? 0,
-                          filter.distanceMax ?? 100,
-                        ]}
+                        value={distanceRange}
                         onValueChange={(value: [number, number]) =>
-                          setFilter(prev => ({
+                          setDistanceRange(value)
+                        }
+                        onValueCommit={(value: [number, number]) =>
+                          setFilters(prev => ({
                             ...prev,
                             distanceMin: value[0],
                             distanceMax: value[1],
@@ -267,16 +272,19 @@ export default function Shop() {
                       <div className="flex justify-between items-center mb-2">
                         <h3 className="text-m font-modak text-white">Price</h3>
                         <span className="text-xs text-gray-300">
-                          {filter.priceMin} - {filter.priceMax} CosmoCoins
+                          {priceRange[0]} - {priceRange[1]} CosmoCoins
                         </span>
                       </div>
                       <Slider
                         min={100}
                         max={900}
                         step={10}
-                        value={[filter.priceMin ?? 100, filter.priceMax ?? 900]}
+                        value={priceRange}
                         onValueChange={(value: [number, number]) =>
-                          setFilter(prev => ({
+                          setPriceRange(value)
+                        }
+                        onValueCommit={(value: [number, number]) =>
+                          setFilters(prev => ({
                             ...prev,
                             priceMin: value[0],
                             priceMax: value[1],
@@ -303,12 +311,12 @@ export default function Shop() {
                     key={option.name}
                     className={`cursor-pointer ml-4 py-2 px-4 text-sm rounded-none
                             ${
-                              option.value === filter.sortBy
+                              option.value === filters.sortBy
                                 ? 'bg-purple-500 text-white' // Selected style
                                 : 'bg-black hover:bg-gray-800 text-white' // Default style
                             }`}
                     onClick={() => {
-                      setFilter(prev => ({
+                      setFilters(prev => ({
                         ...prev, // keep other filter properties unchanged
                         sortBy: option.value, // update only the sort property
                       }));

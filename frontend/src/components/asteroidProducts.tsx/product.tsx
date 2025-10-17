@@ -1,10 +1,16 @@
 import AsteroidSVG from '../asteroidSVG';
-import { ShopAsteroid } from '@/store/AppModel';
-import { Star } from 'lucide-react';
+import Link from 'next/link';
+import { Asteroid } from '@/store/AppModel';
+import { useAppStore } from '@/store/useAppViewModel';
+import { Star, Orbit, Telescope, ShoppingBasket, Plus } from 'lucide-react';
 import Image from 'next/image';
 
+// orbit icon for asteroids owned by you
+// telescope for asteroids owned by others
+// shopping basket if its in your basket
+
 interface ProductProps {
-  asteroid: ShopAsteroid;
+  asteroid: Asteroid;
   isStarred: boolean;
   onHandleProductClick: (id: string) => void;
   onHandleStarred: (id: string) => void;
@@ -16,22 +22,36 @@ export default function Product({
   onHandleProductClick,
   onHandleStarred,
 }: ProductProps) {
+  const { userData, removeFromCart, addToCart } = useAppStore();
+
   return (
     <div className="relative">
-      {/* Star button*/}
-      <button
-        onClick={() => onHandleStarred(asteroid.id)}
-        className="p-1 absolute top-1 right-2 z-10 cursor-pointer"
-      >
-        {isStarred ? (
-          <Star
-            className="hover:scale-[1.08] transition duration-300 text-yellow-300"
-            fill="yellow"
-          />
-        ) : (
-          <Star className="hover:scale-[1.08] transition duration-300 text-white" />
-        )}
-      </button>
+      <div className="absolute right-3 flex flex-col items-center space-y-2">
+        {/* Star button*/}
+        <button
+          onClick={() => onHandleStarred(asteroid.id)}
+          className="cursor-pointer"
+        >
+          {isStarred ? (
+            <Star
+              className="hover:scale-[1.08] transition duration-300 text-yellow-300"
+              fill="yellow"
+            />
+          ) : (
+            <Star className="hover:scale-[1.08] transition duration-300 text-white" />
+          )}
+        </button>
+
+        {asteroid.owner ? (
+          userData?.owned_asteroids.some(a => a.id === asteroid.id) ? (
+            /* Owned by user */
+            <Orbit className="hover:scale-[1.08] transition duration-300 text-white right-2" />
+          ) : (
+            /* Owned by other user */
+            <Telescope className="hover:scale-[1.08] transition duration-300 text-white right-2" />
+          )
+        ) : null}
+      </div>
 
       <div
         onClick={() => onHandleProductClick(asteroid.id)}
@@ -62,6 +82,7 @@ export default function Product({
           <p className="text-gray-400 text-xs">Size: {asteroid.size} m</p>
 
           {/* Price */}
+
           <p className="mt-1 font-bold text-purple-400">
             <Image
               src="/cosmocoin-tiny.png"
@@ -74,6 +95,25 @@ export default function Product({
           </p>
         </div>
       </div>
+      {!asteroid.owner && (
+        <div className="absolute bottom-4 right-8 hidden md:flex items-center justify-center">
+          {userData?.cart_asteroids.some(a => a.id === asteroid.id) ? (
+            <button
+              onClick={() => removeFromCart(asteroid.id)}
+              className="hover:scale-[1.08] rounded-full hover:bg-white/10 transition bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700 text-white px-1 py-1 shadow hover:scale-105 hover:shadow-xl cursor-pointer text-center"
+            >
+              <ShoppingBasket />
+            </button>
+          ) : (
+            <button
+              onClick={() => addToCart(asteroid.id)}
+              className="hover:scale-[1.08] rounded-full hover:bg-white/10 transition bg-purple-500 text-white px-1 py-1 shadow hover:scale-105 hover:shadow-xl cursor-pointer text-center"
+            >
+              <Plus />
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }

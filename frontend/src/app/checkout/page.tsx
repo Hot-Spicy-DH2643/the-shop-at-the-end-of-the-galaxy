@@ -11,9 +11,8 @@ import CartItem from '@/components/cartItem';
 import { useEffect } from 'react';
 import CheckoutItem from '@/components/checkoutItem';
 import CheckoutAlert from '@/components/checkoutAlert';
-import { fetchAsteroids, type ShopAsteroid } from '@/store/AppModel';
+import { fetchAsteroids, type Asteroid } from '@/store/AppModel';
 import AsteroidModal from '@/components/asteroidModal';
-import { onHandleProductClick, onHandleStarred } from '@/store/useAppViewModel';
 
 export default function Checkout() {
   const {
@@ -23,11 +22,13 @@ export default function Checkout() {
     checkoutLoading,
     selectedAsteroid,
     setSelectedAsteroid,
+    onHandleProductClick,
+    onHandleStarred,
   } = useAppStore();
 
   const [isSuccess, setIsSuccess] = useState(false);
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
-  const [exploreAsteroids, setExploreAsteroids] = useState<ShopAsteroid[]>([]);
+  const [exploreAsteroids, setExploreAsteroids] = useState<Asteroid[]>([]);
 
   useEffect(() => {
     setUserData();
