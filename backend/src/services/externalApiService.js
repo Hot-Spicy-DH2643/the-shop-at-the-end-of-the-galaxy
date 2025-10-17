@@ -11,7 +11,7 @@ const NASA_API_BASE_URL = 'https://api.nasa.gov/neo/rest/v1';
  * @param {Object} asteroid - Asteroid data from NASA API
  * @returns {number} Calculated price
  */
-function calculateAsteroidPrice(asteroid) {
+export function calculateAsteroidPrice(asteroid) {
   const now = new Date();
   const clampBetween0and1 = value => Math.max(0, Math.min(1, value));
   const toNumber = (value, fallback = 0) => {

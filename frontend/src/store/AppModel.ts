@@ -106,6 +106,7 @@ export type UserData = {
 
 export type AppState = {
   userData: UserData | null;
+  userLoading: boolean;
   viewedProfile: UserData | null;
   asteroids: ShopAsteroid[];
   loading: boolean;
@@ -122,11 +123,12 @@ export type AppState = {
   setUserData: () => Promise<void>;
   updateProfileData: (newName: string) => void;
   updateFollow: (tUid: string) => void;
-  updateUnfollow: (tUid: string) => void;
+  updateUnfollow: (tUid: string) => void;  checkoutLoading: boolean;
+  checkout: () => Promise<boolean>;
   cart: ShopAsteroid[];
   addToCart: (asteroid_id: string) => void;
   removeFromCart: (asteroid_id: string) => void;
-  clearCart: () => void;
+  // clearCart: () => void;
   setViewedProfile: (uid: string) => Promise<void>;
 };
 
@@ -885,6 +887,27 @@ export function removeFromCart(asteroid_id: string): Promise<boolean> {
     })
     .catch(error => {
       console.error('Error removing from cart:', error);
+      return false;
+    });
+}
+
+export function checkoutCart(): Promise<boolean> {
+  // call the backend using graphql mutation to checkout cart
+  console.log('Checking out cart');
+  return client
+    .mutate({
+      mutation: gql`
+        mutation CheckoutCart {
+          checkoutCart
+        }
+      `,
+    })
+    .then(response => {
+      console.log('Checkout cart response:', response);
+      return true;
+    })
+    .catch(error => {
+      console.error('Error checking out cart:', error);
       return false;
     });
 }
