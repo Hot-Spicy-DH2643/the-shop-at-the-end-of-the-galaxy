@@ -1,7 +1,7 @@
 'use client';
 
 import Navbar from '@/components/navbar';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Accordion,
   AccordionItem,
@@ -74,6 +74,31 @@ export default function Shop() {
     filters,
     setFilters,
   } = useAppStore();
+
+  const [sizeRange, setSizeRange] = useState<[number, number]>([
+    filters.sizeMin ?? 0,
+    filters.sizeMax ?? 3000,
+  ]);
+  const [distanceRange, setDistanceRange] = useState<[number, number]>([
+    filters.distanceMin ?? 0,
+    filters.distanceMax ?? 100,
+  ]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([
+    filters.priceMin ?? 100,
+    filters.priceMax ?? 900,
+  ]);
+
+  useEffect(() => {
+    setSizeRange([filters.sizeMin ?? 0, filters.sizeMax ?? 3000]);
+  }, [filters.sizeMin, filters.sizeMax]);
+
+  useEffect(() => {
+    setDistanceRange([filters.distanceMin ?? 0, filters.distanceMax ?? 100]);
+  }, [filters.distanceMin, filters.distanceMax]);
+
+  useEffect(() => {
+    setPriceRange([filters.priceMin ?? 100, filters.priceMax ?? 900]);
+  }, [filters.priceMin, filters.priceMax]);
 
   console.log('Current filter state:', filters);
 
@@ -195,15 +220,18 @@ export default function Shop() {
                       <div className="flex justify-between items-center mb-2">
                         <h3 className="text-sm font-modak text-white">Size</h3>
                         <span className="text-xs text-gray-300">
-                          {filters.sizeMin} - {filters.sizeMax} meters
+                          {sizeRange[0]} - {sizeRange[1]} meters
                         </span>
                       </div>
                       <Slider
                         min={0}
                         max={3000}
                         step={50}
-                        value={[filters.sizeMin ?? 0, filters.sizeMax ?? 3000]}
+                        value={sizeRange}
                         onValueChange={(value: [number, number]) =>
+                          setSizeRange(value)
+                        }
+                        onValueCommit={(value: [number, number]) =>
                           setFilters(prev => ({
                             ...prev,
                             sizeMin: value[0],
@@ -219,19 +247,18 @@ export default function Shop() {
                           Miss Distance
                         </h3>
                         <span className="text-xs text-gray-300">
-                          {filters.distanceMin} - {filters.distanceMax} million
-                          km
+                          {distanceRange[0]} - {distanceRange[1]} million km
                         </span>
                       </div>
                       <Slider
                         min={0}
                         max={100}
                         step={1}
-                        value={[
-                          filters.distanceMin ?? 0,
-                          filters.distanceMax ?? 100,
-                        ]}
+                        value={distanceRange}
                         onValueChange={(value: [number, number]) =>
+                          setDistanceRange(value)
+                        }
+                        onValueCommit={(value: [number, number]) =>
                           setFilters(prev => ({
                             ...prev,
                             distanceMin: value[0],
@@ -245,18 +272,18 @@ export default function Shop() {
                       <div className="flex justify-between items-center mb-2">
                         <h3 className="text-m font-modak text-white">Price</h3>
                         <span className="text-xs text-gray-300">
-                          {filters.priceMin} - {filters.priceMax} CosmoCoins
+                          {priceRange[0]} - {priceRange[1]} CosmoCoins
                         </span>
                       </div>
                       <Slider
                         min={100}
                         max={900}
                         step={10}
-                        value={[
-                          filters.priceMin ?? 100,
-                          filters.priceMax ?? 900,
-                        ]}
+                        value={priceRange}
                         onValueChange={(value: [number, number]) =>
+                          setPriceRange(value)
+                        }
+                        onValueCommit={(value: [number, number]) =>
                           setFilters(prev => ({
                             ...prev,
                             priceMin: value[0],
