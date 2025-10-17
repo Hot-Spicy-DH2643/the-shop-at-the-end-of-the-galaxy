@@ -405,6 +405,32 @@ const GET_USER_BY_ID = gql`
         is_potentially_hazardous_asteroid
         price
         size
+        close_approach_data {
+          close_approach_date
+          close_approach_date_full
+          epoch_date_close_approach
+          relative_velocity {
+            kilometers_per_second
+            kilometers_per_hour
+          }
+          miss_distance {
+            astronomical
+            kilometers
+          }
+          orbiting_body
+        }
+        orbital_data {
+          orbit_id
+          eccentricity
+          semi_major_axis
+          inclination
+          orbital_period
+          orbit_class {
+            orbit_class_type
+            orbit_class_description
+            orbit_class_range
+          }
+        }
       }
       starred_asteroids {
         id
