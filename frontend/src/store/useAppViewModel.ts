@@ -35,8 +35,14 @@ const useAppStore = create<AppState>(set => ({
   totalCount: 0,
   cart: [],
   addToCart: async asteroid_id => {
-    addToCart(asteroid_id);
-    useAppStore.getState().setUserData();
+    addToCart(asteroid_id).then(success => {
+      if (success) {
+        console.log('Successfully added to cart:', asteroid_id);
+      } else {
+        console.log('Failed to add to cart:', asteroid_id);
+      }
+      useAppStore.getState().setUserData();
+    });
   },
   removeFromCart: async asteroid_id => {
     removeFromCart(asteroid_id).then(success => {

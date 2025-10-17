@@ -636,9 +636,9 @@ export type FilterState = {
 };
 
 export function filterAsteroids(
-  asteroids: shopAsteroid[],
+  asteroids: ShopAsteroid[],
   filters: FilterState
-): shopAsteroid[] {
+): ShopAsteroid[] {
   return asteroids.filter(a => {
     // ---------------------------
     // Hazard filter
@@ -680,9 +680,9 @@ export function filterAsteroids(
 }
 
 export function filterAndSortAsteroids(
-  asteroids: shopAsteroid[],
+  asteroids: ShopAsteroid[],
   filters: FilterState
-): shopAsteroid[] {
+): ShopAsteroid[] {
   const filtered = filterAsteroids(asteroids, filters);
   return sortAsteroids(filtered, filters.sort ?? 'None');
 }
@@ -840,19 +840,21 @@ const ADD_TO_CART = gql`
   }
 `;
 
-export function addToCart(asteroid_id: string) {
+export function addToCart(asteroid_id: string): Promise<boolean> {
   // call the backend using graphql mutation to add to cart
   console.log('Adding to cart:', asteroid_id);
-  client
+  return client
     .mutate({
       mutation: ADD_TO_CART,
       variables: { asteroidId: asteroid_id },
     })
     .then(response => {
       console.log('Add to cart response:', response);
+      return true;
     })
     .catch(error => {
       console.error('Error adding to cart:', error);
+      return false;
     });
 }
 

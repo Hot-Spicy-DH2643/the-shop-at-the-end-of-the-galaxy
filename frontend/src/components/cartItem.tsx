@@ -3,15 +3,15 @@
 import Image from 'next/image';
 import { X } from 'lucide-react';
 import AsteroidSVGMoving from '@/components/asteroidSVGMoving';
-import { removeFromCart, UserAsteriod } from '@/store/AppModel';
+import { removeFromCart } from '@/store/AppModel';
 import { useAppStore } from '@/store/useAppViewModel';
-import { shopAsteroid } from '@/store/AppModel';
+import { ShopAsteroid } from '@/store/AppModel';
 
 interface CartItemProps {
   id: number;
   name: string;
   price: number;
-  asteroid: UserAsteriod;
+  asteroid: ShopAsteroid;
 }
 
 export default function CartItem({ id, name, price, asteroid }: CartItemProps) {

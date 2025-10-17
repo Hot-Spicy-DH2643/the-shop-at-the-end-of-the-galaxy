@@ -29,20 +29,16 @@ export default function AsteroidModal({
     }
   };
 
-  const addToCart = useAppStore(state => state.addToCart);
-  const removeFromCart = useAppStore(state => state.removeFromCart);
+  const { userData, addToCart, removeFromCart } = useAppStore();
 
   const handleAddToCart = () => {
     addToCart(asteroid.id);
-    // onClose(); // optional: close modal after adding
   };
 
   const handleRemoveFromCart = () => {
     removeFromCart(asteroid.id);
-    // onClose(); // optional: close modal after removing
   };
 
-  const { userData } = useAppStore();
   console.log('asteroidModal.tsx file : ', asteroid);
 
   return (
