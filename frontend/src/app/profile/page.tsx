@@ -10,8 +10,13 @@ import { useEffect } from 'react';
 
 export default function Profile() {
   const { user } = useAuthStore();
-  const { userData, viewedProfile, setUserData, loading, setViewedProfile } =
-    useAppStore();
+  const {
+    userData,
+    viewedProfile,
+    setUserData,
+    userLoading,
+    setViewedProfile,
+  } = useAppStore();
   const router = useRouter();
 
   // Fetch user data on mount
@@ -27,7 +32,7 @@ export default function Profile() {
   const profileData = viewedProfile || userData;
   const isOwnProfile = !viewedProfile;
 
-  if (!user || loading || !profileData) {
+  if (!user || userLoading || !profileData) {
     return (
       <div className="galaxy-bg-space min-h-screen">
         <Navbar />

@@ -106,6 +106,7 @@ export type UserData = {
 
 export type AppState = {
   userData: UserData | null;
+  userLoading: boolean;
   viewedProfile: UserData | null;
   asteroids: ShopAsteroid[];
   loading: boolean;
