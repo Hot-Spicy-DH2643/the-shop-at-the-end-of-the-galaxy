@@ -27,7 +27,6 @@ const useAppStore = create<AppState>(set => ({
   error: null,
   userData: null,
   asteroids: [],
-  selectedAsteroidId: null,
   selectedAsteroid: null,
   currentPage: 1,
   totalPages: 0,
@@ -38,9 +37,7 @@ const useAppStore = create<AppState>(set => ({
     set(state => ({ cart: state.cart.filter(a => a.id !== id) })),
   clearCart: () => set({ cart: [] }),
   viewedProfile: null,
-  setSelectedAsteroidId: async (id: string | null) => {
-    set({ selectedAsteroidId: id });
-
+  setSelectedAsteroid: async (id: string | null) => {
     if (id) {
       try {
         // Fetch full asteroid data when an ID is selected
@@ -155,7 +152,7 @@ export function useAsteroidsSortedByClosestApproach(limit?: number) {
 
 export async function onHandleProductClick(id: string) {
   // open the product modal component with detailed info
-  await useAppStore.getState().setSelectedAsteroidId(id);
+  await useAppStore.getState().setSelectedAsteroid(id);
 }
 
 export function onHandleStarred(asteroid_id: string) {

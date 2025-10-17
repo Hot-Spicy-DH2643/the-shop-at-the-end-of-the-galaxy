@@ -110,7 +110,6 @@ export type AppState = {
   asteroids: ShopAsteroid[];
   loading: boolean;
   error: string | null;
-  selectedAsteroidId: string | null;
   selectedAsteroid: ShopAsteroid | null;
   // Pagination state
   currentPage: number;
@@ -119,7 +118,7 @@ export type AppState = {
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   setAsteroids: (page?: number, filters?: BackendFilters) => Promise<void>;
-  setSelectedAsteroidId: (id: string | null) => Promise<void>;
+  setSelectedAsteroid: (id: string | null) => Promise<void>;
   setUserData: () => Promise<void>;
   updateProfileData: (newName: string) => void;
 

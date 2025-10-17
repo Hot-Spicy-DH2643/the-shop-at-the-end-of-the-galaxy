@@ -26,8 +26,7 @@ export default function Purchases({
 
   const [zeroPurchaseId, setZeroPurchaseId] = useState<string>('0000000');
 
-  const selectedAsteroidId = useAppStore(state => state.selectedAsteroidId);
-  const selectedAsteroid = useAppStore(state => state.selectedAsteroid);
+  const { selectedAsteroid } = useAppStore();
 
   useEffect(() => {
     if (owned_asteroids?.length === 0) {
@@ -134,10 +133,10 @@ export default function Purchases({
         ))}
       </div>
 
-      {selectedAsteroidId && selectedAsteroid && (
+      {selectedAsteroid && (
         <AsteroidModal
           asteroid={selectedAsteroid}
-          onClose={() => useAppStore.getState().setSelectedAsteroidId(null)}
+          onClose={() => useAppStore.getState().setSelectedAsteroid(null)}
           onHandleStarred={() => onHandleStarred(selectedAsteroid.id)}
         />
       )}

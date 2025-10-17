@@ -73,6 +73,7 @@ export default function Shop() {
     currentPage,
     totalPages,
     totalCount,
+    selectedAsteroid,
   } = useAppStore();
 
   const INITIAL_FILTERS: UIFilters = {
@@ -92,9 +93,6 @@ export default function Shop() {
   const resetFilters = () => {
     setFilter(INITIAL_FILTERS);
   };
-
-  const selectedAsteroidId = useAppStore(state => state.selectedAsteroidId);
-  const selectedAsteroid = asteroids.find(a => a.id === selectedAsteroidId);
 
   console.log('Current filter state:', filter);
 
@@ -429,10 +427,10 @@ export default function Shop() {
         </div>
       </section>
 
-      {selectedAsteroidId && selectedAsteroid && (
+      {selectedAsteroid && (
         <AsteroidModal
           asteroid={selectedAsteroid}
-          onClose={() => useAppStore.getState().setSelectedAsteroidId(null)}
+          onClose={() => useAppStore.getState().setSelectedAsteroid(null)}
           onHandleStarred={() => onHandleStarred(selectedAsteroid.id)}
         />
       )}

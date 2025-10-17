@@ -20,15 +20,12 @@ import { Star } from 'lucide-react';
 
 export default function User({ profileData, isOwnProfile }: UserProps) {
   const { user: firebaseUser } = useAuthStore();
-  const { updateProfileData } = useAppStore();
+  const { updateProfileData, selectedAsteroid } = useAppStore();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const [isFollowing, setIsFollowing] = useState(false); //initialize this from backend
 
   const [zeroFavAsteroidId, setZeroFavAsteroidId] = useState<string>('0000000');
-
-  const selectedAsteroidId = useAppStore(state => state.selectedAsteroidId);
-  const selectedAsteroid = useAppStore(state => state.selectedAsteroid);
 
   useEffect(() => {
     if (profileData?.starred_asteroids?.length === 0) {
@@ -177,10 +174,10 @@ export default function User({ profileData, isOwnProfile }: UserProps) {
               </div>
             ))}
           </div>
-          {selectedAsteroidId && selectedAsteroid && (
+          {selectedAsteroid && (
             <AsteroidModal
               asteroid={selectedAsteroid}
-              onClose={() => useAppStore.getState().setSelectedAsteroidId(null)}
+              onClose={() => useAppStore.getState().setSelectedAsteroid(null)}
               onHandleStarred={() => onHandleStarred(selectedAsteroid.id)}
             />
           )}
