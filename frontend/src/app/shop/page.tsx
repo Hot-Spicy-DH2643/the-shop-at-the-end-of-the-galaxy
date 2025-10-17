@@ -114,7 +114,7 @@ export default function Shop() {
   };
 
   return (
-    <div className="galaxy-bg-space font-sans">
+    <div className="galaxy-bg-space font-sans min-h-screen">
       <Navbar />
       {/* Banner */}
 

@@ -43,7 +43,9 @@ export default function Profile() {
     const params = new URLSearchParams(queryString);
     params.set('uid', userId);
     const newQuery = params.toString();
-    router.replace(newQuery ? `/profile?${newQuery}` : `/profile?uid=${userId}`);
+    router.replace(
+      newQuery ? `/profile?${newQuery}` : `/profile?uid=${userId}`
+    );
   }, [profileUid, queryString, router, userId]);
 
   useEffect(() => {
@@ -122,7 +124,7 @@ export default function Profile() {
   };
 
   return (
-    <div className="galaxy-bg-space min-h-screen">
+    <div className="galaxy-bg-space min-h-screen pb-20">
       <Navbar />
 
       {/* Banner */}
