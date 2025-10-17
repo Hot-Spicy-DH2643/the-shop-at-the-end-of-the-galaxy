@@ -17,11 +17,8 @@ export default function Cart() {
   const { userData, setUserData } = useAppStore();
 
   useEffect(() => {
-    const fetchData = async () => {
-      await setUserData(); // ensure data is fetched
-    };
-    fetchData();
-  }, [setUserData]);
+    setUserData();
+  }, []);
   const cart = userData?.cart_asteroids || [];
   const total = cart.reduce((sum, item) => sum + item.price, 0);
 

@@ -723,18 +723,20 @@ const REMOVE_FROM_CART = gql`
   }
 `;
 
-export function removeFromCart(asteroid_id: string) {
+export function removeFromCart(asteroid_id: string): Promise<boolean> {
   // call the backend using graphql mutation to remove from cart
   console.log('Removing from cart:', asteroid_id);
-  client
+  return client
     .mutate({
       mutation: REMOVE_FROM_CART,
       variables: { asteroidId: asteroid_id },
     })
     .then(response => {
       console.log('Remove from cart response:', response);
+      return true;
     })
     .catch(error => {
       console.error('Error removing from cart:', error);
+      return false;
     });
 }

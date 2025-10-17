@@ -15,9 +15,10 @@ interface CartItemProps {
 }
 
 export default function CartItem({ id, name, price, asteroid }: CartItemProps) {
-  const removeFromCart = useAppStore(state => state.removeFromCart);
+  const { removeFromCart } = useAppStore();
 
   const handleRemoveFromCart = () => {
+    console.log('Removing from cart:', asteroid.id);
     removeFromCart(asteroid.id);
   };
 

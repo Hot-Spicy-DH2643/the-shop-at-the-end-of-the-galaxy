@@ -36,8 +36,14 @@ const useAppStore = create<AppState>(set => ({
     useAppStore.getState().setUserData();
   },
   removeFromCart: async asteroid_id => {
-    removeFromCart(asteroid_id);
-    useAppStore.getState().setUserData();
+    removeFromCart(asteroid_id).then(success => {
+      if (success) {
+        console.log('Successfully removed from cart:', asteroid_id);
+      } else {
+        console.log('Failed to remove from cart:', asteroid_id);
+      }
+      useAppStore.getState().setUserData();
+    });
   },
   clearCart: () => set({ cart: [] }),
 
