@@ -1,7 +1,11 @@
 import AsteroidSVG from '../asteroidSVG';
 import { ShopAsteroid } from '@/store/AppModel';
-import { Star } from 'lucide-react';
+import { Star, Orbit, Telescope, ShoppingBasket } from 'lucide-react';
 import Image from 'next/image';
+
+// orbit icon for asteroids owned by you
+// telescope for asteroids owned by others
+// shopping basket if its in your basket
 
 interface ProductProps {
   asteroid: ShopAsteroid;
