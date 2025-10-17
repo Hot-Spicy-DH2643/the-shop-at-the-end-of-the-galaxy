@@ -122,7 +122,7 @@ export default function Navbar() {
             {user && (
               <button
                 onClick={() => setShowCart(v => !v)}
-                className="ml-4 p-2 rounded-full hover:bg-white/20 transition"
+                className="relative p-2 rounded-full hover:bg-white/20 transition"
                 aria-label="View cart"
               >
                 <ShoppingBasket size={24} />
