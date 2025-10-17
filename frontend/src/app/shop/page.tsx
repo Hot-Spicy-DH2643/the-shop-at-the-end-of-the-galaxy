@@ -24,7 +24,6 @@ import {
   type UIFilters,
   convertUIFiltersToBackend,
 } from '@/store/useAppViewModel';
-import { onHandleProductClick, onHandleStarred } from '@/store/useAppViewModel';
 import AsteroidModal from '@/components/asteroidModal';
 
 const SORT_OPTIONS: Array<{ name: string; value: SortOption }> = [
@@ -75,6 +74,8 @@ export default function Shop() {
     totalPages,
     totalCount,
     selectedAsteroid,
+    onHandleProductClick,
+    onHandleStarred,
   } = useAppStore();
 
   const INITIAL_FILTERS: UIFilters = {

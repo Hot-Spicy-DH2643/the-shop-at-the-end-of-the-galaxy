@@ -1,6 +1,6 @@
 import AsteroidSVG from '../asteroidSVG';
 import Link from 'next/link';
-import { ShopAsteroid } from '@/store/AppModel';
+import { Asteroid } from '@/store/AppModel';
 import { useAppStore } from '@/store/useAppViewModel';
 import { Star, Orbit, Telescope, ShoppingBasket } from 'lucide-react';
 import Image from 'next/image';
@@ -10,7 +10,7 @@ import Image from 'next/image';
 // shopping basket if its in your basket
 
 interface ProductProps {
-  asteroid: ShopAsteroid;
+  asteroid: Asteroid;
   isStarred: boolean;
   onHandleProductClick: (id: string) => void;
   onHandleStarred: (id: string) => void;
