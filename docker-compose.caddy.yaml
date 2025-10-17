@@ -27,7 +27,7 @@ services:
     depends_on:
       - mongo
     command: sh -c "npm install && npm start"
-    restart: unless-stopped
+    restart: no
     healthcheck:
       test:
         [
@@ -61,7 +61,7 @@ services:
       - /app/node_modules
       - /app/.next
     command: sh -c "pnpm install && pnpm run build && pnpm start"
-    restart: unless-stopped
+    restart: no
     healthcheck:
       test:
         [
