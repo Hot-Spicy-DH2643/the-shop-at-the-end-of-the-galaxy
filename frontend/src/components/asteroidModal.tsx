@@ -1,7 +1,7 @@
 'use client';
 import AsteroidSVGMoving from './asteroidSVGMoving';
 import Image from 'next/image';
-import { shopAsteroid } from '@/store/AppModel';
+import { ShopAsteroid } from '@/store/AppModel';
 import { Star, ShoppingBasket, CalendarPlus, Eye } from 'lucide-react';
 import {
   useAsteroidModalViewModel,
@@ -9,7 +9,7 @@ import {
 } from '@/store/useAppViewModel';
 
 interface modalProps {
-  asteroid: shopAsteroid;
+  asteroid: ShopAsteroid;
   onClose: () => void;
   onHandleStarred: (id: string) => void;
 }
@@ -38,7 +38,7 @@ export default function AsteroidModal({
 
   const { userData } = useAppStore();
   const user_owned_asteroids = userData?.owned_asteroids.map(a => a.id);
-  console.log('asteroidModal.tsx file : ', user_owned_asteroids);
+  console.log('asteroidModal.tsx file : ', asteroid);
 
   return (
     <div
@@ -69,7 +69,8 @@ export default function AsteroidModal({
                 onClick={() => onHandleStarred(asteroid.id)}
                 className="cursor-pointer flex-shrink-0"
               >
-                {asteroid.is_starred ? (
+                {/* Check if asteroid is starred by the current user */}
+                {userData?.starred_asteroids.some(a => a.id === asteroid.id) ? (
                   <Star
                     size={20}
                     className="hover:scale-[1.08] transition duration-300 text-yellow-300"
@@ -101,7 +102,11 @@ export default function AsteroidModal({
         </div>
 
         <div className="mb-6 text-sm font-bold mx-auto px-8 mt-2 items-center flex flex-col md:flex-row justify-center">
-          {user_owned_asteroids?.find(a => a === asteroid.id) ? (
+          {asteroid.owner ? (
+            <p className="bg-gradient-to-r bg-gray-400 text-white px-6 py-2 rounded shadow text-center m-1 my-2 w-full md:w-auto">
+              Owned by {asteroid.owner.name}
+            </p>
+          ) : user_owned_asteroids?.find(a => a === asteroid.id) ? (
             <p className="bg-gradient-to-r bg-gray-400 text-white px-6 py-2 rounded shadow text-center m-1 my-2 w-full md:w-auto">
               Already Purchased 🪐 {asteroid.name}
             </p>

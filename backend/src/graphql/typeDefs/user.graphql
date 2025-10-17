@@ -23,4 +23,8 @@ extend type Mutation {
   addToCart(asteroidId: String!): Boolean
   removeFromCart(asteroidId: String!): Boolean
   purchaseCart: Boolean
+  updateUserName(uid: String!, name: String!): User
+  toggleStarredAsteroid(asteroidId: String!): Boolean
+  followUser(uid: String!): Boolean
+  unfollowUser(uid: String!): Boolean
 }

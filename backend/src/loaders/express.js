@@ -17,6 +17,9 @@ import {
 export function createExpressApp() {
   const app = express();
 
+  // Trust proxy for secure cookies behind reverse proxy (Cloudflare)
+  app.set('trust proxy', 1);
+
   // Basic middleware
   app.use(logger('dev'));
   app.use(cookieParser());
