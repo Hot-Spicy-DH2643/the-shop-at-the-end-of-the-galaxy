@@ -1,5 +1,8 @@
 import { User } from '../models/User.js';
-import { getAsteroidById } from './externalApiService.js';
+import {
+  calculateAsteroidPrice,
+  getAsteroidById,
+} from './externalApiService.js';
 
 export async function getAllUsers() {
   try {
@@ -159,6 +162,67 @@ export async function removeFromCart(userId, asteroidId) {
       `Error removing asteroid ${asteroidId} from cart for user ${userId}:`,
       error.message
     );
+    throw error;
+  }
+}
+
+export async function checkoutCart(userId) {
+  try {
+    const user = await User.findOne({ uid: userId });
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    // Check if the cart is empty
+    if (user.cart_asteroid_ids.length === 0) {
+      throw new Error('Cart is empty');
+    }
+
+    // Check if all asteroids in the cart are available
+    for (const asteroidId of user.cart_asteroid_ids) {
+      if (user.owned_asteroid_ids.includes(asteroidId)) {
+        throw new Error(`Asteroid ${asteroidId} is already owned by the user`);
+      }
+      const asteroid = await getAsteroidById(asteroidId);
+      if (!asteroid) {
+        throw new Error(`Asteroid ${asteroidId} not found`);
+      }
+      if (asteroid.owner) {
+        throw new Error(
+          `Asteroid ${asteroidId} is already owned by another user`
+        );
+      }
+    }
+
+    // Check if user has enough coins to purchase all asteroids in the cart, asteroid price can be calculated using externalApiService
+    let totalPrice = 0;
+    for (const asteroidId of user.cart_asteroid_ids) {
+      const asteroid = await getAsteroidById(asteroidId);
+      if (!asteroid) {
+        throw new Error(`Asteroid ${asteroidId} not found`);
+      }
+      const price = calculateAsteroidPrice(asteroid);
+      totalPrice += price;
+    }
+
+    if (user.coins < totalPrice) {
+      throw new Error('Insufficient coins to complete the purchase');
+    }
+
+    // Transfer cart items to owned items
+    user.owned_asteroid_ids.push(...user.cart_asteroid_ids);
+
+    // Clear the cart
+    user.cart_asteroid_ids = [];
+
+    // Deduct the total price from user's coins
+    user.coins -= totalPrice;
+
+    await user.save();
+    console.log(`User ${userId} checked out their cart successfully`);
+    return true;
+  } catch (error) {
+    console.error(`Error during checkout for user ${userId}:`, error.message);
     throw error;
   }
 }

@@ -4,6 +4,7 @@ import {
   getAllUsers,
   getUserById,
   toggleStarredAsteroid,
+  checkoutCart,
 } from '../../services/userService.js';
 
 export const userResolvers = {
@@ -67,6 +68,19 @@ export const userResolvers = {
       } catch (error) {
         console.error('Error toggling starred asteroid:', error);
         throw new Error('Failed to toggle starred asteroid');
+      }
+    },
+    checkoutCart: async (parent, args, context) => {
+      try {
+        console.log('Initiating checkoutCart mutation');
+        if (!context.user) {
+          throw new Error('Authentication required');
+        }
+        await checkoutCart(context.user.uid);
+        return true;
+      } catch (error) {
+        console.error('Error in checkoutCart mutation:', error);
+        throw new Error('Failed to checkout cart', error);
       }
     },
   },

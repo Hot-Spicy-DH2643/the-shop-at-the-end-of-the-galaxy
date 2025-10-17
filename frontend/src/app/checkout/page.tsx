@@ -13,15 +13,14 @@ import CheckoutItem from '@/components/checkoutItem';
 import CheckoutAlert from '@/components/checkoutAlert';
 
 export default function Checkout() {
-  const { userData, setUserData, clearCart } = useAppStore();
+  const { userData, setUserData, checkout, checkoutLoading } = useAppStore();
 
-  const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
 
   useEffect(() => {
     setUserData();
-  }, [setUserData]);
+  }, []);
 
   const cart = userData?.cart_asteroids || [];
   const total = cart.reduce((sum, item) => sum + item.price, 0);
@@ -37,28 +36,21 @@ export default function Checkout() {
       return;
     }
 
-    setIsProcessing(true);
+    if (userData.cart_asteroids.length === 0) {
+      setAlertMessage('Your cart is empty!');
+      return;
+    }
 
-    //Move cart asteroid IDs to owned asteroid IDs
-    const newOwnedIds = [
-      ...(userData.owned_asteroids || []),
-      ...(userData.cart_asteroids || []),
-    ];
-
-    //Update balance and clear cart
-    const updatedUserData = {
-      ...userData,
-      coins: userCoins - total,
-      owned_asteroid_ids: newOwnedIds,
-      cart_asteroid_ids: [],
-    };
-
-    setTimeout(() => {
-      setUserData(updatedUserData);
-      clearCart();
-      setIsProcessing(false);
-      setIsSuccess(true);
-    }, 1500);
+    //Proceed to checkout
+    checkout().then(success => {
+      if (success) {
+        setIsSuccess(true);
+      } else {
+        setAlertMessage(
+          'An error occurred during checkout. Please try again later.'
+        );
+      }
+    });
   };
 
   if (isSuccess) {
@@ -124,16 +116,28 @@ export default function Checkout() {
 
           <button
             onClick={handleConfirm}
-            className={`mt-4 w-full py-3 rounded-xl text-lg font-semibold transition-all duration-300 cursor-pointer 
-    ${
-      (userData?.coins ?? 0) < total
-        ? 'bg-gray-700 opacity-70 cursor-not-allowed hover:brightness-100'
-        : 'bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700 hover:scale-102 hover:shadow-[0_0_20px_4px_rgba(236,72,255,0.6)] hover:brightness-110'
-    }
-    ${isProcessing ? 'opacity-70 cursor-wait' : ''}
-  `}
+            disabled={
+              checkoutLoading ||
+              (userData?.coins ?? 0) < total ||
+              cart.length === 0
+            }
+            className={`mt-4 w-full py-3 rounded-xl text-lg font-semibold transition-all duration-300 
+              ${
+                checkoutLoading
+                  ? 'cursor-wait'
+                  : (userData?.coins ?? 0) < total || cart.length === 0
+                    ? 'cursor-not-allowed'
+                    : 'cursor-pointer'
+              }
+              ${
+                (userData?.coins ?? 0) < total || cart.length === 0
+                  ? 'bg-gray-700 opacity-70 hover:brightness-100'
+                  : 'bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700 hover:scale-102 hover:shadow-[0_0_20px_4px_rgba(236,72,255,0.6)] hover:brightness-110'
+              }
+              ${checkoutLoading ? 'opacity-70' : ''}
+            `}
           >
-            {isProcessing ? 'Processing...' : 'Confirm Purchase'}
+            {checkoutLoading ? 'Processing...' : 'Confirm Purchase'}
           </button>
 
           {alertMessage && (

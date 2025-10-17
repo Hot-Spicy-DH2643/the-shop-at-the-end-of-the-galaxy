@@ -19,6 +19,7 @@ import {
   updateProfile,
   addToCart,
   removeFromCart,
+  checkoutCart,
 } from './AppModel';
 import { useAsteroidViewers } from '@/hooks/useAsteroidViewers';
 import { useAuthStore } from './useAuthViewModel';
@@ -54,7 +55,27 @@ const useAppStore = create<AppState>(set => ({
       useAppStore.getState().setUserData();
     });
   },
-  clearCart: () => set({ cart: [] }),
+  checkoutLoading: false,
+  checkout: async () => {
+    set({ checkoutLoading: true });
+    return checkoutCart()
+      .then(success => {
+        if (success) {
+          console.log('Checkout successful');
+        } else {
+          console.log('Checkout failed');
+        }
+        set({ checkoutLoading: false });
+        useAppStore.getState().setUserData();
+        return true;
+      })
+      .catch(error => {
+        console.error('Checkout error:', error);
+        set({ checkoutLoading: false });
+        return false;
+      });
+  },
+  // clearCart: () => set({ cart: [] }),
   viewedProfile: null,
   setSelectedAsteroid: async (id: string | null) => {
     if (id) {
