@@ -4,6 +4,8 @@ import {
   getAllUsers,
   getUserById,
   toggleStarredAsteroid,
+  followUser,
+  unfollowUser,
   checkoutCart,
 } from '../../services/userService.js';
 
@@ -81,6 +83,35 @@ export const userResolvers = {
       } catch (error) {
         console.error('Error in checkoutCart mutation:', error);
         throw new Error('Failed to checkout cart', error);
+      }
+    },
+
+    followUser: async (parent, { targetUid }, context) => {
+      const currentUser = context.user;
+
+      if (!currentUser) {
+        throw new Error('Authentication required');
+      }
+      try {
+        const result = await followUser(currentUser.uid, targetUid);
+        return result;
+      } catch (error) {
+        console.error('Error in followUser mutation:', error);
+        throw new Error('Failed to follow user', error);
+      }
+    },
+
+    unfollowUser: async (parent, { targetUid }, context) => {
+      const currentUser = context.user;
+      if (!currentUser) {
+        throw new Error('Authentication required');
+      }
+      try {
+        const result = await unfollowUser(currentUser.uid, targetUid);
+        return result;
+      } catch (error) {
+        console.error('Error in unfollowUser mutation:', error);
+        throw new Error('Failed to unfollow user');
       }
     },
   },

@@ -122,7 +122,8 @@ export type AppState = {
   setSelectedAsteroid: (id: string | null) => Promise<void>;
   setUserData: () => Promise<void>;
   updateProfileData: (newName: string) => void;
-  checkoutLoading: boolean;
+  updateFollow: (tUid: string) => void;
+  updateUnfollow: (tUid: string) => void;  checkoutLoading: boolean;
   checkout: () => Promise<boolean>;
   cart: ShopAsteroid[];
   addToCart: (asteroid_id: string) => void;
@@ -454,36 +455,14 @@ export const UPDATE_USER_NAME = gql`
 `;
 
 export const FOLLOW_USER = gql`
-  mutation FollowUser($followerUid: String!, $targetUid: String!) {
-    followUser(followerUid: $followerUid, targetUid: $targetUid) {
-      uid
-      name
-      followers {
-        uid
-        name
-      }
-      following {
-        uid
-        name
-      }
-    }
+  mutation FollowUser($targetUid: String!) {
+    followUser(targetUid: $targetUid)
   }
 `;
 
 export const UNFOLLOW_USER = gql`
-  mutation UnfollowUser($followerUid: String!, $targetUid: String!) {
-    unfollowUser(followerUid: $followerUid, targetUid: $targetUid) {
-      uid
-      name
-      followers {
-        uid
-        name
-      }
-      following {
-        uid
-        name
-      }
-    }
+  mutation UnfollowUser($targetUid: String!) {
+    unfollowUser(targetUid: $targetUid)
   }
 `;
 
@@ -521,6 +500,34 @@ export async function updateProfile(uid: string, newName: string) {
     throw error;
   }
 }
+
+  export async function follow(tUid: string) {
+    try {
+      await client.mutate({
+        mutation: FOLLOW_USER,
+        variables: {
+          targetUid: tUid
+        },
+      });
+    } catch (error) {
+      console.error('Error updating new followers in backend:', error);
+      throw error;
+    }
+  };
+
+  export async function unfollow(tUid: string) { 
+    try {
+      await client.mutate({
+        mutation: UNFOLLOW_USER,
+        variables: {
+          targetUid: tUid
+        },
+      });
+    } catch (error) {
+      console.error('Error removing followers in backend:', error);
+      throw error;
+    }
+  }
 
 // ============================================
 // SORTING FUNCTIONS - Pure Business Logic

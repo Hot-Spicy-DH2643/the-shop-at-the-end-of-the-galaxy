@@ -17,6 +17,8 @@ import {
   UserData,
   toggleStarred,
   updateProfile,
+  follow,
+  unfollow,
   addToCart,
   removeFromCart,
   checkoutCart,
@@ -149,7 +151,25 @@ const useAppStore = create<AppState>(set => ({
   updateProfileData: async (newName: string) => {
     const user = useAuthStore.getState().user;
     if (!user?.uid) return;
-    updateProfile(user.uid, newName);
+    updateProfile(user.uid, newName).then(() => {
+      useAppStore.getState().setUserData();
+    });
+  },
+
+  updateFollow: (tUid: string) => {
+    const targetUser = useAppStore.getState().viewedProfile;
+    if (!targetUser?.uid) return;
+    follow(targetUser.uid).then(() => {
+      useAppStore.getState().setUserData();
+    });
+  },
+
+  updateUnfollow: (tUid: string) => {
+    const targetUser = useAppStore.getState().viewedProfile;
+    if (!targetUser?.uid) return;
+    unfollow(targetUser.uid).then(() => {
+      useAppStore.getState().setUserData();
+    });
   },
 
   setViewedProfile: async (uid: string) => {
