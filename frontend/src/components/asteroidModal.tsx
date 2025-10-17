@@ -2,7 +2,7 @@
 import AsteroidSVGMoving from './asteroidSVGMoving';
 import Image from 'next/image';
 import { ShopAsteroid } from '@/store/AppModel';
-import { Star, ShoppingBasket, CalendarPlus, Eye } from 'lucide-react';
+import { Star, ShoppingBasket, CalendarPlus, Eye, Trash2 } from 'lucide-react';
 import {
   useAsteroidModalViewModel,
   useAppStore,
@@ -29,15 +29,16 @@ export default function AsteroidModal({
     }
   };
 
-  const addToCart = useAppStore(state => state.addToCart);
+  const { userData, addToCart, removeFromCart } = useAppStore();
 
   const handleAddToCart = () => {
-    addToCart(asteroid);
-    onClose(); // optional: close modal after adding
+    addToCart(asteroid.id);
   };
 
-  const { userData } = useAppStore();
-  const user_owned_asteroids = userData?.owned_asteroids.map(a => a.id);
+  const handleRemoveFromCart = () => {
+    removeFromCart(asteroid.id);
+  };
+
   console.log('asteroidModal.tsx file : ', asteroid);
 
   return (
@@ -106,10 +107,20 @@ export default function AsteroidModal({
             <p className="bg-gradient-to-r bg-gray-400 text-white px-6 py-2 rounded shadow text-center m-1 my-2 w-full md:w-auto">
               Owned by {asteroid.owner.name}
             </p>
-          ) : user_owned_asteroids?.find(a => a === asteroid.id) ? (
+          ) : userData?.owned_asteroids.some(a => a.id === asteroid.id) ? (
             <p className="bg-gradient-to-r bg-gray-400 text-white px-6 py-2 rounded shadow text-center m-1 my-2 w-full md:w-auto">
               Already Purchased 🪐 {asteroid.name}
             </p>
+          ) : userData?.cart_asteroids.some(a => a.id === asteroid.id) ? (
+            <div>
+              <button
+                onClick={handleRemoveFromCart}
+                className="bg-gradient-to-r from-red-600 via-red-700 to-red-800 text-white px-6 py-2 rounded shadow hover:scale-105 hover:shadow-xl transition cursor-pointer text-center m-1 my-2 w-full md:w-auto"
+              >
+                <Trash2 className="inline-block mr-2 mb-1" size={22} />
+                Remove from Basket
+              </button>
+            </div>
           ) : (
             <div>
               <button

@@ -10,7 +10,8 @@ import { useEffect } from 'react';
 
 export default function Profile() {
   const { user } = useAuthStore();
-  const { userData, viewedProfile, setUserData, loading, setViewedProfile, updateFollow, updateUnfollow} = useAppStore();
+  const { userData, viewedProfile, setUserData, loading, setViewedProfile , updateFollow, updateUnfollow} =
+    useAppStore();
   const router = useRouter();
 
   const isFollowing = userData?.following.some( // check if you are already following someone
@@ -23,7 +24,7 @@ export default function Profile() {
     if (user?.uid) {
       setUserData();
     }
-    setViewedProfile("kQFpp5VtxSUAHeVP3We5yGZp5mp1"); // temporary line to access another users page
+    // setViewedProfile("kQFpp5VtxSUAHeVP3We5yGZp5mp1"); // temporary line to access another users page
   }, [setUserData, user]);
 
   // Determine which profile to display

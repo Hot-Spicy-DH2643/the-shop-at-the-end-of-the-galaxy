@@ -18,7 +18,9 @@ import {
   toggleStarred,
   updateProfile,
   follow,
-  unfollow
+  unfollow,
+  addToCart,
+  removeFromCart,
 } from './AppModel';
 import { useAsteroidViewers } from '@/hooks/useAsteroidViewers';
 import { useAuthStore } from './useAuthViewModel';
@@ -29,17 +31,54 @@ const useAppStore = create<AppState>(set => ({
   error: null,
   userData: null,
   asteroids: [],
-  selectedAsteroidId: null,
+  selectedAsteroid: null,
   currentPage: 1,
   totalPages: 0,
   totalCount: 0,
   cart: [],
-  addToCart: asteroid => set(state => ({ cart: [...state.cart, asteroid] })),
-  removeFromCart: id =>
-    set(state => ({ cart: state.cart.filter(a => a.id !== id) })),
+  addToCart: async asteroid_id => {
+    addToCart(asteroid_id).then(success => {
+      if (success) {
+        console.log('Successfully added to cart:', asteroid_id);
+      } else {
+        console.log('Failed to add to cart:', asteroid_id);
+      }
+      useAppStore.getState().setUserData();
+    });
+  },
+  removeFromCart: async asteroid_id => {
+    removeFromCart(asteroid_id).then(success => {
+      if (success) {
+        console.log('Successfully removed from cart:', asteroid_id);
+      } else {
+        console.log('Failed to remove from cart:', asteroid_id);
+      }
+      useAppStore.getState().setUserData();
+    });
+  },
   clearCart: () => set({ cart: [] }),
   viewedProfile: null,
-  setSelectedAsteroidId: (id: string | null) => set({ selectedAsteroidId: id }),
+  setSelectedAsteroid: async (id: string | null) => {
+    if (id) {
+      try {
+        // Fetch full asteroid data when an ID is selected
+        const asteroidData = await fetchAsteroidById(id);
+        set({
+          selectedAsteroid: asteroidData,
+        });
+      } catch (error) {
+        console.error('Error fetching selected asteroid:', error);
+        set({
+          selectedAsteroid: null,
+        });
+      }
+    } else {
+      // Clear selected asteroid when no ID is provided
+      set({
+        selectedAsteroid: null,
+      });
+    }
+  },
   setLoading: (loading: boolean) => set({ loading }),
   setError: (error: string | null) => set({ error }),
   setAsteroids: async (page: number = 1, filters?: BackendFilters) => {
@@ -47,7 +86,6 @@ const useAppStore = create<AppState>(set => ({
       set({ loading: true, error: null });
       // Fetch asteroids from GraphQL backend with pagination
       // Price and size are now calculated server-side
-      console.log(filters);
       const result = await fetchAsteroids(page, DEFAULT_PAGE_SIZE, filters);
       set({
         asteroids: result.asteroids,
@@ -88,7 +126,7 @@ const useAppStore = create<AppState>(set => ({
     }
   },
 
-  updateProfileData: async (newName: string) =>{
+  updateProfileData: async (newName: string) => {
     const user = useAuthStore.getState().user;
     if (!user?.uid) return;
     updateProfile(user.uid, newName);
@@ -129,6 +167,9 @@ const useAppStore = create<AppState>(set => ({
 // =========================
 //  CUSTOM HOOKS
 
+{
+  /* Sorting */
+}
 export function useSortedAsteroids(
   sortBy: SortOption = 'None', // sorting criteria (e.g., 'price-asc', 'size-desc', etc.)
   limit?: number // limit to return only the first N asteroids
@@ -146,14 +187,14 @@ export function useAsteroidsSortedByClosestApproach(limit?: number) {
 // =========================
 //  EVENT HANDLERS
 
-export function onHandleProductClick(id: string) {
+export async function onHandleProductClick(id: string) {
   // open the product modal component with detailed info
-  useAppStore.getState().setSelectedAsteroidId(id);
+  await useAppStore.getState().setSelectedAsteroid(id);
 }
 
 export function onHandleStarred(asteroid_id: string) {
   // Add the asteroid to the user's starred list (if logged in)
-  const { userData, setUserData } = useAppStore.getState();
+  const { setUserData } = useAppStore.getState();
   const currentUser = useAuthStore.getState().user;
   const userId = currentUser?.uid;
 
@@ -171,8 +212,6 @@ export function onHandleStarred(asteroid_id: string) {
     }
   });
 }
-
-
 
 // =========================
 //  ASTEROID MODAL VIEWMODEL

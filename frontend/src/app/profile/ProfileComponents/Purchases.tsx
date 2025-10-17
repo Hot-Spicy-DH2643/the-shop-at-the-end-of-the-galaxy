@@ -1,7 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import type { ShopAsteroid, UserData } from '@/store/AppModel';
-import { useAuthStore } from '@/store/useAuthViewModel';
+import type { UserData } from '@/store/AppModel';
 import {
   useAppStore,
   onHandleProductClick,
@@ -10,6 +9,7 @@ import {
 
 import AsteroidSVGMoving from '@/components/asteroidSVGMoving';
 import AsteroidModal from '@/components/asteroidModal';
+import { Star } from 'lucide-react';
 
 interface PurchasesProps {
   profileData: UserData | null;
@@ -20,18 +20,13 @@ export default function Purchases({
   profileData,
   isOwnProfile,
 }: PurchasesProps) {
-  const { user: firebaseUser } = useAuthStore();
-
   // const owned_asteroid_ids = []; // For testing no purchases
   const owned_asteroids = profileData?.owned_asteroids;
   const starred_asteroids = profileData?.starred_asteroids;
 
   const [zeroPurchaseId, setZeroPurchaseId] = useState<string>('0000000');
 
-  const { asteroids, setAsteroids } = useAppStore();
-
-  const selectedAsteroidId = useAppStore(state => state.selectedAsteroidId);
-  const selectedAsteroid = asteroids.find(a => a.id === selectedAsteroidId);
+  const { selectedAsteroid } = useAppStore();
 
   useEffect(() => {
     if (owned_asteroids?.length === 0) {
@@ -39,9 +34,6 @@ export default function Purchases({
         .toString()
         .padStart(7, '0');
       setZeroPurchaseId(id);
-    }
-    if (asteroids.length === 0) {
-      setAsteroids();
     }
   }, []);
 
@@ -94,18 +86,32 @@ export default function Purchases({
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2">
-        {owned_asteroids?.map((asteroid, idx) => (
+        {owned_asteroids?.map(asteroid => (
           <div
             key={asteroid.id}
             className="relative rounded bg-[rgba(23,23,23,0.7)]1 shadow text-center cursor-pointer"
           >
             <div className="p-6">
+              {starred_asteroids?.some(a => a.id === asteroid.id) ? (
+                <button
+                  onClick={() => onHandleStarred(asteroid.id)}
+                  className="p-1 absolute top-1 right-2 z-10 cursor-pointer"
+                >
+                  <Star
+                    className="transition duration-300 text-yellow-300"
+                    fill="yellow"
+                  />
+                </button>
+              ) : (
+                <button
+                  onClick={() => onHandleStarred(asteroid.id)}
+                  className="p-1 absolute top-1 right-2 z-10 cursor-pointer"
+                >
+                  <Star className="hover:scale-[1.08] transition duration-300 text-white" />
+                </button>
+              )}
               <div className="flex flex-col text-sm justify-center items-center hover:scale-[1.08] transition duration-300">
-                <AsteroidSVGMoving
-                  id={`${asteroid.id}-${idx}`}
-                  size={100}
-                  bgsize={160}
-                />
+                <AsteroidSVGMoving id={asteroid.id} size={100} bgsize={160} />
 
                 <p className="font-bold font-sm mt-4">{asteroid.name}</p>
                 <p>
@@ -127,10 +133,10 @@ export default function Purchases({
         ))}
       </div>
 
-      {selectedAsteroidId && selectedAsteroid && (
+      {selectedAsteroid && (
         <AsteroidModal
           asteroid={selectedAsteroid}
-          onClose={() => useAppStore.getState().setSelectedAsteroidId(null)}
+          onClose={() => useAppStore.getState().setSelectedAsteroid(null)}
           onHandleStarred={() => onHandleStarred(selectedAsteroid.id)}
         />
       )}

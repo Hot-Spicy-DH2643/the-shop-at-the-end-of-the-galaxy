@@ -93,23 +93,15 @@ type Friend = {
   name: string;
 };
 
-type UserAsteriod = {
-  id: string;
-  name: string;
-  is_potentially_hazardous_asteroid: boolean;
-  price: number;
-  size: number;
-};
-
 export type UserData = {
   uid: string;
   name: string;
   coins: number;
-  owned_asteroids: UserAsteriod[];
-  starred_asteroids: UserAsteriod[];
+  owned_asteroids: ShopAsteroid[];
+  starred_asteroids: ShopAsteroid[];
   followers: Friend[];
   following: Friend[];
-  cart_asteroids: UserAsteriod[];
+  cart_asteroids: ShopAsteroid[];
 };
 
 export type AppState = {
@@ -118,7 +110,7 @@ export type AppState = {
   asteroids: ShopAsteroid[];
   loading: boolean;
   error: string | null;
-  selectedAsteroidId: string | null;
+  selectedAsteroid: ShopAsteroid | null;
   // Pagination state
   currentPage: number;
   totalPages: number;
@@ -126,14 +118,14 @@ export type AppState = {
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   setAsteroids: (page?: number, filters?: BackendFilters) => Promise<void>;
-  setSelectedAsteroidId: (id: string | null) => void;
+  setSelectedAsteroid: (id: string | null) => Promise<void>;
   setUserData: () => Promise<void>;
   updateProfileData: (newName: string) => void;
   updateFollow: (tUid: string) => void;
   updateUnfollow: (tUid: string) => void;
   cart: ShopAsteroid[];
-  addToCart: (asteroid: ShopAsteroid) => void;
-  removeFromCart: (id: string) => void;
+  addToCart: (asteroid_id: string) => void;
+  removeFromCart: (asteroid_id: string) => void;
   clearCart: () => void;
   setViewedProfile: (uid: string) => Promise<void>;
 };
@@ -502,7 +494,7 @@ export async function fetchUserData(uid: string): Promise<UserData | null> {
       fetchPolicy: 'network-only',
     });
 
-    if (!data || !data.user) {
+    if (!data) {
       console.error('No data returned from GraphQL query');
       return null;
     }
@@ -513,22 +505,21 @@ export async function fetchUserData(uid: string): Promise<UserData | null> {
   }
 }
 
-export async function updateProfile(uid: string, newName: String) {
-    try {
-      // Update backend via GraphQL
-      await client.mutate({
-        mutation: UPDATE_USER_NAME,
-        variables: {
-          uid: uid,
-          name: newName,
-        },
-      });
-
-    } catch (error) {
-      console.error('Error updating user name in backend:', error);
-      throw error;
-    }
-  };
+export async function updateProfile(uid: string, newName: string) {
+  try {
+    // Update backend via GraphQL
+    await client.mutate({
+      mutation: UPDATE_USER_NAME,
+      variables: {
+        uid: uid,
+        name: newName,
+      },
+    });
+  } catch (error) {
+    console.error('Error updating user name in backend:', error);
+    throw error;
+  }
+}
 
   export async function follow(tUid: string) {
     try {
@@ -544,7 +535,7 @@ export async function updateProfile(uid: string, newName: String) {
     }
   };
 
-  export async function unfollow(tUid: string) {
+  export async function unfollow(tUid: string) { 
     try {
       await client.mutate({
         mutation: UNFOLLOW_USER,
@@ -659,6 +650,70 @@ export function sortAsteroids(
   });
 
   return limit ? sorted.slice(0, limit) : sorted;
+}
+
+{
+  /* Filter */
+}
+
+export type FilterState = {
+  hazardous: 'all' | 'hazardous' | 'non-hazardous';
+  sizeRange: [number, number]; // in whatever scale your Slider uses
+  distanceRange: [number, number]; // same idea
+  orbitType: string[]; // e.g. ['APO', 'AMO']
+  sort: SortOption;
+};
+
+export function filterAsteroids(
+  asteroids: ShopAsteroid[],
+  filters: FilterState
+): ShopAsteroid[] {
+  return asteroids.filter(a => {
+    // ---------------------------
+    // Hazard filter
+    if (
+      filters.hazardous &&
+      filters.hazardous.length > 0 &&
+      !filters.hazardous.includes('all')
+    ) {
+      const hazardType = a.is_potentially_hazardous_asteroid
+        ? 'hazardous'
+        : 'non-hazardous';
+      if (!filters.hazardous.includes(hazardType)) return false;
+    }
+
+    // ---------------------------
+    // Orbit type filter
+    /*if (filters.orbitType && filters.orbitType.length > 0 && !filters.orbitType.includes('all')) {
+      const orbitClassType = a.orbital_data?.orbit_class?.orbit_class_type ?? '';
+      if (!filters.orbitType.includes(orbitClassType)) return false;
+    }*/
+
+    // ---------------------------
+    // Size filter
+    /*if (filters.sizeRange) {
+      const [minSize, maxSize] = filters.sizeRange;
+      if (a.size < minSize || a.size > maxSize) return false;
+    }*/
+
+    // ---------------------------
+    // Distance filter (by closest approach distance)
+    /*if (filters.distanceRange) {
+      const [minDist, maxDist] = filters.distanceRange;
+      const closestDist = getClosestApproachDistance(a);
+      if (closestDist < minDist || closestDist > maxDist) return false;
+    }*/
+
+    return true; // passes all filters
+  });
+}
+
+export function filterAndSortAsteroids(
+  asteroids: ShopAsteroid[],
+  filters: FilterState
+): ShopAsteroid[] {
+  const filtered = filterAsteroids(asteroids, filters);
+  return sortAsteroids(filtered, filters.sort ?? 'None');
 }
 
 // ============================================
@@ -806,4 +861,52 @@ export function toggleStarred(asteroid_id: string) {
     `,
     variables: { asteroidId: asteroid_id },
   });
+}
+
+const ADD_TO_CART = gql`
+  mutation AddToCart($asteroidId: String!) {
+    addToCart(asteroidId: $asteroidId)
+  }
+`;
+
+export function addToCart(asteroid_id: string): Promise<boolean> {
+  // call the backend using graphql mutation to add to cart
+  console.log('Adding to cart:', asteroid_id);
+  return client
+    .mutate({
+      mutation: ADD_TO_CART,
+      variables: { asteroidId: asteroid_id },
+    })
+    .then(response => {
+      console.log('Add to cart response:', response);
+      return true;
+    })
+    .catch(error => {
+      console.error('Error adding to cart:', error);
+      return false;
+    });
+}
+
+const REMOVE_FROM_CART = gql`
+  mutation removeFromCart($asteroidId: String!) {
+    removeFromCart(asteroidId: $asteroidId)
+  }
+`;
+
+export function removeFromCart(asteroid_id: string): Promise<boolean> {
+  // call the backend using graphql mutation to remove from cart
+  console.log('Removing from cart:', asteroid_id);
+  return client
+    .mutate({
+      mutation: REMOVE_FROM_CART,
+      variables: { asteroidId: asteroid_id },
+    })
+    .then(response => {
+      console.log('Remove from cart response:', response);
+      return true;
+    })
+    .catch(error => {
+      console.error('Error removing from cart:', error);
+      return false;
+    });
 }

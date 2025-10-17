@@ -1,0 +1,89 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - release # Change this to your protected branch name
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Clean workspace
+        run: |
+          echo "Cleaning workspace..."
+          # Stop any running containers first
+          docker compose -f docker-compose.caddy.yaml down -v 2>/dev/null || true
+          # Clean node_modules, .next, and pnpm store with proper permissions
+          sudo rm -rf backend/node_modules frontend/node_modules frontend/.next frontend/.pnpm-store 2>/dev/null || true
+          # Alternative: Use Docker to clean files with proper permissions
+          docker run --rm -v "$PWD":/workspace alpine sh -c "rm -rf /workspace/backend/node_modules /workspace/frontend/node_modules /workspace/frontend/.next /workspace/frontend/.pnpm-store" 2>/dev/null || true
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up environment files
+        run: |
+          # Copy .env files from the runner's secure location
+          if [ -f "$HOME/.github-secrets/the-shop-at-the-end-of-the-galaxy/backend/.env" ]; then
+            cp "$HOME/.github-secrets/the-shop-at-the-end-of-the-galaxy/backend/.env" ./backend/.env
+            echo "✅ Backend .env file copied"
+          else
+            echo "⚠️  Backend .env file not found, using defaults"
+          fi
+
+          if [ -f "$HOME/.github-secrets/the-shop-at-the-end-of-the-galaxy/frontend/.env.local" ]; then
+            cp "$HOME/.github-secrets/the-shop-at-the-end-of-the-galaxy/frontend/.env.local" ./frontend/.env.local
+            echo "✅ Frontend .env.local file copied"
+          else
+            echo "⚠️  Frontend .env.local file not found, using defaults"
+          fi
+
+      - name: Stop existing containers
+        run: |
+          echo "Stopping existing containers..."
+          docker compose -f docker-compose.caddy.yaml down -v || true
+
+      - name: Deploy Application with Caddy
+        run: |
+          echo "Building and starting application with Caddy reverse proxy..."
+          docker compose -f docker-compose.caddy.yaml up -d --build
+
+      - name: Wait for services to be ready
+        run: |
+          echo "Waiting for services to start..."
+          sleep 20
+          echo "Checking Caddy proxy..."
+          curl -f http://localhost || echo "Caddy is still starting..."
+          echo "Checking backend through Caddy..."
+          curl -f http://localhost/graphql || echo "Backend is still starting..."
+
+      - name: Show running containers
+        run: docker compose -f docker-compose.caddy.yaml ps
+
+      - name: Show Caddy logs (last 20 lines)
+        if: always()
+        run: docker compose -f docker-compose.caddy.yaml logs --tail=20 caddy
+
+      - name: Deployment Complete
+        run: |
+          echo "✅ Deployment completed successfully!"
+          echo ""
+          echo "🌐 Your application is now accessible at:"
+          echo "   Main Site: https://the-shop-at-the-end-of-the-galaxy.lambozhuang.me"
+          echo "   GraphQL API: https://the-shop-at-the-end-of-the-galaxy.lambozhuang.me/graphql"
+          echo "   Backend API: https://the-shop-at-the-end-of-the-galaxy.lambozhuang.me/api"
+          echo ""
+          echo "📊 To view logs:"
+          echo "   All services: docker compose -f docker-compose.caddy.yaml logs -f"
+          echo "   Caddy only: docker compose -f docker-compose.caddy.yaml logs -f caddy"
+          echo "   Backend only: docker compose -f docker-compose.caddy.yaml logs -f backend"
+          echo "   Frontend only: docker compose -f docker-compose.caddy.yaml logs -f frontend"
+
+      - name: Cleanup on failure
+        if: failure()
+        run: |
+          echo "Cleaning up after failure..."
+          docker compose -f docker-compose.caddy.yaml down -v || true
+          docker compose -f docker-compose.caddy.yaml logs --tail=50 || true

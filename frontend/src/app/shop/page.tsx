@@ -67,11 +67,13 @@ export default function Shop() {
   // Get state and actions from Zustand store
   const {
     loading,
-    setAsteroids,
     asteroids,
+    setAsteroids,
+    setUserData,
     currentPage,
     totalPages,
     totalCount,
+    selectedAsteroid,
   } = useAppStore();
 
   const INITIAL_FILTERS: UIFilters = {
@@ -92,16 +94,14 @@ export default function Shop() {
     setFilter(INITIAL_FILTERS);
   };
 
-  const selectedAsteroidId = useAppStore(state => state.selectedAsteroidId);
-  const selectedAsteroid = asteroids.find(a => a.id === selectedAsteroidId);
-
   console.log('Current filter state:', filter);
 
   // Fetch asteroids on mount
   useEffect(() => {
     const backendFilters = convertUIFiltersToBackend(filter);
     setAsteroids(1, backendFilters);
-  }, [filter, setAsteroids]);
+    setUserData();
+  }, [filter, setAsteroids, setUserData]);
 
   // Handler for page changes
   const handlePageChange = (newPage: number) => {
@@ -427,10 +427,10 @@ export default function Shop() {
         </div>
       </section>
 
-      {selectedAsteroidId && selectedAsteroid && (
+      {selectedAsteroid && (
         <AsteroidModal
           asteroid={selectedAsteroid}
-          onClose={() => useAppStore.getState().setSelectedAsteroidId(null)}
+          onClose={() => useAppStore.getState().setSelectedAsteroid(null)}
           onHandleStarred={() => onHandleStarred(selectedAsteroid.id)}
         />
       )}

@@ -6,20 +6,35 @@ import AsteroidSVGMoving from '@/components/asteroidSVGMoving';
 import Image from 'next/image';
 import Navbar from '@/components/navbar';
 import { useAppStore } from '@/store/useAppViewModel';
+import Link from 'next/link';
+import CartItem from '@/components/cartItem';
+import { useEffect } from 'react';
+import CheckoutItem from '@/components/checkoutItem';
+import CheckoutAlert from '@/components/checkoutAlert';
 
 //TODO: Right now hardcoded with fake data. Just to be able to style it.
 // I am gonna work on the functionality
 
 export default function Checkout() {
-  const cart = useAppStore(state => state.cart);
-  const clearCart = useAppStore(state => state.clearCart);
+  const { userData, setUserData, clearCart } = useAppStore();
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
 
+  useEffect(() => {
+    setUserData();
+  }, [setUserData]);
+
+  const cart = userData?.cart_asteroids || [];
   const total = cart.reduce((sum, item) => sum + item.price, 0);
 
   const handleConfirm = () => {
+    if ((userData?.coins ?? 0) < total) {
+      setAlertMessage("You don't have enough coins to complete this purchase!");
+      return;
+    }
+
     setIsProcessing(true);
     setTimeout(() => {
       setIsProcessing(false);
@@ -36,13 +51,15 @@ export default function Checkout() {
           <p className="text-white-300 mb-6">
             Your new asteroids are now orbiting in your galaxy
           </p>
-          <button
-            //Need to navigate back to shop
-            onClick={() => setIsSuccess(false)}
-            className="px-6 py-3 rounded-xl transition text-lg font-semibold bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700 cursor-pointer hover:scale-102 hover:shadow-[0_0_20px_4px_rgba(236,72,255,0.6)] hover:brightness-110"
-          >
-            Back to Shop
-          </button>
+
+          <Link href="/shop">
+            <button
+              className="w-full mt-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 transition-all py-3 rounded-lg font-semibold text-white"
+              onClick={() => setIsSuccess(false)}
+            >
+              Back to Shop
+            </button>
+          </Link>
         </div>
       </div>
     );
@@ -52,37 +69,10 @@ export default function Checkout() {
     <div className="galaxy-bg-space min-h-screen text-white flex flex-col items-center gap-12">
       <Navbar />
       <div className="w-full max-w-3xl space-y-6">
-        <h2 className="text-3xl font-bold text-center mb-8">Your cart:</h2>
+        <h2 className="text-4xl text-center mb-8 font-modak">YOUR CART</h2>
 
         {/* Items in cart */}
-        <div className="space-y-4">
-          {cart.map(item => (
-            <div
-              key={item.id}
-              className="flex items-center gap-6 bg-gray-900/60 border border-fuchsia-700 rounded-2xl p-4 shadow-md"
-            >
-              <div className="w-16 h-16 flex items-center justify-center">
-                <AsteroidSVGMoving id={item.id} size={70} bgsize={70} />
-              </div>
-
-              <div className="flex-1">
-                <h3 className="text-lg font-semibold">{item.name}</h3>
-                <p className="text-gray-400 text-sm">ID: {item.id}</p>
-              </div>
-
-              <div className="text-right text-xl font-semibold">
-                <Image
-                  src="/cosmocoin-tiny.png"
-                  alt="coin icon"
-                  className="inline-block mr-1"
-                  width={18}
-                  height={18}
-                />
-                {item.price}
-              </div>
-            </div>
-          ))}
-        </div>
+        <CheckoutItem cart={cart} />
 
         {/* Total Summary */}
         <div className="bg-gray-900/80 border border-fuchsia-700 rounded-2xl p-6 mt-8 shadow-xl text-center">
@@ -99,6 +89,21 @@ export default function Checkout() {
               {total}
             </span>
           </div>
+          {/* User Balance */}
+          <div className="flex justify-between mb-4 text-lg text-gray-400">
+            <span>Your Balance:</span>
+            <span className="flex items-center gap-1">
+              <Image
+                src="/cosmocoin-tiny.png"
+                alt="coin icon"
+                className="inline-block"
+                width={16}
+                height={16}
+              />
+              {userData?.coins ?? 0}
+            </span>
+          </div>
+
           <button
             onClick={handleConfirm}
             disabled={isProcessing}
@@ -112,12 +117,19 @@ export default function Checkout() {
           >
             {isProcessing ? 'Processing...' : 'Confirm Purchase'}
           </button>
+
+          {alertMessage && (
+            <CheckoutAlert
+              message={alertMessage}
+              onClose={() => setAlertMessage(null)}
+            />
+          )}
         </div>
       </div>
       {/* Explore More Section, right now hardcoded*/}
 
       <div className="w-full max-w-4xl mt-12 text-center">
-        <h2 className="text-2xl font-bold mb-6 text-white/90">
+        <h2 className="text-2xl mb-6 text-white/90 font-modak">
           Wanna look for more?
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
