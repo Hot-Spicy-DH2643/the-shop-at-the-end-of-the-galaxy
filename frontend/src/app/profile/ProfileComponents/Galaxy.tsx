@@ -11,7 +11,7 @@ const BASE_CONTAINER_SIZE = 600;
 const ORBITAL_CENTER_X = -50; // pixels from left - ADJUST THIS to move Earth horizontally
 const ORBITAL_CENTER_Y = 100; // pixels from top - ADJUST THIS to move Earth vertically
 const ORBITAL_BAND_INNER = 400; // inner radius of the orbital band
-const ORBITAL_BAND_OUTER = 550; // outer radius of the orbital band
+const ORBITAL_BAND_OUTER = 650; // outer radius of the orbital band
 const ASTEROID_SIZE = 80; // Increased from 60 to 80
 const ACCELERATION_DURATION = 10; // seconds to reach full speed after drag release
 
