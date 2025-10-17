@@ -10,8 +10,14 @@ import { useEffect } from 'react';
 
 export default function Profile() {
   const { user } = useAuthStore();
-  const { userData, viewedProfile, setUserData, loading, setViewedProfile } =
-    useAppStore();
+  const {
+    userData,
+    viewedProfile,
+    setUserData,
+    userLoading,
+    setViewedProfile,
+    updateFollow, 
+    updateUnfollow} = useAppStore();
   const router = useRouter();
 
   // Fetch user data on mount
@@ -20,14 +26,14 @@ export default function Profile() {
     if (user?.uid) {
       setUserData();
     }
-    // setViewedProfile("kQFpp5VtxSUAHeVP3We5yGZp5mp1"); // temporary line to access another users page
+    setViewedProfile("kQFpp5VtxSUAHeVP3We5yGZp5mp1"); // temporary line to access another users page
   }, [setUserData, user]);
 
   // Determine which profile to display
   const profileData = viewedProfile || userData;
   const isOwnProfile = !viewedProfile;
 
-  if (!user || loading || !profileData) {
+  if (!user || userLoading || !profileData) {
     return (
       <div className="galaxy-bg-space min-h-screen">
         <Navbar />
@@ -37,6 +43,23 @@ export default function Profile() {
       </div>
     );
   }
+
+  const isFollowing = userData?.following.some( // check if you are already following someone
+    (friend) => friend.uid === profileData?.uid
+    );
+
+  const handleFollowClick = async () => {
+    try {
+      if (isFollowing) {
+        console.log("page.tsx, in hereee");
+        await updateUnfollow(profileData.uid);
+      } else {
+        await updateFollow(profileData.uid);
+      }
+    } catch (err) {
+      console.error('Error updating follow status:', err);
+    }
+  };
 
   return (
     <div className="galaxy-bg-space min-h-screen">
@@ -88,8 +111,8 @@ export default function Profile() {
 
                 {/* Follow/Unfollow button */}
                 {!isOwnProfile && (
-                  <button className="inline-block bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700 text-white px-8 rounded shadow hover:scale-105 hover:shadow-xl transition cursor-pointer text-center">
-                    Follow
+                  <button onClick={handleFollowClick} className="inline-block bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700 text-white px-8 rounded shadow hover:scale-105 hover:shadow-xl transition cursor-pointer text-center">
+                    {isFollowing? "Unfollow" : "Follow"}
                   </button>
                 )}
               </div>

@@ -1,0 +1,8 @@
+{
+  "watch": ["src"],
+  "ext": "js,json,graphql",
+  "ignore": ["node_modules", "*.test.js"],
+  "legacyWatch": true,
+  "verbose": false,
+  "delay": 1000
+}

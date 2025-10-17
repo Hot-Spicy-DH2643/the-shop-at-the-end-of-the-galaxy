@@ -23,8 +23,6 @@ export default function User({ profileData, isOwnProfile }: UserProps) {
   const { updateProfileData, selectedAsteroid } = useAppStore();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-  const [isFollowing, setIsFollowing] = useState(false); //initialize this from backend
-
   const [zeroFavAsteroidId, setZeroFavAsteroidId] = useState<string>('0000000');
 
   useEffect(() => {

@@ -17,8 +17,11 @@ import {
   UserData,
   toggleStarred,
   updateProfile,
+  follow,
+  unfollow,
   addToCart,
   removeFromCart,
+  checkoutCart,
 } from './AppModel';
 import { useAsteroidViewers } from '@/hooks/useAsteroidViewers';
 import { useAuthStore } from './useAuthViewModel';
@@ -28,6 +31,7 @@ const useAppStore = create<AppState>(set => ({
   loading: false,
   error: null,
   userData: null,
+  userLoading: false,
   asteroids: [],
   selectedAsteroid: null,
   currentPage: 1,
@@ -54,7 +58,27 @@ const useAppStore = create<AppState>(set => ({
       useAppStore.getState().setUserData();
     });
   },
-  clearCart: () => set({ cart: [] }),
+  checkoutLoading: false,
+  checkout: async () => {
+    set({ checkoutLoading: true });
+    return checkoutCart()
+      .then(success => {
+        if (success) {
+          console.log('Checkout successful');
+        } else {
+          console.log('Checkout failed');
+        }
+        set({ checkoutLoading: false });
+        useAppStore.getState().setUserData();
+        return true;
+      })
+      .catch(error => {
+        console.error('Checkout error:', error);
+        set({ checkoutLoading: false });
+        return false;
+      });
+  },
+  // clearCart: () => set({ cart: [] }),
   viewedProfile: null,
   setSelectedAsteroid: async (id: string | null) => {
     if (id) {
@@ -103,23 +127,23 @@ const useAppStore = create<AppState>(set => ({
 
   setUserData: async () => {
     try {
-      set({ loading: true, error: null });
+      set({ userLoading: true, error: null });
       const currentUser = useAuthStore.getState().user;
       const userId = currentUser?.uid;
 
       if (!userId) {
-        set({ error: 'No authenticated user', loading: false });
+        set({ error: 'No authenticated user', userLoading: false });
         return;
       }
 
       const userData = await fetchUserData(userId);
       if (userData) {
-        set({ userData, loading: false });
+        set({ userData, userLoading: false });
       }
     } catch (error) {
       set({
         error: error instanceof Error ? error.message : 'Failed to fetch user',
-        loading: false,
+        userLoading: false,
       });
     }
   },
@@ -127,7 +151,25 @@ const useAppStore = create<AppState>(set => ({
   updateProfileData: async (newName: string) => {
     const user = useAuthStore.getState().user;
     if (!user?.uid) return;
-    updateProfile(user.uid, newName);
+    updateProfile(user.uid, newName).then(() => {
+      useAppStore.getState().setUserData();
+    });
+  },
+
+  updateFollow: (tUid: string) => {
+    const targetUser = useAppStore.getState().viewedProfile;
+    if (!targetUser?.uid) return;
+    follow(targetUser.uid).then(() => {
+      useAppStore.getState().setUserData();
+    });
+  },
+
+  updateUnfollow: (tUid: string) => {
+    const targetUser = useAppStore.getState().viewedProfile;
+    if (!targetUser?.uid) return;
+    unfollow(targetUser.uid).then(() => {
+      useAppStore.getState().setUserData();
+    });
   },
 
   setViewedProfile: async (uid: string) => {

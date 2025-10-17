@@ -39,7 +39,8 @@ export default function AsteroidModal({
     removeFromCart(asteroid.id);
   };
 
-  console.log('asteroidModal.tsx file : ', asteroid);
+  // console.log('asteroidModal.tsx file : ', asteroid);
+  // console.log('owner info: ', asteroid.owner);
 
   return (
     <div
@@ -48,7 +49,7 @@ export default function AsteroidModal({
     >
       <div className="relative w-[90vw] max-w-xl m-2 bg-black p-4 rounded-lg shadow-2xl">
         <button
-          className="absolute top-4 left-4 text-3xl text-gray-400 hover:text-white transition-colors"
+          className="absolute top-4 left-4 text-3xl text-gray-400 hover:text-white transition-colors cursor-pointer"
           aria-label="Close"
           onClick={onClose}
         >
@@ -109,7 +110,7 @@ export default function AsteroidModal({
             </p>
           ) : userData?.owned_asteroids.some(a => a.id === asteroid.id) ? (
             <p className="bg-gradient-to-r bg-gray-400 text-white px-6 py-2 rounded shadow text-center m-1 my-2 w-full md:w-auto">
-              Already Purchased 🪐 {asteroid.name}
+              Already Purchased
             </p>
           ) : userData?.cart_asteroids.some(a => a.id === asteroid.id) ? (
             <div>

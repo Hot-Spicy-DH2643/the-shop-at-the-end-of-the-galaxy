@@ -106,6 +106,7 @@ export type UserData = {
 
 export type AppState = {
   userData: UserData | null;
+  userLoading: boolean;
   viewedProfile: UserData | null;
   asteroids: ShopAsteroid[];
   loading: boolean;
@@ -121,11 +122,13 @@ export type AppState = {
   setSelectedAsteroid: (id: string | null) => Promise<void>;
   setUserData: () => Promise<void>;
   updateProfileData: (newName: string) => void;
-
+  updateFollow: (tUid: string) => void;
+  updateUnfollow: (tUid: string) => void;  checkoutLoading: boolean;
+  checkout: () => Promise<boolean>;
   cart: ShopAsteroid[];
   addToCart: (asteroid_id: string) => void;
   removeFromCart: (asteroid_id: string) => void;
-  clearCart: () => void;
+  // clearCart: () => void;
   setViewedProfile: (uid: string) => Promise<void>;
 };
 
@@ -377,6 +380,10 @@ const GET_ASTEROID_BY_ID = gql`
       }
       price
       size
+      owner {
+        uid
+        name
+      }
     }
   }
 `;
@@ -452,36 +459,14 @@ export const UPDATE_USER_NAME = gql`
 `;
 
 export const FOLLOW_USER = gql`
-  mutation FollowUser($followerUid: String!, $targetUid: String!) {
-    followUser(followerUid: $followerUid, targetUid: $targetUid) {
-      uid
-      name
-      followers {
-        uid
-        name
-      }
-      following {
-        uid
-        name
-      }
-    }
+  mutation FollowUser($targetUid: String!) {
+    followUser(targetUid: $targetUid)
   }
 `;
 
 export const UNFOLLOW_USER = gql`
-  mutation UnfollowUser($followerUid: String!, $targetUid: String!) {
-    unfollowUser(followerUid: $followerUid, targetUid: $targetUid) {
-      uid
-      name
-      followers {
-        uid
-        name
-      }
-      following {
-        uid
-        name
-      }
-    }
+  mutation UnfollowUser($targetUid: String!) {
+    unfollowUser(targetUid: $targetUid)
   }
 `;
 
@@ -519,6 +504,34 @@ export async function updateProfile(uid: string, newName: string) {
     throw error;
   }
 }
+
+  export async function follow(tUid: string) {
+    try {
+      await client.mutate({
+        mutation: FOLLOW_USER,
+        variables: {
+          targetUid: tUid
+        },
+      });
+    } catch (error) {
+      console.error('Error updating new followers in backend:', error);
+      throw error;
+    }
+  };
+
+  export async function unfollow(tUid: string) { 
+    try {
+      await client.mutate({
+        mutation: UNFOLLOW_USER,
+        variables: {
+          targetUid: tUid
+        },
+      });
+    } catch (error) {
+      console.error('Error removing followers in backend:', error);
+      throw error;
+    }
+  }
 
 // ============================================
 // SORTING FUNCTIONS - Pure Business Logic
@@ -878,6 +891,27 @@ export function removeFromCart(asteroid_id: string): Promise<boolean> {
     })
     .catch(error => {
       console.error('Error removing from cart:', error);
+      return false;
+    });
+}
+
+export function checkoutCart(): Promise<boolean> {
+  // call the backend using graphql mutation to checkout cart
+  console.log('Checking out cart');
+  return client
+    .mutate({
+      mutation: gql`
+        mutation CheckoutCart {
+          checkoutCart
+        }
+      `,
+    })
+    .then(response => {
+      console.log('Checkout cart response:', response);
+      return true;
+    })
+    .catch(error => {
+      console.error('Error checking out cart:', error);
       return false;
     });
 }

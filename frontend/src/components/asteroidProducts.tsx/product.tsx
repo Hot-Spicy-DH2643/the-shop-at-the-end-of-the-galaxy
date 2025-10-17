@@ -1,21 +1,21 @@
 import AsteroidSVG from '../asteroidSVG';
 import { ShopAsteroid } from '@/store/AppModel';
-import { useAppStore } from '@/store/useAppViewModel';
 import { Star } from 'lucide-react';
 import Image from 'next/image';
 
 interface ProductProps {
   asteroid: ShopAsteroid;
+  isStarred: boolean;
   onHandleProductClick: (id: string) => void;
   onHandleStarred: (id: string) => void;
 }
 
 export default function Product({
   asteroid,
+  isStarred,
   onHandleProductClick,
   onHandleStarred,
 }: ProductProps) {
-  const { userData } = useAppStore();
   return (
     <div className="relative">
       {/* Star button*/}
@@ -23,7 +23,7 @@ export default function Product({
         onClick={() => onHandleStarred(asteroid.id)}
         className="p-1 absolute top-1 right-2 z-10 cursor-pointer"
       >
-        {userData?.starred_asteroids.some(a => a.id === asteroid.id) ? (
+        {isStarred ? (
           <Star
             className="hover:scale-[1.08] transition duration-300 text-yellow-300"
             fill="yellow"
