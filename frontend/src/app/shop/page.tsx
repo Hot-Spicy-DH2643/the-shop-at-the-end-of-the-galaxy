@@ -90,6 +90,7 @@ export default function Shop() {
     sortBy: 'None',
   };
 
+  // TODO: This might be better put in the Zustand store
   const [filter, setFilter] = useState<UIFilters>(INITIAL_FILTERS);
 
   const resetFilters = () => {
@@ -103,7 +104,7 @@ export default function Shop() {
     const backendFilters = convertUIFiltersToBackend(filter);
     setAsteroids(1, backendFilters);
     // setUserData();
-  }, []);
+  }, [filter, setAsteroids]);
 
   // Handler for page changes
   const handlePageChange = (newPage: number) => {
