@@ -37,12 +37,44 @@ export default function Checkout() {
     if (!userData) return;
 
     const loadAsteroids = async () => {
-      const result = await fetchAsteroids(1, 20);
-      const allAsteroids = result.asteroids;
-      const ownedIds = new Set(userData.owned_asteroids.map(a => a.id));
-      const notOwned = allAsteroids.filter(a => !ownedIds.has(a.id));
-      const shuffled = notOwned.sort(() => 0.5 - Math.random());
-      setExploreAsteroids(shuffled.slice(0, 4));
+      const desiredCount = 4;
+      const pageSize = 20;
+      const cartIds = new Set(userData.cart_asteroids.map(a => a.id));
+      const available: Asteroid[] = [];
+      const seenIds = new Set<string>();
+      let page = 1;
+      let totalPages = Infinity;
+
+      // Maybe in the future we can have dedicated API endpoint for this to fetch random available asteroids directly
+      while (available.length < desiredCount && page <= totalPages) {
+        const result = await fetchAsteroids(page, pageSize);
+        const allAsteroids = result.asteroids;
+        totalPages = result.totalPages || 0;
+
+        for (const asteroid of allAsteroids) {
+          if (
+            !asteroid.owner &&
+            !cartIds.has(asteroid.id) &&
+            !seenIds.has(asteroid.id)
+          ) {
+            available.push(asteroid);
+            seenIds.add(asteroid.id);
+            if (available.length === desiredCount) break;
+          }
+        }
+
+        if (!allAsteroids.length || page >= totalPages) {
+          break;
+        }
+        page += 1;
+      }
+
+      for (let i = available.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [available[i], available[j]] = [available[j], available[i]];
+      }
+
+      setExploreAsteroids(available.slice(0, desiredCount));
     };
 
     loadAsteroids();
@@ -243,11 +275,7 @@ export default function Checkout() {
               className="bg-gray-900/50 border border-fuchsia-700 rounded-2xl p-4 hover:border-blue-500/50 transition cursor-pointer flex flex-col items-center"
               onClick={() => onHandleProductClick(asteroid.id)}
             >
-              <AsteroidSVGMoving
-                id={`extra-${asteroid.id}`}
-                size={60}
-                bgsize={70}
-              />
+              <AsteroidSVGMoving id={asteroid.id} size={60} bgsize={70} />
               <h4 className="mt-3 font-semibold">{asteroid.name}</h4>
               <p className="text-gray-400 text-sm mt-1">
                 <Image
