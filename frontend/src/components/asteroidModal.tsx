@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { Asteroid, getFormattedAsteroidData } from '@/store/AppModel';
 import { Star, ShoppingBasket, CalendarPlus, Eye, Trash2 } from 'lucide-react';
 import { useAppStore } from '@/store/useAppViewModel';
-import { X } from 'lucide-react';
+import { X, Orbit, Telescope} from 'lucide-react';
 import { useAsteroidViewers } from '@/hooks/useAsteroidViewers';
 
 interface modalProps {
@@ -182,33 +182,37 @@ export default function AsteroidModal({
 
         <div className="mb-6 text-sm font-bold mx-auto px-8 mt-2 items-center flex flex-col md:flex-row justify-center">
           {asteroid.owner ? (
-            <p className="bg-gradient-to-r bg-gray-400 text-white px-6 py-2 rounded shadow text-center m-1 my-2 w-full md:w-auto">
-              Owned by {asteroid.owner.name}
-            </p>
-          ) : userData?.owned_asteroids.some(a => a.id === asteroid.id) ? (
-            <p className="bg-gradient-to-r bg-gray-400 text-white px-6 py-2 rounded shadow text-center m-1 my-2 w-full md:w-auto">
-              Already Purchased
-            </p>
+            userData?.uid === asteroid.owner.uid ? (
+              // Owned by current user
+              <p className="bg-purple-500 text-white px-6 py-2 rounded shadow flex items-center justify-center space-x-2 text-center">
+                <Orbit className="inline-block" size={22} />
+                <span>Already in your orbit</span>
+              </p>
+            ) : (
+              // Owned by another user
+              <p className="bg-purple-500 text-white px-6 py-2 rounded shadow flex items-center justify-center space-x-2 text-center">
+                <Telescope className="inline-block" size={22} />
+                <span>in {asteroid.owner.name}'s orbit</span>
+              </p>
+            )
           ) : userData?.cart_asteroids.some(a => a.id === asteroid.id) ? (
-            <div>
-              <button
-                onClick={handleRemoveFromCart}
-                className="bg-gradient-to-r from-red-600 via-red-700 to-red-800 text-white px-6 py-2 rounded shadow hover:scale-105 hover:shadow-xl transition cursor-pointer text-center m-1 my-2 w-full md:w-auto"
-              >
-                <Trash2 className="inline-block mr-2 mb-1" size={22} />
-                Remove from Basket
-              </button>
-            </div>
+            // In cart
+            <button
+              onClick={handleRemoveFromCart}
+              className="bg-red-700 text-white px-6 py-2 rounded shadow hover:scale-105 hover:shadow-xl transition flex items-center justify-center space-x-2 w-full md:w-auto"
+            >
+              <Trash2 className="inline-block" size={22} />
+              <span>Remove from Basket</span>
+            </button>
           ) : (
-            <div>
-              <button
-                onClick={handleAddToCart}
-                className="bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700 text-white px-6 py-2 rounded shadow hover:scale-105 hover:shadow-xl transition cursor-pointer text-center m-1 my-2 w-full md:w-auto"
-              >
-                <ShoppingBasket className="inline-block mr-2 mb-1" size={22} />
-                Add to basket
-              </button>
-            </div>
+            // Not owned / not in cart
+            <button
+              onClick={handleAddToCart}
+              className="bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700 text-white px-6 py-2 rounded shadow hover:scale-105 hover:shadow-xl transition flex items-center justify-center space-x-2 w-full md:w-auto"
+            >
+              <ShoppingBasket className="inline-block" size={22} />
+              <span>Add to basket</span>
+            </button>
           )}
         </div>
 
