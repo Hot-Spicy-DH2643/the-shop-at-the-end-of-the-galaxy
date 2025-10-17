@@ -380,6 +380,10 @@ const GET_ASTEROID_BY_ID = gql`
       }
       price
       size
+      owner {
+        uid
+        name
+      }
     }
   }
 `;

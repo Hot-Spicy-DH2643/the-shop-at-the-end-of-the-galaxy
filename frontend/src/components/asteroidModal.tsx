@@ -40,7 +40,8 @@ export default function AsteroidModal({
     removeFromCart(asteroid.id);
   };
 
-  console.log('asteroidModal.tsx file : ', asteroid);
+  // console.log('asteroidModal.tsx file : ', asteroid);
+  // console.log('owner info: ', asteroid.owner);
 
   return (
     <div
