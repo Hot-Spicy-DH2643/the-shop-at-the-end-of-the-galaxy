@@ -162,3 +162,64 @@ export async function removeFromCart(userId, asteroidId) {
     throw error;
   }
 }
+
+export async function followUser(currentUserId, targetId) {
+  try { 
+    const currentUser = await User.findOne({uid: currentUserId})
+    const targetUser = await User.findOne({uid: targetId})
+    if (!targetUser) {
+      throw new Error('User not found');
+    }
+
+    // Check if already following
+    const alreadyFollowing = currentUser.following_ids.some(
+      // .some() - stops as soon as condition is true
+      friend => friend.uid === targetId
+    );
+    if (alreadyFollowing){
+      return false;
+    }
+
+    currentUser.following_ids.push(targetId);
+    targetUser.follower_ids.push(currentUserId);
+
+
+    await currentUser.save();
+    await targetUser.save();
+    return true;
+  } catch (error) {
+    console.error('Error in followUser:', error);
+    throw new Error('Failed to follow user', error);
+  }
+}
+
+export async function unfollowUser(currentUserId, targetId) {
+  try {
+    const currentUser = await User.findOne({uid: currentUserId})
+    const targetUser = await User.findOne({uid: targetId})
+    if (!targetUser) {
+      throw new Error('User not found');
+    }
+    
+    // Check if already following
+    const alreadyUnfollowed = currentUser.following_ids.some(
+      friend => friend.uid === targetId
+    );
+    if (alreadyUnfollowed) {
+      return false;
+    }
+    
+    const indexTarget = currentUser.following_ids.indexOf(targetId);
+    const indexCurrent = targetUser.follower_ids.indexOf(currentUserId);
+    
+    currentUser.following_ids.splice(indexTarget, 1);
+    targetUser.follower_ids.splice(indexCurrent, 1);
+
+    await currentUser.save();
+    await targetUser.save();
+    return true;
+  } catch (error) {
+    console.error('Error in unfollowUser:', error);
+    throw new Error('Failed to unfollow user', error);
+  }
+}

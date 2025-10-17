@@ -14,17 +14,13 @@ export default function Profile() {
     useAppStore();
   const router = useRouter();
 
-  const isFollowing = userData?.following.some( // check if you are already following someone
-  (friend) => friend.uid === profileData?.uid
-  );
-
   // Fetch user data on mount
   useEffect(() => {
     // console.log('Fetching user data, user:', user);
     if (user?.uid) {
       setUserData();
     }
-    // setViewedProfile("kQFpp5VtxSUAHeVP3We5yGZp5mp1"); // temporary line to access another users page
+    setViewedProfile("kQFpp5VtxSUAHeVP3We5yGZp5mp1"); // temporary line to access another users page
   }, [setUserData, user]);
 
   // Determine which profile to display
@@ -42,9 +38,14 @@ export default function Profile() {
     );
   }
 
+  const isFollowing = userData?.following.some( // check if you are already following someone
+    (friend) => friend.uid === profileData?.uid
+    );
+
   const handleFollowClick = async () => {
     try {
       if (isFollowing) {
+        console.log("page.tsx, in hereee");
         await updateUnfollow(profileData.uid);
       } else {
         await updateFollow(profileData.uid);

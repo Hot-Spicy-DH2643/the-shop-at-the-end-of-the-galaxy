@@ -454,35 +454,13 @@ export const UPDATE_USER_NAME = gql`
 
 export const FOLLOW_USER = gql`
   mutation FollowUser($targetUid: String!) {
-    followUser(targetUid: $targetUid) {
-      uid
-      name
-      followers {
-        uid
-        name
-      }
-      following {
-        uid
-        name
-      }
-    }
+    followUser(targetUid: $targetUid)
   }
 `;
 
 export const UNFOLLOW_USER = gql`
   mutation UnfollowUser($targetUid: String!) {
-    unfollowUser(targetUid: $targetUid) {
-      uid
-      name
-      followers {
-        uid
-        name
-      }
-      following {
-        uid
-        name
-      }
-    }
+    unfollowUser(targetUid: $targetUid)
   }
 `;
 
