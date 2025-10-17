@@ -135,32 +135,6 @@ export async function addToCart(userId, asteroidId) {
   }
 }
 
-export async function addToCart(userId, asteroidId) {
-  try {
-    console.log(`Adding asteroid ${asteroidId} to cart for user ${userId}`);
-    const user = await User.findOne({ uid: userId });
-    if (!user) {
-      throw new Error('User not found');
-    }
-
-    // Check if the asteroid is already in the cart
-    if (user.cart_asteroid_ids.includes(asteroidId)) {
-      throw new Error('Asteroid already in cart');
-    }
-
-    user.cart_asteroid_ids.push(asteroidId);
-    await user.save();
-    console.log(`Asteroid ${asteroidId} added to cart for user ${userId}`);
-    return user;
-  } catch (error) {
-    console.error(
-      `Error adding asteroid ${asteroidId} to cart for user ${userId}:`,
-      error.message
-    );
-    throw error;
-  }
-}
-
 export async function removeFromCart(userId, asteroidId) {
   try {
     const user = await User.findOne({ uid: userId });

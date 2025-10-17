@@ -17,8 +17,6 @@ import {
   UserData,
   toggleStarred,
   updateProfile,
-  filterAndSortAsteroids,
-  type FilterState,
   addToCart,
   removeFromCart,
 } from './AppModel';
@@ -163,14 +161,6 @@ export function useSortedAsteroids(
 export function useAsteroidsSortedByClosestApproach(limit?: number) {
   const asteroids = useAppStore(state => state.asteroids);
   return sortAsteroids(asteroids, 'distance-asc', limit);
-}
-
-{
-  /* Filtering */
-}
-export function useFilteredAsteroids(filters: FilterState) {
-  const asteroids = useAppStore(state => state.asteroids);
-  return filterAndSortAsteroids(asteroids, filters);
 }
 
 // =========================
