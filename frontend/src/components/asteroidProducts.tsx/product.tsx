@@ -1,5 +1,7 @@
 import AsteroidSVG from '../asteroidSVG';
+import Link from 'next/link';
 import { ShopAsteroid } from '@/store/AppModel';
+import { useAppStore } from '@/store/useAppViewModel';
 import { Star, Orbit, Telescope, ShoppingBasket } from 'lucide-react';
 import Image from 'next/image';
 
@@ -20,22 +22,37 @@ export default function Product({
   onHandleProductClick,
   onHandleStarred,
 }: ProductProps) {
+
+  const {userData} = useAppStore();
+  
   return (
     <div className="relative">
-      {/* Star button*/}
-      <button
-        onClick={() => onHandleStarred(asteroid.id)}
-        className="p-1 absolute top-1 right-2 z-10 cursor-pointer"
-      >
-        {isStarred ? (
-          <Star
-            className="hover:scale-[1.08] transition duration-300 text-yellow-300"
-            fill="yellow"
-          />
-        ) : (
-          <Star className="hover:scale-[1.08] transition duration-300 text-white" />
-        )}
-      </button>
+      <div className='absolute right-3 flex flex-col items-center space-y-2'>
+        {/* Star button*/}
+        <button
+            onClick={() => onHandleStarred(asteroid.id)}
+            className="cursor-pointer"
+          >
+            {isStarred ? (
+              <Star
+                className="hover:scale-[1.08] transition duration-300 text-yellow-300"
+                fill="yellow"
+              />
+            ) : (
+              <Star className="hover:scale-[1.08] transition duration-300 text-white" />
+            )}
+          </button>
+          
+          {asteroid.owner ? (
+            userData?.owned_asteroids.some(a => a.id === asteroid.id) ? (
+              /* Owned by user */
+              <Orbit className="hover:scale-[1.08] transition duration-300 text-white right-2" />
+            ) : (
+              /* Owned by other user */
+              <Telescope className="hover:scale-[1.08] transition duration-300 text-white right-2" />
+            )
+          ) : null}
+      </div>
 
       <div
         onClick={() => onHandleProductClick(asteroid.id)}
@@ -66,6 +83,13 @@ export default function Product({
           <p className="text-gray-400 text-xs">Size: {asteroid.size} m</p>
 
           {/* Price */}
+
+          {userData?.cart_asteroids.some(a => a.id === asteroid.id) 
+            ? <button  onClick={handleRemoveFromCart}>
+
+            </button>
+        }
+
           <p className="mt-1 font-bold text-purple-400">
             <Image
               src="/cosmocoin-tiny.png"
@@ -76,6 +100,7 @@ export default function Product({
             />
             {asteroid.price}
           </p>
+
         </div>
       </div>
     </div>
