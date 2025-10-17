@@ -192,7 +192,7 @@ export default function AsteroidModal({
               // Owned by another user
               <p className="bg-purple-500 text-white px-6 py-2 rounded shadow flex items-center justify-center space-x-2 text-center">
                 <Telescope className="inline-block" size={22} />
-                <span>in {asteroid.owner.name}'s orbit</span>
+                <span>Explore {asteroid.owner.name}'s orbit</span>
               </p>
             )
           ) : userData?.cart_asteroids.some(a => a.id === asteroid.id) ? (
