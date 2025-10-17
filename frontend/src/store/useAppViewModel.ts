@@ -100,6 +100,7 @@ const useAppStore = create<AppState>(set => ({
     follow(targetUser.uid);
   },
 
+
   updateUnfollow: (tUid: string) => {
     const targetUser = useAppStore.getState().viewedProfile;
     if (!targetUser?.uid) return;

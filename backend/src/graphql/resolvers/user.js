@@ -43,5 +43,96 @@ export const userResolvers = {
         throw new Error('Failed to toggle starred asteroid');
       }
     },
+
+    followUser: async (parent, { targetUid }, context) => {
+      const currentUser = context.user;
+
+      if (!currentUser) {
+        throw new Error('Authentication required');
+      }
+
+      try {
+        const targetUser = await getUserById(targetUid);
+        if (!targetUser) {
+          throw new Error('Target user not found');
+        }
+
+        // Ensure arrays exist
+        const following = currentUser.following || [];
+        const followers = targetUser.followers || [];
+
+        // Check if already following
+        const alreadyFollowing = following.some(
+          // .some() - stops as soon as condition is true
+          friend => friend.uid === targetUid
+        );
+
+        if (alreadyFollowing) {
+          return { message: 'Already following this user' };
+        }
+
+        /// Add each other to follower/following arrays
+        following.push({ uid: targetUser.uid, name: targetUser.name });
+        followers.push({ uid: currentUser.uid, name: currentUser.name });
+
+        // Persist both
+        await Promise.all([
+          updateUserById(currentUser.uid, { following }),
+          updateUserById(targetUser.uid, { followers }),
+        ]);
+
+        return true;
+      } catch (error) {
+        console.error('Error in followUser mutation:', error);
+        throw new Error('Failed to follow user');
+      }
+    },
+
+    unfollowUser: async (parent, { targetUid }, context) => {
+      const currentUser = context.user;
+
+      if (!currentUser) {
+        throw new Error('Authentication required');
+      }
+
+      try {
+        const targetUser = await getUserById(targetUid);
+        if (!targetUser) {
+          throw new Error('Target user not found');
+        }
+
+        // Ensure arrays exist
+        const following = currentUser.following || [];
+        const followers = targetUser.followers || [];
+
+        // Check if already following
+        const alreadyFollowing = following.some(
+          // .some() - stops as soon as condition is true
+          friend => friend.uid === targetUid
+        );
+
+        if (alreadyFollowing) {
+          return { message: 'Already following this user' };
+        }
+
+        const updatedFollowing =
+          currentUser.following?.filter(friend => friend.uid !== targetUid) ||
+          [];
+        const updatedFollowers =
+          targetUser.followers?.filter(
+            follower => follower.uid !== currentUser.uid
+          ) || [];
+
+        await Promise.all([
+          updateUserById(currentUser.uid, { following: updatedFollowing }),
+          updateUserById(targetUser.uid, { followers: updatedFollowers }),
+        ]);
+
+        return true;
+      } catch (error) {
+        console.error('Error in unfollowUser mutation:', error);
+        throw new Error('Failed to unfollow user');
+      }
+    },
   },
 };

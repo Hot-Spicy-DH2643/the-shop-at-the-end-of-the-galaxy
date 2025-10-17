@@ -9,6 +9,7 @@ type User {
   coins: Int!
   owned_asteroids: [Asteroid!]!
   starred_asteroids: [Asteroid!]!
+  isFollowing: Boolean
   followers: [Friend!]!
   following: [Friend!]!
   cart_asteroids: [Asteroid!]!
