@@ -6,6 +6,7 @@ import { Star, ShoppingBasket, CalendarPlus, Eye, Trash2 } from 'lucide-react';
 import { useAppStore } from '@/store/useAppViewModel';
 import { X, Orbit, Telescope } from 'lucide-react';
 import { useAsteroidViewers } from '@/hooks/useAsteroidViewers';
+import { useRouter } from 'next/navigation';
 
 interface modalProps {
   asteroid: Asteroid;
@@ -25,6 +26,7 @@ export default function AsteroidModal({
   const { viewerCount, isConnected, isLoading } = useAsteroidViewers(
     asteroid.id
   );
+  const router = useRouter();
 
   const viewerText = isLoading
     ? 'Loading viewer count...'
@@ -190,10 +192,17 @@ export default function AsteroidModal({
               </p>
             ) : (
               // Owned by another user
-              <p className="bg-purple-500 text-white px-6 py-2 rounded shadow flex items-center justify-center space-x-2 text-center">
+              <button
+                type="button"
+                onClick={() => {
+                  router.push(`/profile?uid=${asteroid.owner!.uid}`);
+                  onClose();
+                }}
+                className="bg-purple-500 text-white px-6 py-2 rounded shadow flex items-center justify-center space-x-2 text-center hover:scale-105 transition cursor-pointer"
+              >
                 <Telescope className="inline-block" size={22} />
                 <span>Explore {asteroid.owner.name}&apos;s orbit</span>
-              </p>
+              </button>
             )
           ) : userData?.cart_asteroids.some(a => a.id === asteroid.id) ? (
             // In cart
