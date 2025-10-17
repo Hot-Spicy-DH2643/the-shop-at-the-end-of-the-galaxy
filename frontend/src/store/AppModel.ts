@@ -113,9 +113,14 @@ export type AppState = {
   currentPage: number;
   totalPages: number;
   totalCount: number;
+  filters: UIFilters;
+  setFilters: (
+    updater: UIFilters | ((prev: UIFilters) => UIFilters)
+  ) => void;
+  resetFilters: () => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
-  setAsteroids: (page?: number, filters?: BackendFilters) => Promise<void>;
+  setAsteroids: (page?: number) => Promise<void>;
   setSelectedAsteroid: (id: string | null) => Promise<void>;
   setUserData: () => Promise<void>;
   updateProfileData: (newName: string) => void;
