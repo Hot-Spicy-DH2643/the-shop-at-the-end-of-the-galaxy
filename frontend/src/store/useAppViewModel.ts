@@ -29,6 +29,7 @@ const useAppStore = create<AppState>(set => ({
   loading: false,
   error: null,
   userData: null,
+  userLoading: false,
   asteroids: [],
   selectedAsteroid: null,
   currentPage: 1,
@@ -124,23 +125,23 @@ const useAppStore = create<AppState>(set => ({
 
   setUserData: async () => {
     try {
-      set({ loading: true, error: null });
+      set({ userLoading: true, error: null });
       const currentUser = useAuthStore.getState().user;
       const userId = currentUser?.uid;
 
       if (!userId) {
-        set({ error: 'No authenticated user', loading: false });
+        set({ error: 'No authenticated user', userLoading: false });
         return;
       }
 
       const userData = await fetchUserData(userId);
       if (userData) {
-        set({ userData, loading: false });
+        set({ userData, userLoading: false });
       }
     } catch (error) {
       set({
         error: error instanceof Error ? error.message : 'Failed to fetch user',
-        loading: false,
+        userLoading: false,
       });
     }
   },

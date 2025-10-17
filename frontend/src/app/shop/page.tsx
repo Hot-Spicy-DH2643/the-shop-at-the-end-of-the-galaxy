@@ -68,8 +68,9 @@ export default function Shop() {
   const {
     loading,
     asteroids,
+    userData,
     setAsteroids,
-    setUserData,
+    // setUserData,
     currentPage,
     totalPages,
     totalCount,
@@ -100,8 +101,8 @@ export default function Shop() {
   useEffect(() => {
     const backendFilters = convertUIFiltersToBackend(filter);
     setAsteroids(1, backendFilters);
-    setUserData();
-  }, [filter, setAsteroids, setUserData]);
+    // setUserData();
+  }, []);
 
   // Handler for page changes
   const handlePageChange = (newPage: number) => {
@@ -345,6 +346,11 @@ export default function Shop() {
                 <Product
                   key={asteroid.id}
                   asteroid={asteroid}
+                  isStarred={
+                    userData?.starred_asteroids.some(
+                      a => a.id === asteroid.id
+                    ) ?? false
+                  }
                   onHandleProductClick={() => onHandleProductClick(asteroid.id)}
                   onHandleStarred={() => onHandleStarred(asteroid.id)}
                 />

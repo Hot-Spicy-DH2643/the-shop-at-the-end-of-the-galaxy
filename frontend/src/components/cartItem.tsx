@@ -3,7 +3,6 @@
 import Image from 'next/image';
 import { X } from 'lucide-react';
 import AsteroidSVGMoving from '@/components/asteroidSVGMoving';
-import { removeFromCart } from '@/store/AppModel';
 import { useAppStore } from '@/store/useAppViewModel';
 import { ShopAsteroid } from '@/store/AppModel';
 
