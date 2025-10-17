@@ -204,7 +204,16 @@ export default function AsteroidModal({
                 <span>Explore {asteroid.owner.name}&apos;s orbit</span>
               </button>
             )
-          ) : userData?.cart_asteroids.some(a => a.id === asteroid.id) ? (
+          ) : !userData ? (
+            <button
+              type="button"
+              className="bg-gray-600 text-white px-6 py-2 rounded shadow flex items-center justify-center space-x-2 w-full md:w-auto cursor-not-allowed"
+              disabled
+            >
+              <ShoppingBasket className="inline-block" size={22} />
+              <span>Login to purchase</span>
+            </button>
+          ) : userData.cart_asteroids.some(a => a.id === asteroid.id) ? (
             // In cart
             <button
               onClick={handleRemoveFromCart}
