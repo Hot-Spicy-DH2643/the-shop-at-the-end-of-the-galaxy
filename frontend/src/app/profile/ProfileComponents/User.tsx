@@ -1,10 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import {
-  useAppStore,
-  onHandleProductClick,
-  onHandleStarred,
-} from '@/store/useAppViewModel';
+import { useAppStore } from '@/store/useAppViewModel';
 import { useAuthStore } from '@/store/useAuthViewModel';
 import type { UserData } from '@/store/AppModel';
 import EditProfileModal from '@/components/editProfileModal';
@@ -20,7 +16,12 @@ import { Star } from 'lucide-react';
 
 export default function User({ profileData, isOwnProfile }: UserProps) {
   const { user: firebaseUser } = useAuthStore();
-  const { updateProfileData, selectedAsteroid } = useAppStore();
+  const {
+    updateProfileData,
+    selectedAsteroid,
+    onHandleProductClick,
+    onHandleStarred,
+  } = useAppStore();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const [zeroFavAsteroidId, setZeroFavAsteroidId] = useState<string>('0000000');

@@ -1,11 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import type { UserData } from '@/store/AppModel';
-import {
-  useAppStore,
-  onHandleProductClick,
-  onHandleStarred,
-} from '@/store/useAppViewModel';
+import { useAppStore } from '@/store/useAppViewModel';
 
 import AsteroidSVGMoving from '@/components/asteroidSVGMoving';
 import AsteroidModal from '@/components/asteroidModal';
@@ -26,7 +22,8 @@ export default function Purchases({
 
   const [zeroPurchaseId, setZeroPurchaseId] = useState<string>('0000000');
 
-  const { selectedAsteroid } = useAppStore();
+  const { selectedAsteroid, onHandleProductClick, onHandleStarred } =
+    useAppStore();
 
   useEffect(() => {
     if (owned_asteroids?.length === 0) {

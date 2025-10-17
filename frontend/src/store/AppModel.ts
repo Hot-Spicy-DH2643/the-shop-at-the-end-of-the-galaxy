@@ -128,6 +128,9 @@ export type AppState = {
   removeFromCart: (asteroid_id: string) => void;
   // clearCart: () => void;
   setViewedProfile: (uid: string) => Promise<void>;
+  getAsteroidsSortedByClosestApproach: (limit?: number) => Asteroid[];
+  onHandleProductClick: (id: string) => Promise<void>;
+  onHandleStarred: (asteroid_id: string) => void;
 };
 
 // GraphQL query to fetch asteroids with pagination

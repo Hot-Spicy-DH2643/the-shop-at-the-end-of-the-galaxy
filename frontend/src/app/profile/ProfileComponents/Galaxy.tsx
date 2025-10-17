@@ -1,10 +1,10 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import Image from 'next/image';
 import AsteroidSVG from '@/components/asteroidSVG';
 import AsteroidModal from '@/components/asteroidModal';
 import '@/app/globals.css';
-import type { UserData } from '@/store/AppModel';
-import { useGalaxyViewModel } from '@/store/useAppViewModel';
+import type { UserData, Asteroid } from '@/store/AppModel';
+import { fetchAsteroidById } from '@/store/AppModel';
 
 // Configuration for the orbital system (base values for 600px container)
 const BASE_CONTAINER_SIZE = 600;
@@ -49,9 +49,23 @@ export default function Galaxy({ profileData }: GalaxyProps) {
   const [containerSize, setContainerSize] = useState(BASE_CONTAINER_SIZE);
   const scaleFactor = containerSize / BASE_CONTAINER_SIZE;
 
-  // Use the Galaxy viewmodel hook for modal management
-  const { modalAsteroid, handleAsteroidClick, closeModal } =
-    useGalaxyViewModel(profileData);
+  // Modal state for asteroid details
+  const [modalAsteroid, setModalAsteroid] = useState<Asteroid | null>(null);
+
+  const handleAsteroidClick = useCallback(async (asteroidId: string) => {
+    try {
+      const asteroidData = await fetchAsteroidById(asteroidId);
+      if (asteroidData) {
+        setModalAsteroid(asteroidData);
+      }
+    } catch (error) {
+      console.error('Error fetching asteroid details:', error);
+    }
+  }, []);
+
+  const closeModal = useCallback(() => {
+    setModalAsteroid(null);
+  }, []);
 
   // Individual asteroid angles (key: asteroid id, value: current angle)
   const [asteroidAngles, setAsteroidAngles] = useState<Record<string, number>>(
