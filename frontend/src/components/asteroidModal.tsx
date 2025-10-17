@@ -7,6 +7,7 @@ import {
   useAsteroidModalViewModel,
   useAppStore,
 } from '@/store/useAppViewModel';
+import { X } from 'lucide-react';
 
 interface modalProps {
   asteroid: ShopAsteroid;
@@ -43,19 +44,19 @@ export default function AsteroidModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 overflow-y-auto pt-6"
       onClick={handleBackdropClick}
-    >
-      <div className="relative w-[90vw] max-w-xl m-2 bg-black p-4 rounded-lg shadow-2xl">
+      >
+      <div className="relative w-[90vw] max-w-xl m-2 bg-black pt-4 p-4 rounded-lg shadow-2xl">
         <button
-          className="absolute top-4 left-4 text-3xl text-gray-400 hover:text-white transition-colors cursor-pointer"
+          className="absolute top-4 right-4 text-3xl text-gray-400 hover:text-white transition-colors cursor-pointer"
           aria-label="Close"
           onClick={onClose}
         >
-          &times;
+          <X/>
         </button>
 
-        <div className="w-100% flex flex-col md:flex-row items-center gap-4 p-4 pb-0">
+        <div className="w-100% flex flex-col md:flex-row items-center gap-6 p-4 pb-0">
           <div>
             <AsteroidSVGMoving size={100} id={asteroid.id} bgsize={160} />
           </div>
