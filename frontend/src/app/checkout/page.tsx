@@ -12,9 +12,6 @@ import { useEffect } from 'react';
 import CheckoutItem from '@/components/checkoutItem';
 import CheckoutAlert from '@/components/checkoutAlert';
 
-//TODO: Right now hardcoded with fake data. Just to be able to style it.
-// I am gonna work on the functionality
-
 export default function Checkout() {
   const { userData, setUserData, clearCart } = useAppStore();
 
@@ -30,16 +27,37 @@ export default function Checkout() {
   const total = cart.reduce((sum, item) => sum + item.price, 0);
 
   const handleConfirm = () => {
-    if ((userData?.coins ?? 0) < total) {
+    if (!userData) return;
+
+    const userCoins = userData.coins ?? 0;
+
+    //Not enough money → show alert and return
+    if (userCoins < total) {
       setAlertMessage("You don't have enough coins to complete this purchase!");
       return;
     }
 
     setIsProcessing(true);
+
+    //Move cart asteroid IDs to owned asteroid IDs
+    const newOwnedIds = [
+      ...(userData.owned_asteroids || []),
+      ...(userData.cart_asteroids || []),
+    ];
+
+    //Update balance and clear cart
+    const updatedUserData = {
+      ...userData,
+      coins: userCoins - total,
+      owned_asteroid_ids: newOwnedIds,
+      cart_asteroid_ids: [],
+    };
+
     setTimeout(() => {
+      setUserData(updatedUserData);
+      clearCart();
       setIsProcessing(false);
       setIsSuccess(true);
-      clearCart();
     }, 1500);
   };
 
@@ -106,14 +124,14 @@ export default function Checkout() {
 
           <button
             onClick={handleConfirm}
-            disabled={isProcessing}
-            className={`mt-4 w-full py-3 rounded-xl text-lg font-semibold transition-all duration-300 
-    bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700 cursor-pointer
+            className={`mt-4 w-full py-3 rounded-xl text-lg font-semibold transition-all duration-300 cursor-pointer 
     ${
-      isProcessing
-        ? 'bg-gray-700 cursor-not-allowed opacity-70'
-        : 'hover:scale-102 hover:shadow-[0_0_20px_4px_rgba(236,72,255,0.6)] hover:brightness-110'
-    }`}
+      (userData?.coins ?? 0) < total
+        ? 'bg-gray-700 opacity-70 cursor-not-allowed hover:brightness-100'
+        : 'bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700 hover:scale-102 hover:shadow-[0_0_20px_4px_rgba(236,72,255,0.6)] hover:brightness-110'
+    }
+    ${isProcessing ? 'opacity-70 cursor-wait' : ''}
+  `}
           >
             {isProcessing ? 'Processing...' : 'Confirm Purchase'}
           </button>
