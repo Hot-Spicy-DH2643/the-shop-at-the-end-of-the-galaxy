@@ -4,17 +4,30 @@ on:
   push:
     branches:
       - release # Change this to your protected branch name
+  workflow_dispatch:
+    inputs:
+      reset_database:
+        description: 'Reset database data (removes all data)?'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   deploy:
     runs-on: self-hosted
+    env:
+      RESET_DB: ${{ github.event.inputs.reset_database || 'false' }}
 
     steps:
       - name: Clean workspace
         run: |
           echo "Cleaning workspace..."
           # Stop any running containers first
-          docker compose -f docker-compose.caddy.yaml down -v 2>/dev/null || true
+          if [ "$RESET_DB" == "true" ]; then
+            docker compose -f docker-compose.caddy.yaml down -v 2>/dev/null || true
+          else
+            docker compose -f docker-compose.caddy.yaml down 2>/dev/null || true
+          fi
           # Clean node_modules, .next, and pnpm store with proper permissions
           sudo rm -rf backend/node_modules frontend/node_modules frontend/.next frontend/.pnpm-store 2>/dev/null || true
           # Alternative: Use Docker to clean files with proper permissions
@@ -43,7 +56,11 @@ jobs:
       - name: Stop existing containers
         run: |
           echo "Stopping existing containers..."
-          docker compose -f docker-compose.caddy.yaml down -v || true
+          if [ "$RESET_DB" == "true" ]; then
+            docker compose -f docker-compose.caddy.yaml down -v || true
+          else
+            docker compose -f docker-compose.caddy.yaml down || true
+          fi
 
       - name: Deploy Application with Caddy
         run: |
@@ -85,5 +102,9 @@ jobs:
         if: failure()
         run: |
           echo "Cleaning up after failure..."
-          docker compose -f docker-compose.caddy.yaml down -v || true
+          if [ "$RESET_DB" == "true" ]; then
+            docker compose -f docker-compose.caddy.yaml down -v || true
+          else
+            docker compose -f docker-compose.caddy.yaml down || true
+          fi
           docker compose -f docker-compose.caddy.yaml logs --tail=50 || true
