@@ -33,7 +33,7 @@ export default function Navbar() {
         <button
           onClick={() => setOpen(v => !v)}
           aria-label="Toggle navigation"
-          className="lg:hidden group relative isolate grid place-items-center w-12 h-12 overflow-visible focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 rounded-full"
+          className="lg:hidden group relative isolate grid place-items-center w-12 h-12 overflow-visible focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 rounded-full cursor-pointer"
         >
           <span className="pointer-events-none absolute inset-0 m-auto w-6 h-6 rounded-full transition-transform duration-300 ease-out group-hover:scale-125 z-0 galaxy-bg-space" />
           <span className="relative z-10 flex flex-col items-center justify-center gap-1.5">
@@ -99,7 +99,7 @@ export default function Navbar() {
       <div
         className={`${open ? 'block' : 'hidden'} lg:hidden w-full text-white font-bold galaxy-bg-space`}
       >
-        <ul className="flex flex-col space-y-3 py-4">
+        <ul className="flex flex-col space-y-3 py-4 ">
           {navLinks.map(link => (
             <li key={link.label}>
               <Link
@@ -112,7 +112,10 @@ export default function Navbar() {
           ))}
           {user && (
             <li>
-              <button onClick={logout} className="block px-6 py-2">
+              <button
+                onClick={logout}
+                className="block px-6 py-2 cursor-pointer"
+              >
                 Logout
               </button>
             </li>
@@ -122,7 +125,7 @@ export default function Navbar() {
             {user && (
               <button
                 onClick={() => setShowCart(v => !v)}
-                className="relative p-2 rounded-full hover:bg-white/20 transition"
+                className="relative p-2 rounded-full hover:bg-white/20 transition cursor-pointer"
                 aria-label="View cart"
               >
                 <ShoppingBasket size={24} />
