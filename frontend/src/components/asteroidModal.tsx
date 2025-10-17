@@ -1,7 +1,7 @@
 'use client';
 import AsteroidSVGMoving from './asteroidSVGMoving';
 import Image from 'next/image';
-import { ShopAsteroid } from '@/store/AppModel';
+import { Asteroid } from '@/store/AppModel';
 import { Star, ShoppingBasket, CalendarPlus, Eye, Trash2 } from 'lucide-react';
 import {
   useAsteroidModalViewModel,
@@ -9,7 +9,7 @@ import {
 } from '@/store/useAppViewModel';
 
 interface modalProps {
-  asteroid: ShopAsteroid;
+  asteroid: Asteroid;
   onClose: () => void;
   onHandleStarred: (id: string) => void;
 }

@@ -4,13 +4,13 @@ import Image from 'next/image';
 import { X } from 'lucide-react';
 import AsteroidSVGMoving from '@/components/asteroidSVGMoving';
 import { useAppStore } from '@/store/useAppViewModel';
-import { ShopAsteroid } from '@/store/AppModel';
+import { Asteroid } from '@/store/AppModel';
 
 interface CartItemProps {
   id: number;
   name: string;
   price: number;
-  asteroid: ShopAsteroid;
+  asteroid: Asteroid;
 }
 
 export default function CartItem({ id, name, price, asteroid }: CartItemProps) {

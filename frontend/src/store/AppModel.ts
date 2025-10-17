@@ -46,14 +46,6 @@ export interface Asteroid {
     orbiting_body: string;
   }>;
   is_sentry_object: boolean;
-}
-
-type Owner = {
-  uid: string;
-  name: string;
-};
-
-export type ShopAsteroid = Asteroid & {
   price: number;
   owner: Owner | null;
   size: number;
@@ -86,6 +78,11 @@ export type ShopAsteroid = Asteroid & {
       orbit_class_range: string;
     };
   };
+}
+
+type Owner = {
+  uid: string;
+  name: string;
 };
 
 type Friend = {
@@ -97,21 +94,21 @@ export type UserData = {
   uid: string;
   name: string;
   coins: number;
-  owned_asteroids: ShopAsteroid[];
-  starred_asteroids: ShopAsteroid[];
+  owned_asteroids: Asteroid[];
+  starred_asteroids: Asteroid[];
   followers: Friend[];
   following: Friend[];
-  cart_asteroids: ShopAsteroid[];
+  cart_asteroids: Asteroid[];
 };
 
 export type AppState = {
   userData: UserData | null;
   userLoading: boolean;
   viewedProfile: UserData | null;
-  asteroids: ShopAsteroid[];
+  asteroids: Asteroid[];
   loading: boolean;
   error: string | null;
-  selectedAsteroid: ShopAsteroid | null;
+  selectedAsteroid: Asteroid | null;
   // Pagination state
   currentPage: number;
   totalPages: number;
@@ -123,9 +120,10 @@ export type AppState = {
   setUserData: () => Promise<void>;
   updateProfileData: (newName: string) => void;
   updateFollow: (tUid: string) => void;
-  updateUnfollow: (tUid: string) => void;  checkoutLoading: boolean;
+  updateUnfollow: (tUid: string) => void;
+  checkoutLoading: boolean;
   checkout: () => Promise<boolean>;
-  cart: ShopAsteroid[];
+  cart: Asteroid[];
   addToCart: (asteroid_id: string) => void;
   removeFromCart: (asteroid_id: string) => void;
   // clearCart: () => void;
@@ -225,7 +223,7 @@ const GET_ASTEROIDS = gql`
 
 interface AsteroidsResponse {
   asteroids: {
-    asteroids: ShopAsteroid[];
+    asteroids: Asteroid[];
     totalCount: number;
     page: number;
     pageSize: number;
@@ -236,7 +234,7 @@ interface AsteroidsResponse {
 export const DEFAULT_PAGE_SIZE = 24;
 
 export interface AsteroidsResult {
-  asteroids: ShopAsteroid[];
+  asteroids: Asteroid[];
   totalCount: number;
   totalPages: number;
   currentPage: number;
@@ -426,11 +424,9 @@ const GET_USER_BY_ID = gql`
   }
 `;
 
-export async function fetchAsteroidById(
-  id: string
-): Promise<ShopAsteroid | null> {
+export async function fetchAsteroidById(id: string): Promise<Asteroid | null> {
   try {
-    const { data } = await client.query<{ asteroid: ShopAsteroid }>({
+    const { data } = await client.query<{ asteroid: Asteroid }>({
       query: GET_ASTEROID_BY_ID,
       variables: { id },
       fetchPolicy: 'network-only',
@@ -505,33 +501,33 @@ export async function updateProfile(uid: string, newName: string) {
   }
 }
 
-  export async function follow(tUid: string) {
-    try {
-      await client.mutate({
-        mutation: FOLLOW_USER,
-        variables: {
-          targetUid: tUid
-        },
-      });
-    } catch (error) {
-      console.error('Error updating new followers in backend:', error);
-      throw error;
-    }
-  };
-
-  export async function unfollow(tUid: string) { 
-    try {
-      await client.mutate({
-        mutation: UNFOLLOW_USER,
-        variables: {
-          targetUid: tUid
-        },
-      });
-    } catch (error) {
-      console.error('Error removing followers in backend:', error);
-      throw error;
-    }
+export async function follow(tUid: string) {
+  try {
+    await client.mutate({
+      mutation: FOLLOW_USER,
+      variables: {
+        targetUid: tUid,
+      },
+    });
+  } catch (error) {
+    console.error('Error updating new followers in backend:', error);
+    throw error;
   }
+}
+
+export async function unfollow(tUid: string) {
+  try {
+    await client.mutate({
+      mutation: UNFOLLOW_USER,
+      variables: {
+        targetUid: tUid,
+      },
+    });
+  } catch (error) {
+    console.error('Error removing followers in backend:', error);
+    throw error;
+  }
+}
 
 // ============================================
 // SORTING FUNCTIONS - Pure Business Logic
@@ -542,7 +538,7 @@ export async function updateProfile(uid: string, newName: string) {
  * @param asteroid - The asteroid to analyze
  * @returns Absolute time difference in milliseconds, or Infinity if no data
  */
-function getClosestApproachTimeDiff(asteroid: ShopAsteroid): number {
+function getClosestApproachTimeDiff(asteroid: Asteroid): number {
   const now = new Date().getTime();
 
   if (
@@ -592,10 +588,10 @@ export type SortOption =
  * @returns Sorted array of asteroids
  */
 export function sortAsteroids(
-  asteroids: ShopAsteroid[],
+  asteroids: Asteroid[],
   sortBy: SortOption = 'None',
   limit?: number
-): ShopAsteroid[] {
+): Asteroid[] {
   if (sortBy === 'None') {
     return limit ? asteroids.slice(0, limit) : [...asteroids];
   }
@@ -649,9 +645,9 @@ export type FilterState = {
 };
 
 export function filterAsteroids(
-  asteroids: ShopAsteroid[],
+  asteroids: Asteroid[],
   filters: FilterState
-): ShopAsteroid[] {
+): Asteroid[] {
   return asteroids.filter(a => {
     // ---------------------------
     // Hazard filter
@@ -693,9 +689,9 @@ export function filterAsteroids(
 }
 
 export function filterAndSortAsteroids(
-  asteroids: ShopAsteroid[],
+  asteroids: Asteroid[],
   filters: FilterState
-): ShopAsteroid[] {
+): Asteroid[] {
   const filtered = filterAsteroids(asteroids, filters);
   return sortAsteroids(filtered, filters.sort ?? 'None');
 }
@@ -760,7 +756,7 @@ export function formatMillionKilometers(
  * @param asteroid - The asteroid to format
  * @returns Object with formatted orbital parameters
  */
-export function getFormattedOrbitalData(asteroid: ShopAsteroid) {
+export function getFormattedOrbitalData(asteroid: Asteroid) {
   return {
     semiMajorAxis: formatOrbitalParameter(
       asteroid.orbital_data?.semi_major_axis,
@@ -787,7 +783,7 @@ export function getFormattedOrbitalData(asteroid: ShopAsteroid) {
  * @param asteroid - The asteroid to format
  * @returns Object with formatted approach data
  */
-export function getFormattedApproachData(asteroid: ShopAsteroid) {
+export function getFormattedApproachData(asteroid: Asteroid) {
   const approach = asteroid.close_approach_data?.[0];
 
   if (!approach) {
@@ -820,7 +816,7 @@ export function getFormattedApproachData(asteroid: ShopAsteroid) {
  * @param asteroid - The asteroid to format
  * @returns Complete formatted data object
  */
-export function getFormattedAsteroidData(asteroid: ShopAsteroid) {
+export function getFormattedAsteroidData(asteroid: Asteroid) {
   return {
     id: asteroid.id,
     name: asteroid.name,
