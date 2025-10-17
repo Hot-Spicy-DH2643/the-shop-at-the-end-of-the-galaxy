@@ -10,7 +10,8 @@ import { useEffect } from 'react';
 
 export default function Profile() {
   const { user } = useAuthStore();
-  const { userData, viewedProfile, setUserData, loading, setViewedProfile} = useAppStore();
+  const { userData, viewedProfile, setUserData, loading, setViewedProfile } =
+    useAppStore();
   const router = useRouter();
 
   // Fetch user data on mount
@@ -19,7 +20,7 @@ export default function Profile() {
     if (user?.uid) {
       setUserData();
     }
-    setViewedProfile("kQFpp5VtxSUAHeVP3We5yGZp5mp1"); // temporary line to access another users page
+    // setViewedProfile("kQFpp5VtxSUAHeVP3We5yGZp5mp1"); // temporary line to access another users page
   }, [setUserData, user]);
 
   // Determine which profile to display
@@ -83,7 +84,6 @@ export default function Profile() {
 
                 <h4 className="text-2xl font-semibold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-300 bg-clip-text text-transparent drop-shadow-lg pb-3">
                   {isOwnProfile ? user?.displayName : profileData?.name}
-                  
                 </h4>
 
                 {/* Follow/Unfollow button */}
@@ -92,7 +92,6 @@ export default function Profile() {
                     Follow
                   </button>
                 )}
-
               </div>
             </div>
 
