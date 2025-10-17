@@ -5,7 +5,7 @@ import {
   getUserById,
   toggleStarredAsteroid,
   followUser,
-  unfollowUser
+  unfollowUser,
   checkoutCart,
 } from '../../services/userService.js';
 
