@@ -7,8 +7,9 @@ import { useAuthStore } from '@/store/useAuthViewModel';
 import { useAppStore } from '@/store/useAppViewModel';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
+import { Suspense } from 'react';
 
-export default function Profile() {
+const ProfileContent = () => {
   const { user } = useAuthStore();
   const {
     userData,
@@ -189,5 +190,22 @@ export default function Profile() {
         </div>
       </div>
     </div>
+  );
+};
+
+export default function Profile() {
+  return (
+    <Suspense
+      fallback={
+        <div className="galaxy-bg-space min-h-screen">
+          <Navbar />
+          <div className="flex justify-center items-center h-screen">
+            <p className="text-white text-xl">Loading...</p>
+          </div>
+        </div>
+      }
+    >
+      <ProfileContent />
+    </Suspense>
   );
 }
