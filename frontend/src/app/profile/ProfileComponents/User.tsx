@@ -4,7 +4,9 @@ import {
   useAppStore,
   onHandleProductClick,
   onHandleStarred,
+  type SortOption,
 } from '@/store/useAppViewModel';
+import { sortAsteroids } from '@/store/AppModel';
 import { useAuthStore } from '@/store/useAuthViewModel';
 import type { UserData } from '@/store/AppModel';
 import EditProfileModal from '@/components/editProfileModal';
@@ -18,6 +20,24 @@ import AsteroidSVGMoving from '@/components/asteroidSVGMoving';
 import AsteroidModal from '@/components/asteroidModal';
 import { Star } from 'lucide-react';
 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+  DropdownMenuItem,
+} from '@/components/dropdown';
+import { ChevronDownIcon } from 'lucide-react';
+
+const SORT_OPTIONS: Array<{ name: string; value: SortOption }> = [
+  { name: 'None', value: 'None' }, // for when no sorting is selected
+  { name: 'Size: Small to Big', value: 'size-asc' },
+  { name: 'Size: Big to Small', value: 'size-desc' },
+  { name: 'Price: Low to High', value: 'price-asc' },
+  { name: 'Price: High to Low', value: 'price-desc' },
+  { name: 'Approaching: Soon to Later', value: 'distance-asc' },
+  { name: 'Approaching: Later to Soon', value: 'distance-desc' },
+];
+
 export default function User({ profileData, isOwnProfile }: UserProps) {
   const { user: firebaseUser } = useAuthStore();
   const { updateProfileData, selectedAsteroid } = useAppStore();
@@ -27,6 +47,12 @@ export default function User({ profileData, isOwnProfile }: UserProps) {
 
   const [zeroFavAsteroidId, setZeroFavAsteroidId] = useState<string>('0000000');
 
+  const [filter, setFilter] = useState<string>('None');
+
+  const sortedStarredAsteroids = profileData?.starred_asteroids
+    ? sortAsteroids(profileData.starred_asteroids, filter as SortOption)
+    : [];
+
   useEffect(() => {
     if (profileData?.starred_asteroids?.length === 0) {
       const id = Math.floor(Math.random() * 10000000)
@@ -34,7 +60,7 @@ export default function User({ profileData, isOwnProfile }: UserProps) {
         .padStart(7, '0');
       setZeroFavAsteroidId(id);
     }
-  }, []);
+  }, [profileData]);
 
   const displayName = isOwnProfile
     ? firebaseUser?.displayName
@@ -94,12 +120,39 @@ export default function User({ profileData, isOwnProfile }: UserProps) {
         </>
       )}
 
-      <h2 className="mt-10 text-2xl font-extrabold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-300 bg-clip-text text-transparent drop-shadow-lg">
+      <h2 className="relative mt-10 text-2xl font-extrabold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-300 bg-clip-text text-transparent drop-shadow-lg">
         Favorite Asteroids
+        {/* Sort - Sorts the results */}
+        <div className="flex items-center shrink-0 font-thin absolute top-0 right-0">
+          <DropdownMenu>
+            <DropdownMenuTrigger className="group inline-flex text-lg font-modak text-white hover:underline justify-between gap-4 cursor-pointer">
+              SORT
+              <ChevronDownIcon className="text-muted-foreground pointer-events-none size-4 shrink-0 translate-y-1.5 transition-transform duration-200 text-white group-hover:text-gray-400" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {SORT_OPTIONS.map(option => (
+                <DropdownMenuItem
+                  key={option.name}
+                  className={`cursor-pointer ml-4 py-2 px-4 text-sm rounded-none
+                            ${
+                              option.value === filter
+                                ? 'bg-purple-500 text-white' // Selected style
+                                : 'bg-black hover:bg-gray-800 text-white' // Default style
+                            }`}
+                  onClick={() => {
+                    setFilter(option.value);
+                  }}
+                >
+                  {option.name}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </h2>
 
       {/* user favorite asteroids */}
-      {profileData?.starred_asteroids.length === 0 ? (
+      {sortedStarredAsteroids.length === 0 ? (
         <div className="text-white">
           <div className="flex flex-row items-center mt-10 text-center">
             <style>
@@ -133,7 +186,7 @@ export default function User({ profileData, isOwnProfile }: UserProps) {
       ) : (
         <div className="text-white">
           <div className="grid grid-cols-1 md:grid-cols-2">
-            {profileData?.starred_asteroids.map(asteroid => (
+            {sortedStarredAsteroids.map(asteroid => (
               <div
                 key={asteroid.id}
                 className="relative rounded bg-[rgba(23,23,23,0.7)]1 shadow text-center cursor-pointer"

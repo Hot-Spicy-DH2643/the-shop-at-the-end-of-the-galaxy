@@ -5,11 +5,30 @@ import {
   useAppStore,
   onHandleProductClick,
   onHandleStarred,
+  type SortOption,
 } from '@/store/useAppViewModel';
-
+import { sortAsteroids } from '@/store/AppModel';
 import AsteroidSVGMoving from '@/components/asteroidSVGMoving';
 import AsteroidModal from '@/components/asteroidModal';
 import { Star } from 'lucide-react';
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+  DropdownMenuItem,
+} from '@/components/dropdown';
+import { ChevronDownIcon } from 'lucide-react';
+
+const SORT_OPTIONS: Array<{ name: string; value: SortOption }> = [
+  { name: 'None', value: 'None' }, // for when no sorting is selected
+  { name: 'Size: Small to Big', value: 'size-asc' },
+  { name: 'Size: Big to Small', value: 'size-desc' },
+  { name: 'Price: Low to High', value: 'price-asc' },
+  { name: 'Price: High to Low', value: 'price-desc' },
+  { name: 'Approaching: Soon to Later', value: 'distance-asc' },
+  { name: 'Approaching: Later to Soon', value: 'distance-desc' },
+];
 
 interface PurchasesProps {
   profileData: UserData | null;
@@ -25,6 +44,11 @@ export default function Purchases({
   const starred_asteroids = profileData?.starred_asteroids;
 
   const [zeroPurchaseId, setZeroPurchaseId] = useState<string>('0000000');
+  const [filter, setFilter] = useState<string>('None');
+
+  const sortedOwnedAsteroids = profileData?.owned_asteroids
+    ? sortAsteroids(profileData.owned_asteroids, filter as SortOption)
+    : [];
 
   const { selectedAsteroid } = useAppStore();
 
@@ -35,7 +59,7 @@ export default function Purchases({
         .padStart(7, '0');
       setZeroPurchaseId(id);
     }
-  }, []);
+  }, [owned_asteroids]);
 
   if (owned_asteroids?.length === 0) {
     return (
@@ -77,7 +101,34 @@ export default function Purchases({
         Purchases
       </h2>
 
-      <p className="mt-4 text-lg">
+      <p className="relative text-lg my-4">
+        {/* Sort - Sorts the results */}
+        <div className="flex items-center shrink-0 absolute top-0 right-0">
+          <DropdownMenu>
+            <DropdownMenuTrigger className="group inline-flex text-lg font-modak text-white hover:underline justify-between gap-4 cursor-pointer">
+              SORT
+              <ChevronDownIcon className="text-muted-foreground pointer-events-none size-4 shrink-0 translate-y-1.5 transition-transform duration-200 text-white group-hover:text-gray-400" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {SORT_OPTIONS.map(option => (
+                <DropdownMenuItem
+                  key={option.name}
+                  className={`cursor-pointer ml-4 py-2 px-4 text-sm rounded-none
+                            ${
+                              option.value === filter
+                                ? 'bg-purple-500 text-white' // Selected style
+                                : 'bg-black hover:bg-gray-800 text-white' // Default style
+                            }`}
+                  onClick={() => {
+                    setFilter(option.value);
+                  }}
+                >
+                  {option.name}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
         <span className="font-bold">{profileData?.name}</span> has{' '}
         <span className="font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
           {owned_asteroids?.length}
@@ -86,7 +137,7 @@ export default function Purchases({
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2">
-        {owned_asteroids?.map(asteroid => (
+        {sortedOwnedAsteroids?.map(asteroid => (
           <div
             key={asteroid.id}
             className="relative rounded bg-[rgba(23,23,23,0.7)]1 shadow text-center cursor-pointer"
