@@ -4,7 +4,7 @@ services:
   mongo:
     image: mongo:6
     ports:
-      - "27017:27017"
+      - '27017:27017'
     volumes:
       - mongo-data:/data/db
     networks:
@@ -20,7 +20,7 @@ services:
     env_file:
       - ./backend/.env
     expose:
-      - "3001"
+      - '3001'
     volumes:
       - ./backend:/app
       - /app/node_modules
@@ -31,9 +31,9 @@ services:
     healthcheck:
       test:
         [
-          "CMD",
-          "node",
-          "-e",
+          'CMD',
+          'node',
+          '-e',
           "require('http').get('http://localhost:3001', (r) => process.exit(r.statusCode === 200 ? 0 : 1))",
         ]
       interval: 10s
@@ -51,8 +51,9 @@ services:
       - CI=true
       - NEXT_PUBLIC_GRAPHQL_URI=https://the-shop-at-the-end-of-the-galaxy.lambozhuang.me/graphql
       - NEXT_PUBLIC_BACKEND_URL=https://the-shop-at-the-end-of-the-galaxy.lambozhuang.me/api
+      - NEXT_PUBLIC_WS_HOST=the-shop-at-the-end-of-the-galaxy.lambozhuang.me
     expose:
-      - "3000"
+      - '3000'
     depends_on:
       backend:
         condition: service_healthy
@@ -65,9 +66,9 @@ services:
     healthcheck:
       test:
         [
-          "CMD",
-          "node",
-          "-e",
+          'CMD',
+          'node',
+          '-e',
           "require('http').get('http://localhost:3000', (r) => process.exit(r.statusCode === 200 ? 0 : 1))",
         ]
       interval: 30s
@@ -81,9 +82,9 @@ services:
     image: caddy:2-alpine
     restart: unless-stopped
     ports:
-      - "80:80"
-      - "443:443"
-      - "443:443/udp"
+      - '80:80'
+      - '443:443'
+      - '443:443/udp'
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
       - caddy-data:/data
