@@ -52,8 +52,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ loading: true });
     try {
       await signInWithEmail(email, password);
-    } finally {
-      // Loading will be set to false by onAuthStateChanged
+    } catch (error) {
+      set({ loading: false });
+      throw error;
     }
   },
 
@@ -61,8 +62,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ loading: true });
     try {
       await signInWithGoogle();
-    } finally {
-      // Loading will be set to false by onAuthStateChanged
+    } catch (error) {
+      set({ loading: false });
+      throw error;
     }
   },
 
@@ -70,8 +72,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ loading: true });
     try {
       await signUpWithEmail(email, password, username);
-    } finally {
-      // Loading will be set to false by onAuthStateChanged
+    } catch (error) {
+      set({ loading: false });
+      throw error;
     }
   },
 
