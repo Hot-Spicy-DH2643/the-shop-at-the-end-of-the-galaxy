@@ -13,7 +13,7 @@ Full-stack marketplace where you can window-shop near-earth objects, powered by 
 
 - **Frontend**: Next.js 15 (App Router), Tailwind CSS 4, Zustand, Apollo Client.
 - **Backend**: Node.js, Express, Apollo Server, Mongoose, WebSocket (ws).
-- **Database**: MongoDB 6.
+- **Database**: MongoDB 7.
 - **Infrastructure**: Docker Compose (development & production flavours) with Caddy reverse proxy for production.
 
 ## Repository Layout
@@ -34,7 +34,7 @@ Copy env files and run `docker compose up --build` from the repo root.
 
 - Node.js 20+ and npm 10 (check with `node -v && npm -v`).
 - Docker Desktop (or Engine) with Docker Compose, if you want the containerized workflow.
-- MongoDB 6+ if you prefer running the database locally instead of Docker.
+- MongoDB 7+ if you prefer running the database locally instead of Docker.
 - Optional integrations:
   - NASA API key (https://api.nasa.gov/) to avoid demo rate limits.
   - Firebase Admin service account credentials.
