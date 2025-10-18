@@ -163,8 +163,12 @@ const useAppStore = create<AppState>((set, get) => ({
   },
 
   setUserData: async () => {
+    const hadUserData = Boolean(get().userData);
     try {
-      set({ userLoading: true, error: null });
+      set(state => ({
+        userLoading: hadUserData ? state.userLoading : true,
+        error: null,
+      }));
       const currentUser = useAuthStore.getState().user;
       const userId = currentUser?.uid;
 
