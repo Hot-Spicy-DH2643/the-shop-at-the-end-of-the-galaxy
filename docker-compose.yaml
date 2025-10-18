@@ -10,12 +10,14 @@ services:
     environment:
       - PORT=3001
       - MONGO_URI=mongodb://mongo:27017/galaxy-shop
+      - CHOKIDAR_USEPOLLING=true
     env_file:
       - ./backend/.env
     ports:
       - "3001:3001"
     volumes:
       - ./backend:/app
+      - /app/node_modules
     depends_on:
       - mongo
     command: sh -c "npm install && npm run dev"

@@ -27,8 +27,10 @@ const ProfileTab = ({ profileData, isOwnProfile }: ProfileTabProps) => {
 
   const handleNavigation = (tab: Tab) => {
     setActiveTab(tab);
-    const newUrl = `/profile?tab=${tab}`;
-    router.push(newUrl);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('tab', tab);
+    const query = params.toString();
+    router.push(query ? `/profile?${query}` : '/profile');
   };
 
   return (

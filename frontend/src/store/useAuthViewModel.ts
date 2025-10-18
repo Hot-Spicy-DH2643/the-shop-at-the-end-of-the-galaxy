@@ -11,6 +11,7 @@ import {
   createBackendSession,
   initializeAuthListener,
 } from './AuthModel';
+import { useAppStore } from './useAppViewModel';
 
 export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
@@ -33,6 +34,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       },
       async user => {
         await createBackendSession(user);
+        // get user data from backend
+        await useAppStore.getState().setUserData();
         set({ loading: false });
       },
       () => {

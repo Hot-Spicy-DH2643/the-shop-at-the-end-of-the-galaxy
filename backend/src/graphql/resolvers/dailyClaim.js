@@ -1,28 +1,17 @@
-// In-memory storage for daily claims
-// Structure: { userId: { lastClaimDate: 'YYYY-MM-DD', coins: 0 } }
-const dailyClaimStorage = new Map();
+import { User } from '../../models/User.js';
 
 const DAILY_REWARD_AMOUNT = 200;
 
 /**
- * Check if a user can claim their daily reward
+ * Check if a user can claim their daily reward (persistent)
  * @param {string} userId - The user's unique identifier
- * @returns {Object} Status of daily claim availability
+ * @returns {Promise<Object>} Status of daily claim availability
  */
-function checkClaimAvailability(userId) {
-  // TODO: Replace with persistent storage in production
-  // 1. Create a database model (e.g. UserClaim) or add fields to the existing User model
-  // 2. Replace the Map operations with database queries
-  // Instead of
-  // const userClaim = dailyClaimStorage.get(userId);
-  // Use something like:
-  // const userClaim = await UserClaim.findOne({ where: { userId } });
-  // And for saving:
-  // await userClaim.save();
-  const userClaim = dailyClaimStorage.get(userId);
+async function checkClaimAvailability(userId) {
+  const user = await User.findOne({ uid: userId });
   const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
 
-  if (!userClaim || userClaim.lastClaimDate !== today) {
+  if (!user || user.lastDailyClaimDate !== today) {
     return {
       isAvailable: true,
       nextClaimTime: null,
@@ -43,12 +32,12 @@ function checkClaimAvailability(userId) {
 }
 
 /**
- * Process a daily claim for a user
+ * Process a daily claim for a user (persistent)
  * @param {string} userId - The user's unique identifier
- * @returns {Object} Result of the claim attempt
+ * @returns {Promise<Object>} Result of the claim attempt
  */
-function processClaim(userId) {
-  const status = checkClaimAvailability(userId);
+async function processClaim(userId) {
+  const status = await checkClaimAvailability(userId);
 
   if (!status.isAvailable) {
     return {
@@ -59,12 +48,20 @@ function processClaim(userId) {
     };
   }
 
-  // Record the claim
+  // Record the claim in the database
   const today = new Date().toISOString().split('T')[0];
-  const userClaim = dailyClaimStorage.get(userId) || { coins: 0 };
-  userClaim.lastClaimDate = today;
-  userClaim.coins += DAILY_REWARD_AMOUNT;
-  dailyClaimStorage.set(userId, userClaim);
+  const user = await User.findOne({ uid: userId });
+  if (!user) {
+    return {
+      success: false,
+      coinsEarned: 0,
+      message: 'User not found.',
+      nextClaimTime: null,
+    };
+  }
+  user.lastDailyClaimDate = today;
+  user.coins = (user.coins || 0) + DAILY_REWARD_AMOUNT;
+  await user.save();
 
   // Calculate next claim time
   const tomorrow = new Date();
@@ -81,28 +78,27 @@ function processClaim(userId) {
 
 export const dailyClaimResolvers = {
   Query: {
-    checkDailyClaim: (parent, args, context) => {
+    checkDailyClaim: async (parent, args, context) => {
       // Require authentication
       if (!context.user) {
         throw new Error('Authentication required to check daily claim');
       }
 
       const userId = context.user.uid || context.user.email;
-      return checkClaimAvailability(userId);
+      return await checkClaimAvailability(userId);
     },
   },
   Mutation: {
-    claimDailyReward: (parent, args, context) => {
+    claimDailyReward: async (parent, args, context) => {
       // Require authentication
       if (!context.user) {
         throw new Error('Authentication required to claim daily reward');
       }
 
       const userId = context.user.uid || context.user.email;
-      return processClaim(userId);
+      return await processClaim(userId);
     },
   },
 };
 
-// Exporting storage for testing purposes
-// export { dailyClaimStorage };
+// ...existing code...
