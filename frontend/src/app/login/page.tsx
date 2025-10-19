@@ -12,8 +12,13 @@ export default function Login() {
   const [username, setUsername] = useState('');
   const [error, setError] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
-  const { signInWithEmail, signUpWithEmail, signInWithGoogle, loading } =
-    useAuthStore();
+  const {
+    signInWithEmail,
+    signUpWithEmail,
+    signInWithGoogle,
+    loading,
+    setLoading,
+  } = useAuthStore();
   const router = useRouter();
 
   const handleEmailLogin = async (e: React.FormEvent) => {
@@ -55,6 +60,7 @@ export default function Login() {
             ? 'Failed to sign up. Please try again.'
             : 'Failed to sign in. Please check your credentials.';
       setError(errorMessage);
+      setLoading(false); // Ensure loading is reset
       console.error(isSignUp ? 'Sign up error:' : 'Login error:', err);
     }
   };
@@ -70,6 +76,7 @@ export default function Login() {
       const errorMessage =
         err instanceof Error ? err.message : 'Failed to sign in with Google.';
       setError(errorMessage);
+      setLoading(false); // Ensure loading is reset
       console.error('Google login error:', err);
     }
   };
