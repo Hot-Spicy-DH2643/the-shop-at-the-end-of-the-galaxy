@@ -68,9 +68,23 @@ export default function User({ profileData, isOwnProfile }: UserProps) {
             <td>{profileData?.starred_asteroids.length} asteroids</td>
           </tr>
           {isOwnProfile && (
-            <tr className="font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-              <td className="pr-10">Coins:</td>
-              <td>{profileData?.coins || 0}</td>
+            <tr className="font-bold">
+              <td className="pr-10">
+                <span
+                  className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent"
+                  style={{ WebkitTextFillColor: 'transparent' }}
+                >
+                  Coins:
+                </span>
+              </td>
+              <td>
+                <span
+                  className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent"
+                  style={{ WebkitTextFillColor: 'transparent' }}
+                >
+                  {profileData?.coins ?? 0}
+                </span>
+              </td>
             </tr>
           )}
         </tbody>
