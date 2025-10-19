@@ -17,11 +17,11 @@ interface DailyClaimState {
   hasCheckedThisSession: boolean;
   showModal: boolean;
 
-  checkClaimAvailability: () => Promise<void>;
+  checkClaimAvailability: (force?: boolean) => Promise<void>;
   performClaim: () => Promise<void>;
   setShowModal: (show: boolean) => void;
   resetClaimResult: () => void;
-  markSessionChecked: () => void;
+  resetSession: () => void;
 }
 
 export const useDailyClaimStore = create<DailyClaimState>((set, get) => ({
@@ -33,10 +33,10 @@ export const useDailyClaimStore = create<DailyClaimState>((set, get) => ({
   hasCheckedThisSession: false,
   showModal: false,
 
-  checkClaimAvailability: async () => {
+  checkClaimAvailability: async (force = false) => {
     const { hasCheckedThisSession } = get();
 
-    if (hasCheckedThisSession) {
+    if (hasCheckedThisSession && !force) {
       console.log('Daily claim: Already checked this session');
       return;
     }
@@ -111,8 +111,16 @@ export const useDailyClaimStore = create<DailyClaimState>((set, get) => ({
     set({ claimResult: null });
   },
 
-  markSessionChecked: () => {
-    set({ hasCheckedThisSession: true });
+  resetSession: () => {
+    set({
+      claimStatus: null,
+      claimResult: null,
+      loading: false,
+      claiming: false,
+      error: null,
+      hasCheckedThisSession: false,
+      showModal: false,
+    });
   },
 }));
 

@@ -12,13 +12,8 @@ export default function Login() {
   const [username, setUsername] = useState('');
   const [error, setError] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
-  const {
-    signInWithEmail,
-    signUpWithEmail,
-    signInWithGoogle,
-    getIdToken,
-    loading,
-  } = useAuthStore();
+  const { signInWithEmail, signUpWithEmail, signInWithGoogle, loading } =
+    useAuthStore();
   const router = useRouter();
 
   const handleEmailLogin = async (e: React.FormEvent) => {
@@ -70,9 +65,6 @@ export default function Login() {
     try {
       await signInWithGoogle();
       console.log('Google login successful');
-      // print the token to the console
-      const token = await getIdToken();
-      console.log('Firebase ID Token:', token);
       router.push('/'); // Redirect to dashboard after successful login
     } catch (err) {
       const errorMessage =

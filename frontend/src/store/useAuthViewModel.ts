@@ -12,6 +12,7 @@ import {
   initializeAuthListener,
 } from './AuthModel';
 import { useAppStore } from './useAppViewModel';
+import { useDailyClaimStore } from './useDailyClaimViewModel';
 
 export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
@@ -31,16 +32,29 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     const unsubscribe = initializeAuthListener(
       user => {
         set({ user, loading: true });
+        if (!user) {
+          useDailyClaimStore.getState().resetSession();
+        }
       },
       async user => {
-        await createBackendSession(user);
+        const metadata = user.metadata;
+        const isFirstLogin =
+          metadata?.creationTime && metadata?.lastSignInTime
+            ? metadata.creationTime === metadata.lastSignInTime
+            : false;
+        const dailyClaimActions = useDailyClaimStore.getState();
+        dailyClaimActions.resetSession();
+        const shouldForceRefresh = isFirstLogin || !user.displayName;
+        await createBackendSession(user, shouldForceRefresh);
         // get user data from backend
         await useAppStore.getState().setUserData();
         set({ loading: false });
+        void dailyClaimActions.checkClaimAvailability(true);
       },
       () => {
         // Handle null user case (logged out or not authenticated)
         set({ loading: false });
+        useDailyClaimStore.getState().resetSession();
       }
     );
 
@@ -83,6 +97,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       await logout();
       // Redirect to home page after logout
+      useDailyClaimStore.getState().resetSession();
       if (typeof window !== 'undefined') {
         window.location.href = '/';
       }
