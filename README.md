@@ -7,12 +7,12 @@ Full-stack marketplace where you can window-shop near-earth objects, powered by 
 - Browse asteroids and cosmic curiosities with live pricing and availability.
 - GraphQL API backed by MongoDB for caching and richer querying.
 - Realtime WebSocket channel that shows how many people are eyeing the same asteroid.
-- Firebase-based authentication hooks ready for secure sessions.
+- Authentication handled by Firebase for secure user sessions.
 
 ## Tech Stack
 
 - **Frontend**: Next.js 15 (App Router), Tailwind CSS 4, Zustand, Apollo Client.
-- **Backend**: Node.js, Express, Apollo Server, Mongoose, WebSocket (ws).
+- **Backend**: Node.js, Express, Apollo Server, Mongoose, WebSocket (ws), Firebase (for authentication).
 - **Database**: MongoDB 7.
 - **Infrastructure**: Docker Compose (development & production flavours) with Caddy reverse proxy for production.
 
