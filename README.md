@@ -1,5 +1,7 @@
 # The Shop at the End of the Galaxy
 
+![Demo](./demo.png)
+
 Full-stack marketplace where you can window-shop near-earth objects, powered by a Next.js frontend and a GraphQL API that wraps NASA's data services.
 
 ## Features
