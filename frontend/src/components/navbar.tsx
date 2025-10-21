@@ -22,7 +22,9 @@ function formatDisplayName(displayName?: string | null) {
   const firstWord = trimmed.split(/\s+/)[0];
   const limit = 14;
 
-  return firstWord.length > limit ? `${firstWord.slice(0, limit - 1)}…` : firstWord;
+  return firstWord.length > limit
+    ? `${firstWord.slice(0, limit - 1)}…`
+    : firstWord;
 }
 
 export default function Navbar() {
@@ -69,7 +71,7 @@ export default function Navbar() {
     hover:before:w-full"
                     title={
                       user && link.label === 'Login'
-                        ? user.displayName ?? undefined
+                        ? (user.displayName ?? undefined)
                         : undefined
                     }
                   >
@@ -158,8 +160,14 @@ export default function Navbar() {
       </div>
 
       {user && showCart && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center">
-          <div className="relative bg-gray-950 text-white w-[90%] max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl border border-fuchsia-700 shadow-2xl p-6">
+        <div
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center"
+          onClick={() => setShowCart(false)}
+        >
+          <div
+            className="relative bg-gray-950 text-white w-[90%] max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl border border-fuchsia-700 shadow-2xl p-6"
+            onClick={e => e.stopPropagation()}
+          >
             <button
               onClick={() => setShowCart(false)}
               className="absolute top-3 right-4 text-gray-400 hover:text-white text-2xl cursor-pointer"
