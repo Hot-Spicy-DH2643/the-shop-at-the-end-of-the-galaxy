@@ -8,9 +8,9 @@ import { CacheMetadata } from '../../models/CacheMetadata.js';
 export const asteroidResolvers = {
   Query: {
     // Get all asteroids with pagination
-    asteroids: async (parent, {page = 1, pageSize = 20, filters = null}) => {
+    asteroids: async (parent, {page = 1, pageSize = 20, filters = null}, context) => {
       try {
-        return await getAsteroids(page, pageSize, filters);
+        return await getAsteroids(page, pageSize, filters, context);
       } catch (error) {
         console.error("Error in asteroids resolver:", error);
         throw new Error("Failed to fetch filtered asteroids");

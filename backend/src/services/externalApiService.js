@@ -448,6 +448,23 @@ function getClosestApproachDistance(asteroid) {
 }
 
 /**
+ * Get the first approach date timestamp for an asteroid (for chronological sorting)
+ * @param {Object} asteroid - Asteroid object
+ * @returns {number} Timestamp in milliseconds
+ */
+function getFirstApproachTimestamp(asteroid) {
+  if (
+    !asteroid.close_approach_data ||
+    asteroid.close_approach_data.length === 0
+  ) {
+    return Infinity;
+  }
+
+  // Use the first approach date (same as displayed in frontend modal)
+  return asteroid.close_approach_data[0].epoch_date_close_approach;
+}
+
+/**
  * Apply distance filtering and sorting to asteroids
  * @param {Array} asteroids - Array of asteroid objects
  * @param {Object} filters - Filter parameters
@@ -486,14 +503,14 @@ function applyDistanceFilterAndSort(asteroids, filters) {
         case 'price-desc':
           return b.price - a.price;
         case 'distance-asc': {
-          const distA = getClosestApproachDistance(a);
-          const distB = getClosestApproachDistance(b);
-          return distA - distB;
+          const timeA = getFirstApproachTimestamp(a);
+          const timeB = getFirstApproachTimestamp(b);
+          return timeA - timeB;
         }
         case 'distance-desc': {
-          const distA = getClosestApproachDistance(a);
-          const distB = getClosestApproachDistance(b);
-          return distB - distA;
+          const timeA = getFirstApproachTimestamp(a);
+          const timeB = getFirstApproachTimestamp(b);
+          return timeB - timeA;
         }
         default:
           return 0;
@@ -508,9 +525,16 @@ function applyDistanceFilterAndSort(asteroids, filters) {
  * Get asteroids from database or fetch from API if cache is empty
  * @param {number} page - Page number (1-indexed)
  * @param {number} pageSize - Number of items per page
+ * @param {Object} filters - Filter parameters
+ * @param {Object} context - GraphQL context with user information
  * @returns {Promise<Object>} Paginated asteroids with metadata
  */
-export async function getAsteroids(page = 1, pageSize = 20, filters = null) {
+export async function getAsteroids(
+  page = 1,
+  pageSize = 20,
+  filters = null,
+  context = null
+) {
   try {
     // Check if we have cached data
     let totalCount = await Asteroid.countDocuments();
@@ -535,6 +559,15 @@ export async function getAsteroids(page = 1, pageSize = 20, filters = null) {
     for (let asteroid of asteroids) {
       const ownerUser = await User.findOne({ owned_asteroid_ids: asteroid.id });
       asteroid.owner = ownerUser ? ownerUser : null;
+    }
+
+    // Apply ownership filtering if specified
+    if (filters && filters.ownership && filters.ownership !== 'all') {
+      if (filters.ownership === 'owned') {
+        asteroids = asteroids.filter(asteroid => asteroid.owner !== null);
+      } else if (filters.ownership === 'not-owned') {
+        asteroids = asteroids.filter(asteroid => asteroid.owner === null);
+      }
     }
 
     // Apply distance filtering and sorting
