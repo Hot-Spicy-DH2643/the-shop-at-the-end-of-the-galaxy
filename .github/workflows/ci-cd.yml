@@ -28,9 +28,7 @@ jobs:
           else
             docker compose -f docker-compose.caddy.yaml down 2>/dev/null || true
           fi
-          # Clean node_modules, .next, and pnpm store with proper permissions
-          sudo rm -rf backend/node_modules frontend/node_modules frontend/.next frontend/.pnpm-store 2>/dev/null || true
-          # Alternative: Use Docker to clean files with proper permissions
+          # Clean node_modules, .next, and pnpm store using Docker to avoid permission prompts
           docker run --rm -v "$PWD":/workspace alpine sh -c "rm -rf /workspace/backend/node_modules /workspace/frontend/node_modules /workspace/frontend/.next /workspace/frontend/.pnpm-store" 2>/dev/null || true
 
       - name: Checkout code
@@ -88,9 +86,9 @@ jobs:
           echo "✅ Deployment completed successfully!"
           echo ""
           echo "🌐 Your application is now accessible at:"
-          echo "   Main Site: https://the-shop-at-the-end-of-the-galaxy.lambozhuang.me"
-          echo "   GraphQL API: https://the-shop-at-the-end-of-the-galaxy.lambozhuang.me/graphql"
-          echo "   Backend API: https://the-shop-at-the-end-of-the-galaxy.lambozhuang.me/api"
+          echo "   Main Site: https://galaxyend.com"
+          echo "   GraphQL API: https://galaxyend.com/graphql"
+          echo "   Backend API: https://galaxyend.com/api"
           echo ""
           echo "📊 To view logs:"
           echo "   All services: docker compose -f docker-compose.caddy.yaml logs -f"

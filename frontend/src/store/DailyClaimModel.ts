@@ -100,24 +100,3 @@ export async function claimDailyReward(): Promise<ClaimResult> {
     throw error;
   }
 }
-
-/**
- * Calculate time until next claim (midnight)
- * @returns {string} ISO string of next claim time
- */
-export function getNextClaimTime(): string {
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  tomorrow.setHours(0, 0, 0, 0);
-  return tomorrow.toISOString();
-}
-
-/**
- * Check if a claim time has passed
- * @param {string | null} nextClaimTime - ISO string of next claim time
- * @returns {boolean} True if claim time has passed
- */
-export function isClaimTimeReached(nextClaimTime: string | null): boolean {
-  if (!nextClaimTime) return true;
-  return new Date() >= new Date(nextClaimTime);
-}

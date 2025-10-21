@@ -5,6 +5,7 @@ import AsteroidModal from '@/components/asteroidModal';
 import '@/app/globals.css';
 import type { UserData, Asteroid } from '@/store/AppModel';
 import { fetchAsteroidById } from '@/store/AppModel';
+import { useAppStore } from '@/store/useAppViewModel';
 
 // Configuration for the orbital system (base values for 600px container)
 const BASE_CONTAINER_SIZE = 600;
@@ -39,6 +40,8 @@ const hashStringToNumber = (str: string): number => {
 };
 
 export default function Galaxy({ profileData }: GalaxyProps) {
+  const { onHandleStarred } = useAppStore();
+
   const [loading, setLoading] = useState(true);
   const [asteroidOrbits, setAsteroidOrbits] = useState<AsteroidOrbit[]>([]);
   const [selectedAsteroidId, setSelectedAsteroidId] = useState<string | null>(
@@ -91,6 +94,7 @@ export default function Galaxy({ profileData }: GalaxyProps) {
 
   // Acceleration state - tracks time since drag release for smooth speed ramp-up
   const accelerationStartTimeRef = useRef<number | null>(null);
+  const previousAsteroidIdsRef = useRef<string[] | null>(null);
 
   // Wrapper for handleAsteroidClick to prevent clicks during drag
   const onAsteroidClick = (asteroidId: string) => {
@@ -107,10 +111,28 @@ export default function Galaxy({ profileData }: GalaxyProps) {
 
   // Initialize asteroids and their orbits
   useEffect(() => {
-    if (profileData) {
-      const ownedAsteroids = profileData.owned_asteroids;
-      const asteroidCount = ownedAsteroids.length;
-      const rawSpeeds = ownedAsteroids.map(asteroid => {
+    if (!profileData) {
+      setLoading(false);
+      return;
+    }
+
+    const ownedAsteroids = profileData.owned_asteroids;
+    const asteroidIds = ownedAsteroids.map(asteroid => asteroid.id);
+    const previousAsteroidIds = previousAsteroidIdsRef.current;
+    const asteroidSetUnchanged =
+      Array.isArray(previousAsteroidIds) &&
+      previousAsteroidIds.length === asteroidIds.length &&
+      previousAsteroidIds.every((id, index) => id === asteroidIds[index]);
+
+    if (asteroidSetUnchanged && asteroidOrbits.length > 0) {
+      setLoading(false);
+      return;
+    }
+
+    previousAsteroidIdsRef.current = asteroidIds;
+
+    const asteroidCount = ownedAsteroids.length;
+    const rawSpeeds = ownedAsteroids.map(asteroid => {
         const velocity =
           asteroid.close_approach_data?.[0]?.relative_velocity
             ?.kilometers_per_second;
@@ -171,21 +193,14 @@ export default function Galaxy({ profileData }: GalaxyProps) {
         min: number | null,
         max: number | null
       ): number | null => {
-        if (
-          value === null ||
-          min === null ||
-          max === null ||
-          max === min
-        ) {
+        if (value === null || min === null || max === null || max === min) {
           return null;
         }
         const clamped = Math.min(Math.max(value, min), max);
         return (clamped - min) / (max - min);
       };
       const missDistanceValues = ownedAsteroids.map(asteroid =>
-        toNumber(
-          asteroid.close_approach_data?.[0]?.miss_distance?.kilometers
-        )
+        toNumber(asteroid.close_approach_data?.[0]?.miss_distance?.kilometers)
       );
       const numericMissDistances = missDistanceValues.filter(
         (value): value is number => value !== null
@@ -199,8 +214,7 @@ export default function Galaxy({ profileData }: GalaxyProps) {
           ? Math.max(...numericMissDistances)
           : null;
       const spawnStartAngle = 0;
-      const degreesPerAsteroid =
-        asteroidCount > 0 ? 360 / asteroidCount : 360;
+      const degreesPerAsteroid = asteroidCount > 0 ? 360 / asteroidCount : 360;
       const orbits: AsteroidOrbit[] = ownedAsteroids.map((asteroid, index) => {
         // Distribute asteroids across the orbital band
         const normalizedMissDistance = normalizeValue(
@@ -211,8 +225,7 @@ export default function Galaxy({ profileData }: GalaxyProps) {
         const radius =
           normalizedMissDistance !== null
             ? ORBITAL_BAND_INNER +
-              normalizedMissDistance *
-                (ORBITAL_BAND_OUTER - ORBITAL_BAND_INNER)
+              normalizedMissDistance * (ORBITAL_BAND_OUTER - ORBITAL_BAND_INNER)
             : ORBITAL_BAND_INNER + index * radiusStep;
 
         // Use actual asteroid speed when available, fall back to hashed default
@@ -231,8 +244,7 @@ export default function Galaxy({ profileData }: GalaxyProps) {
       orbits.forEach(orbit => {
         initialAngles[orbit.id] = orbit.startAngle;
       });
-      setAsteroidAngles(initialAngles);
-    }
+    setAsteroidAngles(initialAngles);
     setLoading(false);
   }, [profileData]);
 
@@ -513,8 +525,7 @@ export default function Galaxy({ profileData }: GalaxyProps) {
           asteroid={modalAsteroid}
           onClose={closeModal}
           onHandleStarred={(id: string) => {
-            console.log('Starred asteroid:', id);
-            // TODO: Implement star functionality
+            onHandleStarred(id);
           }}
         />
       )}

@@ -32,10 +32,25 @@ export interface AuthState {
   initializeAuth: () => void;
 }
 
-export async function createBackendSession(user: User): Promise<void> {
+export async function createBackendSession(
+  user: User,
+  forceRefresh = false
+): Promise<void> {
   console.log('Creating backend session...');
   try {
-    const token = await user.getIdToken();
+    if (forceRefresh) {
+      try {
+        await user.reload();
+      } catch (reloadError) {
+        console.warn(
+          'Failed to reload user before creating session:',
+          reloadError
+        );
+      }
+    }
+
+    const token = await user.getIdToken(forceRefresh);
+
     const response = await fetch(`${BACKEND_URL}/auth/login`, {
       method: 'POST',
       headers: {
@@ -94,6 +109,15 @@ export async function signUpWithEmail(
   await updateProfile(userCredential.user, {
     displayName: username,
   });
+  try {
+    await userCredential.user.reload();
+    await userCredential.user.getIdToken(true);
+  } catch (tokenError) {
+    console.warn(
+      'Failed to force refresh user token after signup:',
+      tokenError
+    );
+  }
   // Session will be created in onAuthStateChanged
 }
 

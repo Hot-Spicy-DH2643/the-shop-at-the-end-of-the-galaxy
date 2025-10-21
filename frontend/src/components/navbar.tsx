@@ -4,8 +4,8 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useAuthStore } from '@/store/useAuthViewModel';
 import { ShoppingBasket } from 'lucide-react';
-import Cart from './cart';
 import { useAppStore } from '@/store/useAppViewModel';
+import Cart from './cart';
 
 const navLinks = [
   { label: 'Home', href: '/' },
@@ -14,12 +14,24 @@ const navLinks = [
   { label: 'Login', href: '/login' },
 ];
 
+function formatDisplayName(displayName?: string | null) {
+  if (!displayName) return null;
+  const trimmed = displayName.trim();
+  if (!trimmed) return null;
+
+  const firstWord = trimmed.split(/\s+/)[0];
+  const limit = 14;
+
+  return firstWord.length > limit ? `${firstWord.slice(0, limit - 1)}…` : firstWord;
+}
+
 export default function Navbar() {
   const { user, logout } = useAuthStore();
   const [open, setOpen] = useState(false);
   const [showCart, setShowCart] = useState(false);
   const { userData } = useAppStore(); // to get the cart from global store
   const cartCount = userData?.cart_asteroids?.length || 0;
+  const shortDisplayName = formatDisplayName(user?.displayName);
 
   return (
     <nav className="w-full text-white bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700">
@@ -52,12 +64,17 @@ export default function Navbar() {
                     href={
                       user && link.label === 'Login' ? '/profile' : link.href
                     }
-                    className="block px-6 py-2 relative transition-all duration-500
+                    className="block px-6 py-2 relative max-w-[14rem] truncate transition-all duration-500
     before:content-[''] before:absolute before:left-0 before:bottom-1 before:w-0 before:h-0.5 before:bg-white before:transition-all before:duration-500
     hover:before:w-full"
+                    title={
+                      user && link.label === 'Login'
+                        ? user.displayName ?? undefined
+                        : undefined
+                    }
                   >
                     {user && link.label === 'Login'
-                      ? `Hello, ${user.displayName}`
+                      ? `Hello, ${shortDisplayName ?? 'there'}`
                       : link.label}
                   </Link>
                 </li>

@@ -16,8 +16,8 @@ export default function Login() {
     signInWithEmail,
     signUpWithEmail,
     signInWithGoogle,
-    getIdToken,
     loading,
+    setLoading,
   } = useAuthStore();
   const router = useRouter();
 
@@ -60,6 +60,7 @@ export default function Login() {
             ? 'Failed to sign up. Please try again.'
             : 'Failed to sign in. Please check your credentials.';
       setError(errorMessage);
+      setLoading(false); // Ensure loading is reset
       console.error(isSignUp ? 'Sign up error:' : 'Login error:', err);
     }
   };
@@ -70,14 +71,12 @@ export default function Login() {
     try {
       await signInWithGoogle();
       console.log('Google login successful');
-      // print the token to the console
-      const token = await getIdToken();
-      console.log('Firebase ID Token:', token);
       router.push('/'); // Redirect to dashboard after successful login
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : 'Failed to sign in with Google.';
       setError(errorMessage);
+      setLoading(false); // Ensure loading is reset
       console.error('Google login error:', err);
     }
   };

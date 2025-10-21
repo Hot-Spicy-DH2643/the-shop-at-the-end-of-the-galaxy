@@ -65,6 +65,13 @@ const useAppStore = create<AppState>((set, get) => ({
   resetFilters: () => get().setFilters(createDefaultFilters()),
   cart: [],
   addToCart: async asteroid_id => {
+    const currentUser = useAuthStore.getState().user;
+    const userId = currentUser?.uid;
+    if (!userId) {
+      alert('Please log in to continue.');
+      return;
+    }
+
     addToCart(asteroid_id).then(success => {
       if (success) {
         console.log('Successfully added to cart:', asteroid_id);
@@ -75,6 +82,13 @@ const useAppStore = create<AppState>((set, get) => ({
     });
   },
   removeFromCart: async asteroid_id => {
+    const currentUser = useAuthStore.getState().user;
+    const userId = currentUser?.uid;
+    if (!userId) {
+      alert('Please log in to continue.');
+      return;
+    }
+
     removeFromCart(asteroid_id).then(success => {
       if (success) {
         console.log('Successfully removed from cart:', asteroid_id);
@@ -86,6 +100,16 @@ const useAppStore = create<AppState>((set, get) => ({
   },
   checkoutLoading: false,
   checkout: async (): Promise<CheckoutResult> => {
+    const currentUser = useAuthStore.getState().user;
+    const userId = currentUser?.uid;
+    if (!userId) {
+      alert('Please log in to continue.');
+      return {
+        success: false,
+        message: 'User not authenticated',
+      };
+    }
+
     set({ checkoutLoading: true });
     try {
       const result = await checkoutCart();
@@ -161,10 +185,13 @@ const useAppStore = create<AppState>((set, get) => ({
       });
     }
   },
-
   setUserData: async () => {
+    const hadUserData = Boolean(get().userData);
     try {
-      set({ userLoading: true, error: null });
+      set(state => ({
+        userLoading: hadUserData ? state.userLoading : true,
+        error: null,
+      }));
       const currentUser = useAuthStore.getState().user;
       const userId = currentUser?.uid;
 
@@ -194,23 +221,32 @@ const useAppStore = create<AppState>((set, get) => ({
   },
 
   updateFollow: async (tUid: string) => {
+    const currentUser = useAuthStore.getState().user;
+    const userId = currentUser?.uid;
+    if (!userId) {
+      alert('Please log in to continue.');
+      return;
+    }
+
     const { setUserData, setViewedProfile } = useAppStore.getState();
     if (!tUid) return;
-    const currentUser = useAuthStore.getState().user;
-    if (!currentUser?.uid) return;
     await follow(tUid);
     await Promise.all([setUserData(), setViewedProfile(tUid)]);
   },
 
   updateUnfollow: async (tUid: string) => {
+    const currentUser = useAuthStore.getState().user;
+    const userId = currentUser?.uid;
+    if (!userId) {
+      alert('Please log in to continue.');
+      return;
+    }
+
     const { setUserData, setViewedProfile } = useAppStore.getState();
     if (!tUid) return;
-    const currentUser = useAuthStore.getState().user;
-    if (!currentUser?.uid) return;
     await unfollow(tUid);
     await Promise.all([setUserData(), setViewedProfile(tUid)]);
   },
-
   setViewedProfile: async (uid: string) => {
     try {
       set({ loading: true, error: null });
