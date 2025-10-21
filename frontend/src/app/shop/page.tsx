@@ -41,6 +41,16 @@ const HAZARD_FILTER = {
   ] as const,
 };
 
+const OWNERSHIP_FILTER = {
+  id: 'ownership',
+  name: 'Ownership',
+  options: [
+    { id: 0, value: 'all', label: 'All', checked: true },
+    { id: 1, value: 'owned', label: 'Owned', checked: false },
+    { id: 2, value: 'not-owned', label: 'Available', checked: false },
+  ] as const,
+};
+
 const ORBIT_FILTER = {
   id: 'orbit_type',
   name: 'Orbit Type',
@@ -73,6 +83,7 @@ export default function Shop() {
     onHandleStarred,
     filters,
     setFilters,
+    resetFilters,
   } = useAppStore();
 
   const [sizeRange, setSizeRange] = useState<[number, number]>([
@@ -102,6 +113,14 @@ export default function Shop() {
 
   console.log('Current filter state:', filters);
 
+  // Handler for resetting all filters
+  const handleResetFilters = () => {
+    resetFilters();
+    setSizeRange([0, 3000]);
+    setDistanceRange([0, 100]);
+    setPriceRange([100, 900]);
+  };
+
   // Fetch asteroids on mount
   useEffect(() => {
     setAsteroids(1);
@@ -128,13 +147,47 @@ export default function Shop() {
             {/*Filter - Filters the results*/}
             <Accordion type="single" collapsible>
               <AccordionItem value="item-1">
-                <AccordionTrigger className="group py-4 text-lg !font-modak text-white hover:underline cursor-pointer w-fit">
-                  <span className="inline-flex items-center gap-2">
-                    FILTER
-                    <ChevronDownIcon className="text-muted-foreground pointer-events-none size-4 transition-transform duration-200 text-white group-hover:text-gray-400" />
-                  </span>
-                </AccordionTrigger>
+                <div className="flex items-center justify-between">
+                  <AccordionTrigger className="group py-4 text-lg !font-modak text-white hover:underline cursor-pointer w-fit">
+                    <span className="inline-flex items-center gap-2">
+                      FILTER
+                      <ChevronDownIcon className="text-muted-foreground pointer-events-none size-4 transition-transform duration-200 text-white group-hover:text-gray-400" />
+                    </span>
+                  </AccordionTrigger>
+                </div>
                 <AccordionContent className="pt-2 animate-none grid grid-cols-1 lg:grid-cols-4 md:grid-cols-2 gap-9">
+                  {/* Ownership Filter */}
+                  <div className="lg:col-span-1 px-4">
+                    <h3 className="text-m font-modak text-white mb-4">
+                      Ownership
+                    </h3>
+                    <ul className="space-y-4">
+                      {OWNERSHIP_FILTER.options.map((option, index) => (
+                        <li key={option.value} className="flex items-center">
+                          <input
+                            type="radio"
+                            name="ownership-level"
+                            id={`ownership-${index}`}
+                            className="h-4 w-4 border-gray-300 text-purple-400 accent-purple-500 focus:ring-purple-500 cursor-pointer"
+                            checked={filters.ownership === option.value}
+                            onChange={() => {
+                              setFilters(prev => ({
+                                ...prev,
+                                ownership: option.value,
+                              }));
+                            }}
+                          />
+                          <label
+                            htmlFor={`ownership-${index}`}
+                            className="ml-3 text-sm font-medium text-white cursor-pointer"
+                          >
+                            {option.label}
+                          </label>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
                   {/*Hazard filter*/}
                   <div className="lg:col-span-1 px-4">
                     <h3 className="text-m font-modak text-white mb-4">
@@ -212,6 +265,13 @@ export default function Shop() {
                         </li>
                       ))}
                     </ul>
+
+                    <button
+                      onClick={handleResetFilters}
+                      className="text-md mt-8 font-modak text-purple-400 hover:text-purple-300 hover:underline cursor-pointer"
+                    >
+                      RESET ALL FILTERS
+                    </button>
                   </div>
 
                   {/*Size, distance, price sliders*/}

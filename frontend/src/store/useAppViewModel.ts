@@ -32,6 +32,7 @@ const createDefaultFilters = (): UIFilters => ({
   priceMax: 900,
   orbitTypes: [],
   sortBy: 'None',
+  ownership: 'all',
 });
 
 const useAppStore = create<AppState>((set, get) => ({

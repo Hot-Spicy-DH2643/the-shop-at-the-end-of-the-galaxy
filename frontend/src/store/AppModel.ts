@@ -258,6 +258,7 @@ export interface UIFilters {
   priceMax?: number;
   orbitTypes?: string[];
   sortBy?: string;
+  ownership?: string; // 'all', 'owned', 'not-owned'
 }
 
 // Backend filter input type
@@ -271,6 +272,7 @@ export interface BackendFilters {
   priceMax?: number;
   orbitTypes?: string[];
   sortBy?: string;
+  ownership?: string; // 'all', 'owned', 'not-owned'
 }
 
 // Converter function: UI filters -> Backend filters
@@ -571,13 +573,11 @@ export async function unfollow(tUid: string) {
 // ============================================
 
 /**
- * Helper function to get the time difference from now to closest approach date
+ * Helper function to get the first approach date timestamp for sorting
  * @param asteroid - The asteroid to analyze
- * @returns Absolute time difference in milliseconds, or Infinity if no data
+ * @returns Timestamp of the first approach date in milliseconds, or Infinity if no data
  */
-function getClosestApproachTimeDiff(asteroid: Asteroid): number {
-  const now = new Date().getTime();
-
+function getClosestApproachTimestamp(asteroid: Asteroid): number {
   if (
     !asteroid.close_approach_data ||
     asteroid.close_approach_data.length === 0
@@ -585,22 +585,11 @@ function getClosestApproachTimeDiff(asteroid: Asteroid): number {
     return Infinity;
   }
 
-  // Find the approach date closest to now (absolute time difference)
-  const closestApproach = asteroid.close_approach_data.reduce(
-    (closest, current) => {
-      const currentDate = new Date(current.close_approach_date_full).getTime();
-      const closestDate = new Date(closest.close_approach_date_full).getTime();
-
-      const currentDiff = Math.abs(currentDate - now);
-      const closestDiff = Math.abs(closestDate - now);
-
-      return currentDiff < closestDiff ? current : closest;
-    }
-  );
-
-  return Math.abs(
-    new Date(closestApproach.close_approach_date_full).getTime() - now
-  );
+  // Use the first approach date (same as what's displayed in the modal)
+  // This ensures sorting matches what the user sees
+  return new Date(
+    asteroid.close_approach_data[0].close_approach_date_full
+  ).getTime();
 }
 
 /**
@@ -648,16 +637,16 @@ export function sortAsteroids(
         return b.price - a.price;
 
       case 'distance-asc': {
-        // Near to far (by time - closest approach date to now)
-        const timeA = getClosestApproachTimeDiff(a);
-        const timeB = getClosestApproachTimeDiff(b);
+        // Soon to Later (chronological order: earliest approach date first)
+        const timeA = getClosestApproachTimestamp(a);
+        const timeB = getClosestApproachTimestamp(b);
         return timeA - timeB;
       }
 
       case 'distance-desc': {
-        // Far to near (by time - furthest approach date from now)
-        const timeA = getClosestApproachTimeDiff(a);
-        const timeB = getClosestApproachTimeDiff(b);
+        // Later to Soon (reverse chronological order: latest approach date first)
+        const timeA = getClosestApproachTimestamp(a);
+        const timeB = getClosestApproachTimestamp(b);
         return timeB - timeA;
       }
 

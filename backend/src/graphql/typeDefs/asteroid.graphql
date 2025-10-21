@@ -111,6 +111,7 @@ input AsteroidFilters {
   priceMax: Float # maximum price in CosmoCoins
   orbitTypes: [String!] # array of orbit class types: 'APO', 'ATE', 'AMO', 'IEO'
   sortBy: String # 'None', 'size-asc', 'size-desc', 'price-asc', 'price-desc', 'distance-asc', 'distance-desc'
+  ownership: String # 'all', 'owned', 'not-owned'
 }
 
 # TODO: Add allAsteroids query
