@@ -1,7 +1,12 @@
 import {
+  addToCart,
+  removeFromCart,
   getAllUsers,
   getUserById,
   toggleStarredAsteroid,
+  followUser,
+  unfollowUser,
+  checkoutCart,
 } from '../../services/userService.js';
 
 export const userResolvers = {
@@ -37,7 +42,19 @@ export const userResolvers = {
         return true;
       } catch (error) {
         console.error('Error in addToCart mutation:', error);
-        throw new Error('Failed to add asteroid to cart');
+        throw new Error('Failed to add asteroid to cart', error);
+      }
+    },
+    removeFromCart: async (parent, { asteroidId }, context) => {
+      try {
+        if (!context.user) {
+          throw new Error('Authentication required');
+        }
+        await removeFromCart(context.user.uid, asteroidId);
+        return true;
+      } catch (error) {
+        console.error('Error in removeFromCart mutation:', error);
+        throw new Error('Failed to remove asteroid from cart', error);
       }
     },
     toggleStarredAsteroid: async (parent, { asteroidId }, context) => {
@@ -53,6 +70,60 @@ export const userResolvers = {
       } catch (error) {
         console.error('Error toggling starred asteroid:', error);
         throw new Error('Failed to toggle starred asteroid');
+      }
+    },
+    checkoutCart: async (parent, args, context) => {
+      console.log('Initiating checkoutCart mutation');
+      if (!context.user) {
+        return {
+          success: false,
+          message: 'Authentication required',
+        };
+      }
+
+      try {
+        await checkoutCart(context.user.uid);
+        return {
+          success: true,
+          message: null,
+        };
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : 'Failed to checkout cart';
+        console.error('Error in checkoutCart mutation:', message);
+        return {
+          success: false,
+          message,
+        };
+      }
+    },
+
+    followUser: async (parent, { targetUid }, context) => {
+      const currentUser = context.user;
+
+      if (!currentUser) {
+        throw new Error('Authentication required');
+      }
+      try {
+        const result = await followUser(currentUser.uid, targetUid);
+        return result;
+      } catch (error) {
+        console.error('Error in followUser mutation:', error);
+        throw new Error('Failed to follow user', error);
+      }
+    },
+
+    unfollowUser: async (parent, { targetUid }, context) => {
+      const currentUser = context.user;
+      if (!currentUser) {
+        throw new Error('Authentication required');
+      }
+      try {
+        const result = await unfollowUser(currentUser.uid, targetUid);
+        return result;
+      } catch (error) {
+        console.error('Error in unfollowUser mutation:', error);
+        throw new Error('Failed to unfollow user');
       }
     },
   },

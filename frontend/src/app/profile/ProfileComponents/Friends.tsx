@@ -3,7 +3,6 @@ import Image from 'next/image';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/useAuthViewModel';
-import { useAppStore } from '@/store/useAppViewModel';
 import type { UserData } from '@/store/AppModel';
 
 interface FriendsProps {
@@ -13,7 +12,6 @@ interface FriendsProps {
 
 export default function Friends({ profileData, isOwnProfile }: FriendsProps) {
   const { user: firebaseUser } = useAuthStore();
-  const { setViewedProfile } = useAppStore();
   const [activeTab, setActiveTab] = useState<'followers' | 'following'>(
     'following'
   );
@@ -26,9 +24,9 @@ export default function Friends({ profileData, isOwnProfile }: FriendsProps) {
 
   const router = useRouter();
 
-  const handleNavigation = async (friendUid: string) => {
-    await setViewedProfile(friendUid); //temporarily change 
-    router.push('/profile');
+  const handleNavigation = (friendUid: string) => {
+    const isSelf = friendUid === firebaseUser?.uid;
+    router.push(isSelf ? '/profile' : `/profile?uid=${friendUid}`);
   };
 
   if (followers.length === 0 && following.length === 0) {

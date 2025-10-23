@@ -9,6 +9,7 @@ type User {
   coins: Int!
   owned_asteroids: [Asteroid!]!
   starred_asteroids: [Asteroid!]!
+  isFollowing: Boolean
   followers: [Friend!]!
   following: [Friend!]!
   cart_asteroids: [Asteroid!]!
@@ -21,8 +22,15 @@ extend type Query {
 
 extend type Mutation {
   addToCart(asteroidId: String!): Boolean
+  removeFromCart(asteroidId: String!): Boolean
   updateUserName(uid: String!, name: String!): User
   toggleStarredAsteroid(asteroidId: String!): Boolean
-  followUser(uid: String!): Boolean
-  unfollowUser(uid: String!): Boolean
+  followUser(targetUid: String!): Boolean
+  unfollowUser(targetUid: String!): Boolean
+  checkoutCart: CheckoutResult!
+}
+
+type CheckoutResult {
+  success: Boolean!
+  message: String
 }

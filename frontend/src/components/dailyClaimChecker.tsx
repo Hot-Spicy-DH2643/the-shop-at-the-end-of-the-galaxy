@@ -23,8 +23,10 @@ export default function DailyClaimChecker({
   } = useDailyClaimViewModel();
 
   useEffect(() => {
-    if (authLoading) {
-      console.log('Daily claim: Waiting for auth to complete...');
+    if (authLoading || !user) {
+      if (authLoading) {
+        console.log('Daily claim: Waiting for auth to complete...');
+      }
       return;
     }
 

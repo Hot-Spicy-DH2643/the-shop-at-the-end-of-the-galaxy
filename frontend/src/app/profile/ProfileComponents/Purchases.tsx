@@ -1,11 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import type { UserData } from '@/store/AppModel';
-import {
-  useAppStore,
-  onHandleProductClick,
-  onHandleStarred,
-  type SortOption,
+import { useAppStore   type SortOption,
 } from '@/store/useAppViewModel';
 import { sortAsteroids } from '@/store/AppModel';
 import AsteroidSVGMoving from '@/components/asteroidSVGMoving';
@@ -50,7 +46,8 @@ export default function Purchases({
     ? sortAsteroids(profileData.owned_asteroids, filter as SortOption)
     : [];
 
-  const { selectedAsteroid } = useAppStore();
+  const { selectedAsteroid, onHandleProductClick, onHandleStarred } =
+    useAppStore();
 
   useEffect(() => {
     if (owned_asteroids?.length === 0) {
@@ -145,7 +142,10 @@ export default function Purchases({
             <div className="p-6">
               {starred_asteroids?.some(a => a.id === asteroid.id) ? (
                 <button
-                  onClick={() => onHandleStarred(asteroid.id)}
+                  onClick={e => {
+                    e.stopPropagation();
+                    onHandleStarred(asteroid.id);
+                  }}
                   className="p-1 absolute top-1 right-2 z-10 cursor-pointer"
                 >
                   <Star
@@ -155,13 +155,19 @@ export default function Purchases({
                 </button>
               ) : (
                 <button
-                  onClick={() => onHandleStarred(asteroid.id)}
+                  onClick={e => {
+                    e.stopPropagation();
+                    onHandleStarred(asteroid.id);
+                  }}
                   className="p-1 absolute top-1 right-2 z-10 cursor-pointer"
                 >
                   <Star className="hover:scale-[1.08] transition duration-300 text-white" />
                 </button>
               )}
-              <div className="flex flex-col text-sm justify-center items-center hover:scale-[1.08] transition duration-300">
+              <div
+                className="flex flex-col text-sm justify-center items-center hover:scale-[1.08] transition duration-300"
+                onClick={() => onHandleProductClick(asteroid.id)}
+              >
                 <AsteroidSVGMoving id={asteroid.id} size={100} bgsize={160} />
 
                 <p className="font-bold font-sm mt-4">{asteroid.name}</p>
@@ -172,12 +178,6 @@ export default function Purchases({
                 </p>
                 <p>Diameter: {asteroid.size.toFixed(2)} m</p>
                 <p>Price: {asteroid.price}</p>
-                <button
-                  className="bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700 text-white px-6 py-2 rounded shadow hover:scale-105 hover:shadow-xl transition cursor-pointer text-center m-1 my-2 md:w-auto"
-                  onClick={() => onHandleProductClick(asteroid.id)}
-                >
-                  Show Details
-                </button>
               </div>
             </div>
           </div>

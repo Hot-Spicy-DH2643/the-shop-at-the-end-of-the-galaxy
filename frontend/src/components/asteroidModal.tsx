@@ -1,15 +1,15 @@
 'use client';
 import AsteroidSVGMoving from './asteroidSVGMoving';
 import Image from 'next/image';
-import { ShopAsteroid } from '@/store/AppModel';
-import { Star, ShoppingBasket, CalendarPlus, Eye } from 'lucide-react';
-import {
-  useAsteroidModalViewModel,
-  useAppStore,
-} from '@/store/useAppViewModel';
+import { Asteroid, getFormattedAsteroidData } from '@/store/AppModel';
+import { Star, ShoppingBasket, CalendarPlus, Eye, Trash2 } from 'lucide-react';
+import { useAppStore } from '@/store/useAppViewModel';
+import { X, Orbit, Telescope } from 'lucide-react';
+import { useAsteroidViewers } from '@/hooks/useAsteroidViewers';
+import { useRouter } from 'next/navigation';
 
 interface modalProps {
-  asteroid: ShopAsteroid;
+  asteroid: Asteroid;
   onClose: () => void;
   onHandleStarred: (id: string) => void;
 }
@@ -19,9 +19,88 @@ export default function AsteroidModal({
   onClose,
   onHandleStarred,
 }: modalProps) {
-  // MVVM: Use ViewModel to manage all business logic and state
-  const { formatted, isConnected, isLoading, viewerText, handleAddToCalendar } =
-    useAsteroidModalViewModel(asteroid);
+  // Format asteroid data
+  const formatted = getFormattedAsteroidData(asteroid);
+
+  // Viewer logic
+  const { viewerCount, isConnected, isLoading } = useAsteroidViewers(
+    asteroid.id
+  );
+  const router = useRouter();
+
+  const viewerText = isLoading
+    ? 'Loading viewer count...'
+    : viewerCount === 1
+      ? '1 explorer eyeing this right now'
+      : `${viewerCount} explorers eyeing this right now`;
+
+  // Handle add to calendar
+  const handleAddToCalendar = () => {
+    const approach = asteroid.close_approach_data?.[0];
+    if (!approach) return;
+
+    const startDate = new Date(approach.close_approach_date_full);
+    const endDate = new Date(startDate.getTime() + 60 * 60 * 1000); // 1 hour duration
+
+    // Detect if mobile
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+    if (isMobile) {
+      const formatDateForICS = (date: Date) => {
+        return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+      };
+
+      const icsContent = [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'PRODID:-//The Shop at the End of the Galaxy//EN',
+        'BEGIN:VEVENT',
+        `DTSTART:${formatDateForICS(startDate)}`,
+        `DTEND:${formatDateForICS(endDate)}`,
+        `SUMMARY:Asteroid ${asteroid.name} Close Approach`,
+        `DESCRIPTION:Asteroid ${asteroid.name} will pass Earth at a distance of ${formatted.approach.distanceAU} (${formatted.approach.distanceKm}) traveling at ${formatted.approach.velocityKmPerSec}.\\n\\nMore info: ${asteroid.nasa_jpl_url}`,
+        `URL:${asteroid.nasa_jpl_url}`,
+        'END:VEVENT',
+        'END:VCALENDAR',
+      ].join('\r\n');
+
+      const blob = new Blob([icsContent], {
+        type: 'text/calendar;charset=utf-8',
+      });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `asteroid-${asteroid.name.replace(/[^a-z0-9]/gi, '_')}.ics`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } else {
+      // Google Calendar for desktop
+      const formatDateForCalendar = (date: Date) => {
+        return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+      };
+
+      const calendarUrl = new URL(
+        'https://calendar.google.com/calendar/render'
+      );
+      calendarUrl.searchParams.append('action', 'TEMPLATE');
+      calendarUrl.searchParams.append(
+        'text',
+        `Asteroid ${asteroid.name} Close Approach`
+      );
+      calendarUrl.searchParams.append(
+        'details',
+        `Asteroid ${asteroid.name} will pass Earth at a distance of ${formatted.approach.distanceAU} (${formatted.approach.distanceKm}) traveling at ${formatted.approach.velocityKmPerSec}.\n\nMore info: ${asteroid.nasa_jpl_url}`
+      );
+      calendarUrl.searchParams.append(
+        'dates',
+        `${formatDateForCalendar(startDate)}/${formatDateForCalendar(endDate)}`
+      );
+
+      window.open(calendarUrl.toString(), '_blank', 'noopener,noreferrer');
+    }
+  };
 
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {
@@ -29,32 +108,34 @@ export default function AsteroidModal({
     }
   };
 
-  const addToCart = useAppStore(state => state.addToCart);
+  const { userData, addToCart, removeFromCart } = useAppStore();
 
   const handleAddToCart = () => {
-    addToCart(asteroid);
-    onClose(); // optional: close modal after adding
+    addToCart(asteroid.id);
   };
 
-  const { userData } = useAppStore();
-  const user_owned_asteroids = userData?.owned_asteroids.map(a => a.id);
-  console.log('asteroidModal.tsx file : ', asteroid);
+  const handleRemoveFromCart = () => {
+    removeFromCart(asteroid.id);
+  };
+
+  // console.log('asteroidModal.tsx file : ', asteroid);
+  // console.log('owner info: ', asteroid.owner);
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 overflow-y-auto pt-6"
       onClick={handleBackdropClick}
     >
-      <div className="relative w-[90vw] max-w-xl m-2 bg-black p-4 rounded-lg shadow-2xl">
+      <div className="relative w-[90vw] max-w-xl m-2 bg-black pt-4 p-4 rounded-lg shadow-2xl">
         <button
-          className="absolute top-4 left-4 text-3xl text-gray-400 hover:text-white transition-colors"
+          className="absolute top-4 right-4 text-3xl text-gray-400 hover:text-white transition-colors cursor-pointer"
           aria-label="Close"
           onClick={onClose}
         >
-          &times;
+          <X />
         </button>
 
-        <div className="w-100% flex flex-col md:flex-row items-center gap-4 p-4 pb-0">
+        <div className="w-100% flex flex-col md:flex-row items-center gap-6 p-4 pb-0">
           <div>
             <AsteroidSVGMoving size={100} id={asteroid.id} bgsize={160} />
           </div>
@@ -103,23 +184,53 @@ export default function AsteroidModal({
 
         <div className="mb-6 text-sm font-bold mx-auto px-8 mt-2 items-center flex flex-col md:flex-row justify-center">
           {asteroid.owner ? (
-            <p className="bg-gradient-to-r bg-gray-400 text-white px-6 py-2 rounded shadow text-center m-1 my-2 w-full md:w-auto">
-              Owned by {asteroid.owner.name}
-            </p>
-          ) : user_owned_asteroids?.find(a => a === asteroid.id) ? (
-            <p className="bg-gradient-to-r bg-gray-400 text-white px-6 py-2 rounded shadow text-center m-1 my-2 w-full md:w-auto">
-              Already Purchased 🪐 {asteroid.name}
-            </p>
-          ) : (
-            <div>
+            userData?.uid === asteroid.owner.uid ? (
+              // Owned by current user
+              <p className="bg-purple-500 text-white px-6 py-2 rounded shadow flex items-center justify-center space-x-2 text-center">
+                <Orbit className="inline-block" size={22} />
+                <span>Already in your orbit</span>
+              </p>
+            ) : (
+              // Owned by another user
               <button
-                onClick={handleAddToCart}
-                className="bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700 text-white px-6 py-2 rounded shadow hover:scale-105 hover:shadow-xl transition cursor-pointer text-center m-1 my-2 w-full md:w-auto"
+                type="button"
+                onClick={() => {
+                  router.push(`/profile?uid=${asteroid.owner!.uid}`);
+                  onClose();
+                }}
+                className="bg-purple-500 text-white px-6 py-2 rounded shadow flex items-center justify-center space-x-2 text-center hover:scale-105 transition cursor-pointer"
               >
-                <ShoppingBasket className="inline-block mr-2 mb-1" size={22} />
-                Add to basket
+                <Telescope className="inline-block" size={22} />
+                <span>Explore {asteroid.owner.name}&apos;s orbit</span>
               </button>
-            </div>
+            )
+          ) : !userData ? (
+            <button
+              type="button"
+              className="bg-gray-600 text-white px-6 py-2 rounded shadow flex items-center justify-center space-x-2 w-full md:w-auto cursor-not-allowed"
+              disabled
+            >
+              <ShoppingBasket className="inline-block" size={22} />
+              <span>Login to purchase</span>
+            </button>
+          ) : userData.cart_asteroids.some(a => a.id === asteroid.id) ? (
+            // In cart
+            <button
+              onClick={handleRemoveFromCart}
+              className="bg-red-700 text-white px-6 py-2 rounded shadow hover:scale-105 hover:shadow-xl transition flex items-center justify-center space-x-2 w-full md:w-auto cursor-pointer"
+            >
+              <Trash2 className="inline-block" size={22} />
+              <span>Remove from Basket</span>
+            </button>
+          ) : (
+            // Not owned / not in cart
+            <button
+              onClick={handleAddToCart}
+              className="bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700 text-white px-6 py-2 rounded shadow hover:scale-105 hover:shadow-xl transition flex items-center justify-center space-x-2 w-full md:w-auto cursor-pointer"
+            >
+              <ShoppingBasket className="inline-block" size={22} />
+              <span>Add to basket</span>
+            </button>
           )}
         </div>
 

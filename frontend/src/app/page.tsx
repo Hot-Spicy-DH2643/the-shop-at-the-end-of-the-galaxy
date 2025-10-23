@@ -5,14 +5,12 @@ import Image from 'next/image';
 import { useEffect } from 'react';
 import Navbar from '@/components/navbar';
 import AsteroidSVG from '@/components/asteroidSVG';
-import {
-  useAppStore,
-  useAsteroidsSortedByClosestApproach,
-} from '@/store/useAppViewModel';
+import { useAppStore } from '@/store/useAppViewModel';
 
 export default function Home() {
   // accessing asteroids from the ViewModel (Zustand store)
-  const { asteroids, setAsteroids } = useAppStore();
+  const { asteroids, setAsteroids, getAsteroidsSortedByClosestApproach } =
+    useAppStore();
 
   // fetching asteroids on mount if not already loaded
   useEffect(() => {
@@ -22,7 +20,7 @@ export default function Home() {
   }, [asteroids.length, setAsteroids]);
 
   // get 24 asteroids sorted by closest approach date to now
-  const displayAsteroids = useAsteroidsSortedByClosestApproach(24);
+  const displayAsteroids = getAsteroidsSortedByClosestApproach(24);
   return (
     <div className="flex flex-col min-h-screen h-full font-sans">
       <Navbar />

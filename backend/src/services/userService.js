@@ -1,5 +1,8 @@
 import { User } from '../models/User.js';
-import { getAsteroidById } from './externalApiService.js';
+import {
+  calculateAsteroidPrice,
+  getAsteroidById,
+} from './externalApiService.js';
 
 export async function getAllUsers() {
   try {
@@ -111,6 +114,7 @@ export async function toggleStarredAsteroid(userId, asteroidId) {
 
 export async function addToCart(userId, asteroidId) {
   try {
+    console.log(`Adding asteroid ${asteroidId} to cart for user ${userId}`);
     const user = await User.findOne({ uid: userId });
     if (!user) {
       throw new Error('User not found');
@@ -131,5 +135,155 @@ export async function addToCart(userId, asteroidId) {
       error.message
     );
     throw error;
+  }
+}
+
+export async function removeFromCart(userId, asteroidId) {
+  try {
+    const user = await User.findOne({ uid: userId });
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    // Check if the asteroid is in the cart
+    const index = user.cart_asteroid_ids.indexOf(asteroidId);
+    if (index === -1) {
+      throw new Error('Asteroid not found in cart');
+    }
+
+    // Remove the asteroid from the cart
+    user.cart_asteroid_ids.splice(index, 1);
+
+    await user.save();
+    console.log(`Asteroid ${asteroidId} removed from cart for user ${userId}`);
+    return user;
+  } catch (error) {
+    console.error(
+      `Error removing asteroid ${asteroidId} from cart for user ${userId}:`,
+      error.message
+    );
+    throw error;
+  }
+}
+
+export async function checkoutCart(userId) {
+  try {
+    const user = await User.findOne({ uid: userId });
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    // Check if the cart is empty
+    if (user.cart_asteroid_ids.length === 0) {
+      throw new Error('Cart is empty');
+    }
+
+    // Check if all asteroids in the cart are available
+    for (const asteroidId of user.cart_asteroid_ids) {
+      if (user.owned_asteroid_ids.includes(asteroidId)) {
+        throw new Error(`Asteroid ${asteroidId} is already owned by the user`);
+      }
+      const asteroid = await getAsteroidById(asteroidId);
+      if (!asteroid) {
+        throw new Error(`Asteroid ${asteroidId} not found`);
+      }
+      if (asteroid.owner) {
+        throw new Error(
+          `Asteroid ${asteroidId} is already owned by another user`
+        );
+      }
+    }
+
+    // Check if user has enough coins to purchase all asteroids in the cart, asteroid price can be calculated using externalApiService
+    let totalPrice = 0;
+    for (const asteroidId of user.cart_asteroid_ids) {
+      const asteroid = await getAsteroidById(asteroidId);
+      if (!asteroid) {
+        throw new Error(`Asteroid ${asteroidId} not found`);
+      }
+      const price = calculateAsteroidPrice(asteroid);
+      totalPrice += price;
+    }
+
+    if (user.coins < totalPrice) {
+      throw new Error('Insufficient coins to complete the purchase');
+    }
+
+    // Transfer cart items to owned items
+    user.owned_asteroid_ids.push(...user.cart_asteroid_ids);
+
+    // Clear the cart
+    user.cart_asteroid_ids = [];
+
+    // Deduct the total price from user's coins
+    user.coins -= totalPrice;
+
+    await user.save();
+    console.log(`User ${userId} checked out their cart successfully`);
+    return true;
+  } catch (error) {
+    console.error(`Error during checkout for user ${userId}:`, error.message);
+    throw error;
+  }
+}
+
+export async function followUser(currentUserId, targetId) {
+  try { 
+    const currentUser = await User.findOne({uid: currentUserId})
+    const targetUser = await User.findOne({uid: targetId})
+    if (!targetUser) {
+      throw new Error('User not found');
+    }
+
+    // Check if already following
+    const alreadyFollowing = currentUser.following_ids.some(
+      // .some() - stops as soon as condition is true
+      friend => friend.uid === targetId
+    );
+    if (alreadyFollowing){
+      return false;
+    }
+
+    currentUser.following_ids.push(targetId);
+    targetUser.follower_ids.push(currentUserId);
+
+
+    await currentUser.save();
+    await targetUser.save();
+    return true;
+  } catch (error) {
+    console.error('Error in followUser:', error);
+    throw new Error('Failed to follow user', error);
+  }
+}
+
+export async function unfollowUser(currentUserId, targetId) {
+  try {
+    const currentUser = await User.findOne({uid: currentUserId})
+    const targetUser = await User.findOne({uid: targetId})
+    if (!targetUser) {
+      throw new Error('User not found');
+    }
+    
+    // Check if already following
+    const alreadyUnfollowed = currentUser.following_ids.some(
+      friend => friend.uid === targetId
+    );
+    if (alreadyUnfollowed) {
+      return false;
+    }
+    
+    const indexTarget = currentUser.following_ids.indexOf(targetId);
+    const indexCurrent = targetUser.follower_ids.indexOf(currentUserId);
+    
+    currentUser.following_ids.splice(indexTarget, 1);
+    targetUser.follower_ids.splice(indexCurrent, 1);
+
+    await currentUser.save();
+    await targetUser.save();
+    return true;
+  } catch (error) {
+    console.error('Error in unfollowUser:', error);
+    throw new Error('Failed to unfollow user', error);
   }
 }

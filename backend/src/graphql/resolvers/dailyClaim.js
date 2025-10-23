@@ -7,7 +7,7 @@ const DAILY_REWARD_AMOUNT = 200;
  * @param {string} userId - The user's unique identifier
  * @returns {Promise<Object>} Status of daily claim availability
  */
-async function checkClaimAvailability(userId) {
+export async function checkClaimAvailability(userId) {
   const user = await User.findOne({ uid: userId });
   const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
 
@@ -36,7 +36,7 @@ async function checkClaimAvailability(userId) {
  * @param {string} userId - The user's unique identifier
  * @returns {Promise<Object>} Result of the claim attempt
  */
-async function processClaim(userId) {
+export async function processClaim(userId) {
   const status = await checkClaimAvailability(userId);
 
   if (!status.isAvailable) {
@@ -100,5 +100,3 @@ export const dailyClaimResolvers = {
     },
   },
 };
-
-// ...existing code...

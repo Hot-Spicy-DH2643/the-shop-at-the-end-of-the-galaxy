@@ -82,9 +82,30 @@ export const loginHandler = async (req, res) => {
   try {
     const { user, error } = await verifyFirebaseToken(req);
 
+    console.log('🔐 Login attempt for UID:', user ? user.uid : 'N/A');
+
     if (error || !user) {
       return res.status(401).json({ error: error || 'Authentication failed' });
     }
+
+    let resolvedDisplayName =
+      (typeof user.name === 'string' && user.name.trim()) || '';
+
+    if (!resolvedDisplayName) {
+      try {
+        const userRecord = await admin.auth().getUser(user.uid);
+        resolvedDisplayName = userRecord.displayName?.trim() || '';
+      } catch (lookupError) {
+        console.error(
+          'Unable to fetch Firebase user record for display name:',
+          lookupError
+        );
+      }
+    }
+
+    const effectiveName = resolvedDisplayName || 'Unnamed User';
+
+    console.log('🔐 Login attempt for name:', effectiveName);
 
     // Check if user exists in database, create if not
     try {
@@ -94,14 +115,20 @@ export const loginHandler = async (req, res) => {
         // First time user - create new user in database
         dbUser = new User({
           uid: user.uid,
-          name: user.name || 'Unnamed User',
+          name: effectiveName,
           // All other fields will use their default values from the schema
         });
 
         await dbUser.save();
         console.log('✅ New user created in database:', user.uid);
       } else {
-        console.log('👤 Existing user logged in:', user.uid);
+        if (effectiveName && dbUser.name !== effectiveName) {
+          dbUser.name = effectiveName;
+          await dbUser.save();
+          console.log('🔄 User name updated in database:', user.uid);
+        } else {
+          console.log('👤 Existing user logged in:', user.uid);
+        }
       }
     } catch (dbError) {
       console.error('Database error during user creation/lookup:', dbError);
@@ -113,7 +140,7 @@ export const loginHandler = async (req, res) => {
     req.session.user = {
       uid: user.uid,
       email: user.email,
-      name: user.name,
+      name: effectiveName,
       picture: user.picture,
       email_verified: user.email_verified,
     };

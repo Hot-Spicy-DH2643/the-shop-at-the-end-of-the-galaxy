@@ -40,10 +40,13 @@ const SORT_OPTIONS: Array<{ name: string; value: SortOption }> = [
 
 export default function User({ profileData, isOwnProfile }: UserProps) {
   const { user: firebaseUser } = useAuthStore();
-  const { updateProfileData, selectedAsteroid } = useAppStore();
+  const {
+    updateProfileData,
+    selectedAsteroid,
+    onHandleProductClick,
+    onHandleStarred,
+  } = useAppStore();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-
-  const [isFollowing, setIsFollowing] = useState(false); //initialize this from backend
 
   const [zeroFavAsteroidId, setZeroFavAsteroidId] = useState<string>('0000000');
 
@@ -95,9 +98,23 @@ export default function User({ profileData, isOwnProfile }: UserProps) {
             <td>{profileData?.starred_asteroids.length} asteroids</td>
           </tr>
           {isOwnProfile && (
-            <tr className="font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-              <td className="pr-10">Coins:</td>
-              <td>{profileData?.coins || 0}</td>
+            <tr className="font-bold">
+              <td className="pr-10">
+                <span
+                  className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent"
+                  style={{ WebkitTextFillColor: 'transparent' }}
+                >
+                  Coins:
+                </span>
+              </td>
+              <td>
+                <span
+                  className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent"
+                  style={{ WebkitTextFillColor: 'transparent' }}
+                >
+                  {profileData?.coins ?? 0}
+                </span>
+              </td>
             </tr>
           )}
         </tbody>
@@ -193,7 +210,10 @@ export default function User({ profileData, isOwnProfile }: UserProps) {
               >
                 <div className="p-6">
                   <button
-                    onClick={() => onHandleStarred(asteroid.id)}
+                    onClick={e => {
+                      e.stopPropagation();
+                      onHandleStarred(asteroid.id);
+                    }}
                     className="p-1 absolute top-1 right-2 z-10 cursor-pointer"
                   >
                     <Star
@@ -201,7 +221,10 @@ export default function User({ profileData, isOwnProfile }: UserProps) {
                       fill="yellow"
                     />
                   </button>
-                  <div className="flex flex-col text-sm justify-center items-center hover:scale-[1.08] transition duration-300">
+                  <div
+                    className="flex flex-col text-sm justify-center items-center hover:scale-[1.08] transition duration-300"
+                    onClick={() => onHandleProductClick(asteroid.id)}
+                  >
                     <AsteroidSVGMoving
                       id={asteroid.id}
                       size={100}
@@ -216,12 +239,6 @@ export default function User({ profileData, isOwnProfile }: UserProps) {
                     </p>
                     <p>Diameter: {asteroid.size.toFixed(2)} m</p>
                     <p>Price: {asteroid.price}</p>
-                    <button
-                      className="bg-gradient-to-r from-blue-800 via-purple-800 to-pink-700 text-white px-6 py-2 rounded shadow hover:scale-105 hover:shadow-xl transition cursor-pointer text-center m-1 my-2 md:w-auto"
-                      onClick={() => onHandleProductClick(asteroid.id)}
-                    >
-                      Show Details
-                    </button>
                   </div>
                 </div>
               </div>
