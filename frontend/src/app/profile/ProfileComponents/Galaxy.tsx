@@ -62,7 +62,7 @@ export default function Galaxy({ profileData }: GalaxyProps) {
         setModalAsteroid(asteroidData);
       }
     } catch (error) {
-      console.error('Error fetching asteroid details:', error);
+      // console.error('Error fetching asteroid details:', error);
     }
   }, []);
 
@@ -98,13 +98,13 @@ export default function Galaxy({ profileData }: GalaxyProps) {
 
   // Wrapper for handleAsteroidClick to prevent clicks during drag
   const onAsteroidClick = (asteroidId: string) => {
-    console.log('Click detected! hasDragged:', hasDraggedRef.current);
+    // console.log('Click detected! hasDragged:', hasDraggedRef.current);
     if (hasDraggedRef.current) {
-      console.log('Blocked due to dragging');
+      // console.log('Blocked due to dragging');
       return; // Don't open modal if user was dragging
     }
 
-    console.log('Opening modal for asteroid:', asteroidId);
+    // console.log('Opening modal for asteroid:', asteroidId);
     setSelectedAsteroidId(asteroidId);
     handleAsteroidClick(asteroidId);
   };
@@ -251,19 +251,19 @@ export default function Galaxy({ profileData }: GalaxyProps) {
   // Track container size for responsive scaling
   useEffect(() => {
     if (!containerRef.current) {
-      console.log('Container ref not ready yet');
+      // console.log('Container ref not ready yet');
       return;
     }
 
     // Set initial size immediately
     const initialSize = containerRef.current.getBoundingClientRect().width;
-    console.log('Initial container size:', initialSize);
+    // console.log('Initial container size:', initialSize);
     setContainerSize(initialSize);
 
     const resizeObserver = new ResizeObserver(entries => {
       for (const entry of entries) {
         const size = entry.contentRect.width; // Use width since it's square
-        console.log(
+        // console.log(
           'Container size:',
           size,
           'Scale factor:',
@@ -484,7 +484,7 @@ export default function Galaxy({ profileData }: GalaxyProps) {
               }}
               onClick={e => {
                 e.stopPropagation();
-                console.log('Div clicked for asteroid:', orbit.id);
+                // console.log('Div clicked for asteroid:', orbit.id);
                 onAsteroidClick(orbit.id);
               }}
             >

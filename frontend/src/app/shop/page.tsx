@@ -111,7 +111,7 @@ export default function Shop() {
     setPriceRange([filters.priceMin ?? 100, filters.priceMax ?? 900]);
   }, [filters.priceMin, filters.priceMax]);
 
-  console.log('Current filter state:', filters);
+  // console.log('Current filter state:', filters);
 
   // Handler for resetting all filters
   const handleResetFilters = () => {

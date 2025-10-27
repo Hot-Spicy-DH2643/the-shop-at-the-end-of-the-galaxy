@@ -75,9 +75,9 @@ const useAppStore = create<AppState>((set, get) => ({
 
     addToCart(asteroid_id).then(success => {
       if (success) {
-        console.log('Successfully added to cart:', asteroid_id);
+        // console.log('Successfully added to cart:', asteroid_id);
       } else {
-        console.log('Failed to add to cart:', asteroid_id);
+        // console.log('Failed to add to cart:', asteroid_id);
       }
       useAppStore.getState().setUserData();
     });
@@ -92,9 +92,9 @@ const useAppStore = create<AppState>((set, get) => ({
 
     removeFromCart(asteroid_id).then(success => {
       if (success) {
-        console.log('Successfully removed from cart:', asteroid_id);
+        // console.log('Successfully removed from cart:', asteroid_id);
       } else {
-        console.log('Failed to remove from cart:', asteroid_id);
+        // console.log('Failed to remove from cart:', asteroid_id);
       }
       useAppStore.getState().setUserData();
     });
@@ -116,7 +116,7 @@ const useAppStore = create<AppState>((set, get) => ({
       const result = await checkoutCart();
 
       if (result.success) {
-        console.log('Checkout successful');
+        // console.log('Checkout successful');
       } else {
         console.warn('Checkout failed:', result.message);
       }
@@ -126,7 +126,7 @@ const useAppStore = create<AppState>((set, get) => ({
 
       return result;
     } catch (error) {
-      console.error('Checkout error:', error);
+      // console.error('Checkout error:', error);
       set({ checkoutLoading: false });
       return {
         success: false,
@@ -146,7 +146,7 @@ const useAppStore = create<AppState>((set, get) => ({
           selectedAsteroid: asteroidData,
         });
       } catch (error) {
-        console.error('Error fetching selected asteroid:', error);
+        // console.error('Error fetching selected asteroid:', error);
         set({
           selectedAsteroid: null,
         });

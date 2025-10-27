@@ -37,14 +37,14 @@ export const useDailyClaimStore = create<DailyClaimState>((set, get) => ({
     const { hasCheckedThisSession } = get();
 
     if (hasCheckedThisSession && !force) {
-      console.log('Daily claim: Already checked this session');
+      // console.log('Daily claim: Already checked this session');
       return;
     }
 
     set({ loading: true, error: null });
 
     try {
-      console.log('Daily claim: Checking availability...');
+      // console.log('Daily claim: Checking availability...');
       const status = await checkDailyClaim();
 
       set({
@@ -54,13 +54,13 @@ export const useDailyClaimStore = create<DailyClaimState>((set, get) => ({
       });
 
       if (status.isAvailable) {
-        console.log('Daily claim: Available! Showing modal...');
+        // console.log('Daily claim: Available! Showing modal...');
         set({ showModal: true });
       } else {
-        console.log('Daily claim: Not available (already claimed today)');
+        // console.log('Daily claim: Not available (already claimed today)');
       }
     } catch (error) {
-      console.error('Daily claim: Error checking availability', error);
+      // console.error('Daily claim: Error checking availability', error);
       set({
         error:
           error instanceof Error
@@ -76,7 +76,7 @@ export const useDailyClaimStore = create<DailyClaimState>((set, get) => ({
     set({ claiming: true, error: null });
 
     try {
-      console.log('Daily claim: Claiming reward...');
+      // console.log('Daily claim: Claiming reward...');
       const result = await claimDailyReward();
 
       set({
@@ -94,7 +94,7 @@ export const useDailyClaimStore = create<DailyClaimState>((set, get) => ({
         });
       }
     } catch (error) {
-      console.error('Daily claim: Error claiming reward', error);
+      // console.error('Daily claim: Error claiming reward', error);
       set({
         error:
           error instanceof Error ? error.message : 'Failed to claim reward',

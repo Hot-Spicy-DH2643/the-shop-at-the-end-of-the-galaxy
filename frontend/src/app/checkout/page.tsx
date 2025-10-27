@@ -81,7 +81,7 @@ export default function Checkout() {
   }, [userData]);
 
   const cart = userData?.cart_asteroids || [];
-  console.log('User cart asteroids:', cart);
+  // console.log('User cart asteroids:', cart);
   const total = cart.reduce((sum, item) => sum + item.price, 0);
   const hasUnavailableAsteroids = cart.some(
     asteroid => asteroid.owner && asteroid.owner.uid !== userData?.uid

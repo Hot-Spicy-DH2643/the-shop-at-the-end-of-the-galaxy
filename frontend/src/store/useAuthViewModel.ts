@@ -26,7 +26,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   initializeAuth: () => {
     const { initialized } = get();
     if (initialized) return;
-    console.log('Initializing auth...');
+    // console.log('Initializing auth...');
     set({ initialized: true });
 
     const unsubscribe = initializeAuthListener(

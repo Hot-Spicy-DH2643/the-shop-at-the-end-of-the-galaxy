@@ -36,7 +36,7 @@ export async function createBackendSession(
   user: User,
   forceRefresh = false
 ): Promise<void> {
-  console.log('Creating backend session...');
+  // console.log('Creating backend session...');
   try {
     if (forceRefresh) {
       try {
@@ -61,12 +61,12 @@ export async function createBackendSession(
     });
 
     if (!response.ok) {
-      console.error('Failed to create backend session');
+      // console.error('Failed to create backend session');
     } else {
-      console.log('✅ Backend session created');
+      // console.log('✅ Backend session created');
     }
   } catch (error) {
-    console.error('Error creating backend session:', error);
+    // console.error('Error creating backend session:', error);
   }
 }
 
@@ -76,9 +76,9 @@ export async function destroyBackendSession(): Promise<void> {
       method: 'POST',
       credentials: 'include',
     });
-    console.log('✅ Backend session destroyed');
+    // console.log('✅ Backend session destroyed');
   } catch (error) {
-    console.error('Error destroying backend session:', error);
+    // console.error('Error destroying backend session:', error);
   }
 }
 
@@ -131,7 +131,7 @@ export async function getIdToken(user: User | null): Promise<string | null> {
     try {
       return await user.getIdToken();
     } catch (error) {
-      console.error('Error getting ID token:', error);
+      // console.error('Error getting ID token:', error);
       return null;
     }
   }
@@ -143,10 +143,10 @@ export function initializeAuthListener(
   onSessionCreate: (user: User) => Promise<void>,
   onNoUser?: () => void
 ): () => void {
-  console.log('Setting up auth state listener...');
+  // console.log('Setting up auth state listener...');
   const unsubscribe = onAuthStateChanged(auth, async user => {
     onUserChange(user);
-    console.log('Auth state changed. User:', user);
+    // console.log('Auth state changed. User:', user);
     if (user) {
       await onSessionCreate(user);
     } else {

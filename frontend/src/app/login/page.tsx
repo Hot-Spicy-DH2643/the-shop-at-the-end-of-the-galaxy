@@ -46,10 +46,10 @@ export default function Login() {
         }
 
         await signUpWithEmail(email, password, username);
-        console.log('Sign up successful');
+        // console.log('Sign up successful');
       } else {
         await signInWithEmail(email, password);
-        console.log('Email login successful');
+        // console.log('Email login successful');
       }
       router.push('/'); // Redirect to dashboard after successful login/signup
     } catch (err) {
@@ -61,7 +61,7 @@ export default function Login() {
             : 'Failed to sign in. Please check your credentials.';
       setError(errorMessage);
       setLoading(false); // Ensure loading is reset
-      console.error(isSignUp ? 'Sign up error:' : 'Login error:', err);
+      // console.error(isSignUp ? 'Sign up error:' : 'Login error:', err);
     }
   };
 
@@ -70,14 +70,14 @@ export default function Login() {
 
     try {
       await signInWithGoogle();
-      console.log('Google login successful');
+      // console.log('Google login successful');
       router.push('/'); // Redirect to dashboard after successful login
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : 'Failed to sign in with Google.';
       setError(errorMessage);
       setLoading(false); // Ensure loading is reset
-      console.error('Google login error:', err);
+      // console.error('Google login error:', err);
     }
   };
 

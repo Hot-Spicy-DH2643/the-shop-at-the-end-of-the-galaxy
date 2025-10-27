@@ -312,7 +312,7 @@ export async function fetchAsteroids(
     });
 
     if (!data) {
-      console.error('No data returned from GraphQL query');
+      // console.error('No data returned from GraphQL query');
       return {
         asteroids: [],
         totalCount: 0,
@@ -328,7 +328,7 @@ export async function fetchAsteroids(
       currentPage: data.asteroids.page,
     };
   } catch (error) {
-    console.error('Error fetching asteroids from GraphQL:', error);
+    // console.error('Error fetching asteroids from GraphQL:', error);
     return {
       asteroids: [],
       totalCount: 0,
@@ -472,14 +472,14 @@ export async function fetchAsteroidById(id: string): Promise<Asteroid | null> {
     });
 
     if (!data || !data.asteroid) {
-      console.error('No asteroid data returned from GraphQL query');
+      // console.error('No asteroid data returned from GraphQL query');
       return null;
     }
 
     // Transform to include frontend-specific fields
     return data.asteroid;
   } catch (error) {
-    console.error('Error fetching asteroid by ID from GraphQL:', error);
+    // console.error('Error fetching asteroid by ID from GraphQL:', error);
     return null;
   }
 }
@@ -514,12 +514,12 @@ export async function fetchUserData(uid: string): Promise<UserData | null> {
     });
 
     if (!data) {
-      console.error('No data returned from GraphQL query');
+      // console.error('No data returned from GraphQL query');
       return null;
     }
     return data.user;
   } catch (error) {
-    console.error('Error fetching user from GraphQL:', error);
+    // console.error('Error fetching user from GraphQL:', error);
     return null;
   }
 }
@@ -535,7 +535,7 @@ export async function updateProfile(uid: string, newName: string) {
       },
     });
   } catch (error) {
-    console.error('Error updating user name in backend:', error);
+    // console.error('Error updating user name in backend:', error);
     throw error;
   }
 }
@@ -549,7 +549,7 @@ export async function follow(tUid: string) {
       },
     });
   } catch (error) {
-    console.error('Error updating new followers in backend:', error);
+    // console.error('Error updating new followers in backend:', error);
     throw error;
   }
 }
@@ -563,7 +563,7 @@ export async function unfollow(tUid: string) {
       },
     });
   } catch (error) {
-    console.error('Error removing followers in backend:', error);
+    // console.error('Error removing followers in backend:', error);
     throw error;
   }
 }
@@ -877,18 +877,18 @@ const ADD_TO_CART = gql`
 
 export function addToCart(asteroid_id: string): Promise<boolean> {
   // call the backend using graphql mutation to add to cart
-  console.log('Adding to cart:', asteroid_id);
+  // console.log('Adding to cart:', asteroid_id);
   return client
     .mutate({
       mutation: ADD_TO_CART,
       variables: { asteroidId: asteroid_id },
     })
     .then(response => {
-      console.log('Add to cart response:', response);
+      // console.log('Add to cart response:', response);
       return true;
     })
     .catch(error => {
-      console.error('Error adding to cart:', error);
+      // console.error('Error adding to cart:', error);
       return false;
     });
 }
@@ -901,18 +901,18 @@ const REMOVE_FROM_CART = gql`
 
 export function removeFromCart(asteroid_id: string): Promise<boolean> {
   // call the backend using graphql mutation to remove from cart
-  console.log('Removing from cart:', asteroid_id);
+  // console.log('Removing from cart:', asteroid_id);
   return client
     .mutate({
       mutation: REMOVE_FROM_CART,
       variables: { asteroidId: asteroid_id },
     })
     .then(response => {
-      console.log('Remove from cart response:', response);
+      // console.log('Remove from cart response:', response);
       return true;
     })
     .catch(error => {
-      console.error('Error removing from cart:', error);
+      // console.error('Error removing from cart:', error);
       return false;
     });
 }
@@ -933,13 +933,13 @@ export type CheckoutResult = {
 
 export function checkoutCart(): Promise<CheckoutResult> {
   // call the backend using graphql mutation to checkout cart
-  console.log('Checking out cart');
+  // console.log('Checking out cart');
   return client
     .mutate<{ checkoutCart: CheckoutResult }>({
       mutation: CHECKOUT_CART,
     })
     .then(response => {
-      console.log('Checkout cart response:', response);
+      // console.log('Checkout cart response:', response);
       const result = response.data?.checkoutCart;
       if (!result) {
         return {
@@ -953,7 +953,7 @@ export function checkoutCart(): Promise<CheckoutResult> {
       };
     })
     .catch(error => {
-      console.error('Error checking out cart:', error);
+      // console.error('Error checking out cart:', error);
       return {
         success: false,
         message:

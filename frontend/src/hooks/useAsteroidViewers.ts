@@ -49,13 +49,13 @@ export function useAsteroidViewers(asteroidId: string | null) {
 
     try {
       const wsUrl = getWebSocketUrl();
-      console.log('Connecting to WebSocket:', wsUrl);
+      // console.log('Connecting to WebSocket:', wsUrl);
 
       const ws = new WebSocket(wsUrl);
       wsRef.current = ws;
 
       ws.onopen = () => {
-        console.log('WebSocket connected');
+        // console.log('WebSocket connected');
         setIsConnected(true);
 
         // If we have an asteroid ID, notify the server we're viewing it
@@ -86,15 +86,15 @@ export function useAsteroidViewers(asteroidId: string | null) {
               setIsLoading(false);
             }
           } else if (data.type === 'connected') {
-            console.log('WebSocket connection acknowledged:', data.message);
+            // console.log('WebSocket connection acknowledged:', data.message);
           }
         } catch (error) {
-          console.error('Error parsing WebSocket message:', error);
+          // console.error('Error parsing WebSocket message:', error);
         }
       };
 
       ws.onclose = () => {
-        console.log('WebSocket disconnected');
+        // console.log('WebSocket disconnected');
         setIsConnected(false);
         wsRef.current = null;
 
@@ -115,12 +115,12 @@ export function useAsteroidViewers(asteroidId: string | null) {
       ws.onerror = error => {
         // Don't log errors during cleanup
         if (!isCleaningUpRef.current) {
-          console.error('WebSocket error:', error);
+          // console.error('WebSocket error:', error);
         }
         setIsConnected(false);
       };
     } catch (error) {
-      console.error('Error creating WebSocket connection:', error);
+      // console.error('Error creating WebSocket connection:', error);
     }
   }, [getWebSocketUrl]);
 

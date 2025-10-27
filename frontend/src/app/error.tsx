@@ -23,8 +23,8 @@ export default function Error({
     '500';
 
   useEffect(() => {
-    console.error('Error caught:', error);
-    console.log('Extracted statusCode:', statusCode);
+    // console.error('Error caught:', error);
+    // console.log('Extracted statusCode:', statusCode);
   }, [error, statusCode]);
 
   return (

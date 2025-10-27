@@ -33,7 +33,7 @@ const ProfileContent = () => {
 
   // Fetch user data on mount
   useEffect(() => {
-    // console.log('Fetching user data, user:', user);
+    // // console.log('Fetching user data, user:', user);
     if (userId) {
       setUserData();
     }
@@ -120,7 +120,7 @@ const ProfileContent = () => {
         await updateFollow(profileData.uid);
       }
     } catch (err) {
-      console.error('Error updating follow status:', err);
+      // console.error('Error updating follow status:', err);
     }
   };
 

@@ -57,9 +57,9 @@ export async function checkDailyClaim(): Promise<DailyClaimStatus> {
     });
 
     if (!result.data || !result.data.checkDailyClaim) {
-      console.log(
-        'No data returned from daily claim check - user may not be authenticated'
-      );
+      // console.log(
+      //   'No data returned from daily claim check - user may not be authenticated'
+      // );
       // Return a default "not available" status instead of throwing
       return {
         isAvailable: false,
@@ -70,7 +70,7 @@ export async function checkDailyClaim(): Promise<DailyClaimStatus> {
 
     return result.data.checkDailyClaim;
   } catch (error) {
-    console.log('Error checking daily claim:', error);
+    // console.log('Error checking daily claim:', error);
     // Return a safe default instead of throwing
     return {
       isAvailable: false,
@@ -96,7 +96,7 @@ export async function claimDailyReward(): Promise<ClaimResult> {
 
     return data.claimDailyReward;
   } catch (error) {
-    console.error('Error claiming daily reward:', error);
+    // console.error('Error claiming daily reward:', error);
     throw error;
   }
 }
