@@ -9,7 +9,8 @@ import Link from 'next/link';
 import { useEffect } from 'react';
 import CheckoutItem from '@/components/checkoutItem';
 import CheckoutAlert from '@/components/checkoutAlert';
-import { fetchAsteroids, type Asteroid } from '@/store/AppModel';
+import { fetchAsteroids } from '@/lib/persistence/asteroidAPI';
+import type { Asteroid } from '@/types';
 import AsteroidModal from '@/components/asteroidModal';
 
 export default function Checkout() {

@@ -1,28 +1,8 @@
 'use client';
 
 import { create } from 'zustand';
-import {
-  checkDailyClaim,
-  claimDailyReward,
-  type DailyClaimStatus,
-  type ClaimResult,
-} from './DailyClaimModel';
-
-interface DailyClaimState {
-  claimStatus: DailyClaimStatus | null;
-  loading: boolean;
-  claiming: boolean;
-  error: string | null;
-  claimResult: ClaimResult | null;
-  hasCheckedThisSession: boolean;
-  showModal: boolean;
-
-  checkClaimAvailability: (force?: boolean) => Promise<void>;
-  performClaim: () => Promise<void>;
-  setShowModal: (show: boolean) => void;
-  resetClaimResult: () => void;
-  resetSession: () => void;
-}
+import { checkDailyClaim, claimDailyReward } from '@/api/dailyClaimAPI';
+import type { DailyClaimState } from './DailyClaimModel';
 
 export const useDailyClaimStore = create<DailyClaimState>((set, get) => ({
   claimStatus: null,

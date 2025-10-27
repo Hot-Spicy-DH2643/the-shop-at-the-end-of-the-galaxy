@@ -2,24 +2,25 @@
 
 import { create } from 'zustand';
 import type { AppState } from './AppModel';
+import type { CheckoutResult, UIFilters } from '../types';
 import {
   fetchAsteroids,
   fetchUserData,
   fetchAsteroidById,
-  DEFAULT_PAGE_SIZE,
-  type SortOption,
-  type UIFilters,
-  convertUIFiltersToBackend,
-  sortAsteroids,
-  toggleStarred,
   updateProfile,
   follow,
   unfollow,
+  toggleStarred,
   addToCart,
   removeFromCart,
   checkoutCart,
-  type CheckoutResult,
-} from './AppModel';
+  DEFAULT_PAGE_SIZE,
+} from '../lib/persistence/asteroidAPI';
+import {
+  type SortOption,
+  convertUIFiltersToBackend,
+  sortAsteroids,
+} from '../lib/asteroidUtils';
 import { useAuthStore } from './useAuthViewModel';
 
 const createDefaultFilters = (): UIFilters => ({

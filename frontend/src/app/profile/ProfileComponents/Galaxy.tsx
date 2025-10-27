@@ -3,8 +3,8 @@ import Image from 'next/image';
 import AsteroidSVG from '@/components/asteroidSVG';
 import AsteroidModal from '@/components/asteroidModal';
 import '@/app/globals.css';
-import type { UserData, Asteroid } from '@/store/AppModel';
-import { fetchAsteroidById } from '@/store/AppModel';
+import type { UserData, Asteroid } from '@/types';
+import { fetchAsteroidById } from '@/lib/persistence/asteroidAPI';
 import { useAppStore } from '@/store/useAppViewModel';
 
 // Configuration for the orbital system (base values for 600px container)

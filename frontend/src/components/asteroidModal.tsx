@@ -1,7 +1,8 @@
 'use client';
 import AsteroidSVGMoving from './asteroidSVGMoving';
 import Image from 'next/image';
-import { Asteroid, getFormattedAsteroidData } from '@/store/AppModel';
+import type { Asteroid } from '@/types';
+import { getFormattedAsteroidData } from '@/lib/asteroidUtils';
 import { Star, ShoppingBasket, CalendarPlus, Eye, Trash2 } from 'lucide-react';
 import { useAppStore } from '@/store/useAppViewModel';
 import { X, Orbit, Telescope } from 'lucide-react';

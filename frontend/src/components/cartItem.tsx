@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { X } from 'lucide-react';
 import AsteroidSVGMoving from '@/components/asteroidSVGMoving';
 import { useAppStore } from '@/store/useAppViewModel';
-import { Asteroid } from '@/store/AppModel';
+import type { Asteroid } from '@/types';
 
 interface CartItemProps {
   id: number;

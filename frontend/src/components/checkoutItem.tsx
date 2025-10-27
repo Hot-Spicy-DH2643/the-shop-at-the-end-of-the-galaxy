@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { X } from 'lucide-react';
 import AsteroidSVGMoving from './asteroidSVGMoving';
 import { useAppStore } from '@/store/useAppViewModel';
-import type { Asteroid } from '@/store/AppModel';
+import type { Asteroid } from '@/types';
 
 interface CheckoutItemProps {
   cart: Asteroid[];

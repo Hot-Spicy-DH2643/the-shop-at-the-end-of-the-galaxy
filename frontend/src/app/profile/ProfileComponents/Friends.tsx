@@ -3,7 +3,7 @@ import Image from 'next/image';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/useAuthViewModel';
-import type { UserData } from '@/store/AppModel';
+import type { UserData } from '@/types';
 
 interface FriendsProps {
   profileData: UserData | null;

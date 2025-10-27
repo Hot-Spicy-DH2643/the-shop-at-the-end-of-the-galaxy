@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useAppStore } from '@/store/useAppViewModel';
 import { useAuthStore } from '@/store/useAuthViewModel';
-import type { UserData } from '@/store/AppModel';
+import type { UserData } from '@/types';
 import EditProfileModal from '@/components/editProfileModal';
 
 interface UserProps {

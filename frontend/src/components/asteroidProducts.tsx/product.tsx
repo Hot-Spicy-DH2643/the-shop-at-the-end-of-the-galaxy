@@ -1,6 +1,6 @@
 import AsteroidSVG from '../asteroidSVG';
 import Link from 'next/link';
-import { Asteroid } from '@/store/AppModel';
+import type { Asteroid } from '@/types';
 import { useAppStore } from '@/store/useAppViewModel';
 import { Star, Orbit, Telescope, ShoppingBasket, Plus } from 'lucide-react';
 import Image from 'next/image';

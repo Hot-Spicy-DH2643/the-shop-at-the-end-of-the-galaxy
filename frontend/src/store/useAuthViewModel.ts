@@ -10,7 +10,7 @@ import {
   getIdToken,
   createBackendSession,
   initializeAuthListener,
-} from './AuthModel';
+} from '../api/authAPI';
 import { useAppStore } from './useAppViewModel';
 import { useDailyClaimStore } from './useDailyClaimViewModel';
 

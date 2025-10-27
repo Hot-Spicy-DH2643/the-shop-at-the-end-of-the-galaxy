@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import type { UserData } from '@/store/AppModel';
+import type { UserData } from '@/types';
 import { useAppStore } from '@/store/useAppViewModel';
 
 import AsteroidSVGMoving from '@/components/asteroidSVGMoving';

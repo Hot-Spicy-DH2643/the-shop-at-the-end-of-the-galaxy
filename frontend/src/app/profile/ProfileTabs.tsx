@@ -6,7 +6,7 @@ import User from './ProfileComponents/User';
 import Galaxy from './ProfileComponents/Galaxy';
 import Purchases from './ProfileComponents/Purchases';
 import Friends from './ProfileComponents/Friends';
-import type { UserData } from '@/store/AppModel';
+import type { UserData } from '@/types';
 
 type Tab = 'user' | 'purchases' | 'galaxy' | 'friends';
 
