@@ -264,11 +264,11 @@ export default function Galaxy({ profileData }: GalaxyProps) {
       for (const entry of entries) {
         const size = entry.contentRect.width; // Use width since it's square
         // console.log(
-          'Container size:',
-          size,
-          'Scale factor:',
-          size / BASE_CONTAINER_SIZE
-        );
+        //   'Container size:',
+        //   size,
+        //   'Scale factor:',
+        //   size / BASE_CONTAINER_SIZE
+        // );
         setContainerSize(size);
       }
     });
