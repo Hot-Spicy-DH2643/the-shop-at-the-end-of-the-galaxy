@@ -4,9 +4,10 @@ services:
   mongo:
     image: mongo:7
     ports:
-      - "27017:27017"
+      - '27017:27017'
     volumes:
       - mongo-data:/data/db
+    restart: unless-stopped
     networks:
       - app-network
 
@@ -20,20 +21,20 @@ services:
     env_file:
       - ./backend/.env
     expose:
-      - "3001"
+      - '3001'
     volumes:
       - ./backend:/app
       - /app/node_modules
     depends_on:
       - mongo
     command: sh -c "npm install && npm start"
-    restart: no
+    restart: unless-stopped
     healthcheck:
       test:
         [
-          "CMD",
-          "node",
-          "-e",
+          'CMD',
+          'node',
+          '-e',
           "require('http').get('http://localhost:3001', (r) => process.exit(r.statusCode === 200 ? 0 : 1))",
         ]
       interval: 10s
@@ -53,7 +54,7 @@ services:
       - NEXT_PUBLIC_BACKEND_URL=https://galaxyend.com/api
       - NEXT_PUBLIC_WS_HOST=galaxyend.com
     expose:
-      - "3000"
+      - '3000'
     depends_on:
       backend:
         condition: service_healthy
@@ -62,13 +63,13 @@ services:
       - /app/node_modules
       - /app/.next
     command: sh -c "pnpm install && pnpm run build && pnpm start"
-    restart: no
+    restart: unless-stopped
     healthcheck:
       test:
         [
-          "CMD",
-          "node",
-          "-e",
+          'CMD',
+          'node',
+          '-e',
           "require('http').get('http://localhost:3000', (r) => process.exit(r.statusCode === 200 ? 0 : 1))",
         ]
       interval: 30s
@@ -82,9 +83,9 @@ services:
     image: caddy:2-alpine
     restart: unless-stopped
     ports:
-      - "80:80"
-      - "443:443"
-      - "443:443/udp"
+      - '80:80'
+      - '443:443'
+      - '443:443/udp'
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
       - caddy-data:/data
