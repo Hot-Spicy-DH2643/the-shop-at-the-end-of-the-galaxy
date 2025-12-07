@@ -18,15 +18,14 @@ Full-stack marketplace where you can window-shop near-earth objects, powered by 
 - **Frontend**: Next.js 15 (App Router), Tailwind CSS 4, Zustand, Apollo Client.
 - **Backend**: Node.js, Express, Apollo Server, Mongoose, WebSocket (ws), Firebase (for authentication).
 - **Database**: MongoDB 7.
-- **Infrastructure**: Docker Compose (development & production flavours) with Caddy reverse proxy for production.
+- **Infrastructure**: Docker Compose (development & production).
 
 ## Repository Layout
 
 - `frontend/` – Next.js app with UI, routing, and client state.
 - `backend/` – Express + Apollo server, data loaders, cron jobs, and Firebase admin integration.
-- `docker-compose.yaml` – Dev-friendly stack (MongoDB + hot reloading services).
-- `docker-compose.caddy.yaml` – Production stack with Caddy in front.
-- `Caddyfile` – Reverse proxy configuration for the Caddy setup.
+- `docker-compose.dev.yaml` – Dev-friendly stack (MongoDB + hot reloading services).
+- `docker-compose.yaml` – Production stack.
 
 ## Getting Started
 
@@ -78,7 +77,7 @@ From the repository root run:
 docker compose up --build
 ```
 
-This starts MongoDB, the backend (with Nodemon), and the frontend (Next.js dev server) in watch mode. Containers mount your local source folders, so code edits immediately reflect inside the services. Use `docker compose down` to stop everything, and `docker compose logs -f <service>` for live logs. Use this file strictly for local development; production should run the Caddy stack below.
+This starts MongoDB, the backend (with Nodemon), and the frontend (Next.js dev server) in watch mode. Containers mount your local source folders, so code edits immediately reflect inside the services. Use `docker compose down` to stop everything, and `docker compose logs -f <service>` for live logs. Use this file strictly for local development.
 
 ## Local Development (without Docker)
 
@@ -100,15 +99,13 @@ This starts MongoDB, the backend (with Nodemon), and the frontend (Next.js dev s
 
 Changes in either project hot-reload automatically. Cron jobs and scheduled cache warmers will run as soon as the backend starts.
 
-## Production Deployment (Docker + Caddy)
-
-Run the Caddy-backed compose file in production so the reverse proxy can terminate TLS and route traffic to the app services:
+## Production Deployment (Docker)
 
 ```bash
-docker compose -f docker-compose.caddy.yaml up --build
+docker compose -f docker-compose.yaml up --build
 ```
 
-Pass `-d` to run the stack detached. The `Caddyfile` must reflect the production domain(s) and TLS configuration before exposing HTTPS.
+Pass `-d` to run the stack detached.
 
 ## Useful Commands
 
