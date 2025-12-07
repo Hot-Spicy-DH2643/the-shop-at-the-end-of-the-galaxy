@@ -24,9 +24,9 @@ jobs:
           echo "Cleaning workspace..."
           # Stop any running containers first
           if [ "$RESET_DB" == "true" ]; then
-            docker compose -f docker-compose.caddy.yaml down -v 2>/dev/null || true
+            docker compose down -v 2>/dev/null || true
           else
-            docker compose -f docker-compose.caddy.yaml down 2>/dev/null || true
+            docker compose down 2>/dev/null || true
           fi
           # Clean node_modules, .next, and pnpm store using Docker to avoid permission prompts
           docker run --rm -v "$PWD":/workspace alpine sh -c "rm -rf /workspace/backend/node_modules /workspace/frontend/node_modules /workspace/frontend/.next /workspace/frontend/.pnpm-store" 2>/dev/null || true
@@ -55,54 +55,64 @@ jobs:
         run: |
           echo "Stopping existing containers..."
           if [ "$RESET_DB" == "true" ]; then
-            docker compose -f docker-compose.caddy.yaml down -v || true
+            docker compose down -v || true
           else
-            docker compose -f docker-compose.caddy.yaml down || true
+            docker compose down || true
           fi
 
-      - name: Deploy Application with Caddy
+      - name: Deploy Application
         run: |
-          echo "Building and starting application with Caddy reverse proxy..."
-          docker compose -f docker-compose.caddy.yaml up -d --build
+          echo "Building and starting application..."
+          docker compose up -d --build
 
       - name: Wait for services to be ready
         run: |
           echo "Waiting for services to start..."
           sleep 20
-          echo "Checking Caddy proxy..."
-          curl -f http://localhost || echo "Caddy is still starting..."
-          echo "Checking backend through Caddy..."
-          curl -f http://localhost/graphql || echo "Backend is still starting..."
+          echo "Checking backend health..."
+          docker compose exec -T backend node -e "require('http').get('http://localhost:3001', (r) => process.exit(r.statusCode === 200 ? 0 : 1))" || echo "Backend is still starting..."
+          echo "Checking frontend health..."
+          docker compose exec -T frontend node -e "require('http').get('http://localhost:3000', (r) => process.exit(r.statusCode === 200 ? 0 : 1))" || echo "Frontend is still starting..."
 
       - name: Show running containers
-        run: docker compose -f docker-compose.caddy.yaml ps
+        run: docker compose ps
 
-      - name: Show Caddy logs (last 20 lines)
+      - name: Show service logs (last 20 lines)
         if: always()
-        run: docker compose -f docker-compose.caddy.yaml logs --tail=20 caddy
+        run: |
+          echo "=== Backend logs ==="
+          docker compose logs --tail=20 backend
+          echo ""
+          echo "=== Frontend logs ==="
+          docker compose logs --tail=20 frontend
 
       - name: Deployment Complete
         run: |
           echo "✅ Deployment completed successfully!"
           echo ""
-          echo "🌐 Your application is now accessible at:"
+          echo "🌐 Your application is now running:"
+          echo "   Backend: http://localhost:3001"
+          echo "   Frontend: http://localhost:3000"
+          echo "   GraphQL API: http://localhost:3001/graphql"
+          echo ""
+          echo "🌍 External access via Caddy (configured on server):"
           echo "   Main Site: https://galaxyend.com"
           echo "   GraphQL API: https://galaxyend.com/graphql"
           echo "   Backend API: https://galaxyend.com/api"
           echo ""
           echo "📊 To view logs:"
-          echo "   All services: docker compose -f docker-compose.caddy.yaml logs -f"
-          echo "   Caddy only: docker compose -f docker-compose.caddy.yaml logs -f caddy"
-          echo "   Backend only: docker compose -f docker-compose.caddy.yaml logs -f backend"
-          echo "   Frontend only: docker compose -f docker-compose.caddy.yaml logs -f frontend"
+          echo "   All services: docker compose logs -f"
+          echo "   Backend only: docker compose logs -f backend"
+          echo "   Frontend only: docker compose logs -f frontend"
+          echo "   MongoDB only: docker compose logs -f mongo"
 
       - name: Cleanup on failure
         if: failure()
         run: |
           echo "Cleaning up after failure..."
           if [ "$RESET_DB" == "true" ]; then
-            docker compose -f docker-compose.caddy.yaml down -v || true
+            docker compose down -v || true
           else
-            docker compose -f docker-compose.caddy.yaml down || true
+            docker compose down || true
           fi
-          docker compose -f docker-compose.caddy.yaml logs --tail=50 || true
+          docker compose logs --tail=50 || true

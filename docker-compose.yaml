@@ -1,43 +1,87 @@
+# Production Docker Compose
+
 services:
   mongo:
     image: mongo:7
     ports:
-      - "27017:27017"
+      - '27017:27017'
     volumes:
       - mongo-data:/data/db
+    restart: unless-stopped
+    networks:
+      - app-network
+
   backend:
     build: ./backend
     environment:
       - PORT=3001
       - MONGO_URI=mongodb://mongo:27017/galaxy-shop
-      - CHOKIDAR_USEPOLLING=true
+      - NODE_ENV=production
+      - FRONTEND_URL=https://galaxyend.com
     env_file:
       - ./backend/.env
-    ports:
-      - "3001:3001"
+    expose:
+      - '3001'
     volumes:
       - ./backend:/app
       - /app/node_modules
     depends_on:
       - mongo
-    command: sh -c "npm install && npm run dev"
+    command: sh -c "npm install && npm start"
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "require('http').get('http://localhost:3001', (r) => process.exit(r.statusCode === 200 ? 0 : 1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - app-network
+
   frontend:
     build: ./frontend
     environment:
       - PORT=3000
-      - NEXT_PUBLIC_API_URL=http://localhost:3001/api
-      - WATCHPACK_POLLING=true
-      - CHOKIDAR_USEPOLLING=true
-      - CHOKIDAR_INTERVAL=1000
-    ports:
-      - "3000:3000"
+      - NODE_ENV=production
+      - CI=true
+      - NEXT_PUBLIC_GRAPHQL_URI=https://galaxyend.com/graphql
+      - NEXT_PUBLIC_BACKEND_URL=https://galaxyend.com/api
+      - NEXT_PUBLIC_WS_HOST=galaxyend.com
+    expose:
+      - '3000'
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     volumes:
       - ./frontend:/app
       - /app/node_modules
       - /app/.next
-    command: sh -c "npm install && npm run dev"
+    command: sh -c "pnpm install && pnpm run build && pnpm start"
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "require('http').get('http://localhost:3000', (r) => process.exit(r.statusCode === 200 ? 0 : 1))",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 180s
+    networks:
+      - app-network
 
 volumes:
   mongo-data:
+
+networks:
+  app-network:
+    driver: bridge
