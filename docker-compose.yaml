@@ -20,8 +20,8 @@ services:
       - FRONTEND_URL=https://galaxyend.com
     env_file:
       - ./backend/.env
-    expose:
-      - '3001'
+    ports:
+      - '3001:3001'
     volumes:
       - ./backend:/app
       - /app/node_modules
@@ -53,8 +53,8 @@ services:
       - NEXT_PUBLIC_GRAPHQL_URI=https://galaxyend.com/graphql
       - NEXT_PUBLIC_BACKEND_URL=https://galaxyend.com/api
       - NEXT_PUBLIC_WS_HOST=galaxyend.com
-    expose:
-      - '3000'
+    ports:
+      - '3000:3000'
     depends_on:
       backend:
         condition: service_healthy
